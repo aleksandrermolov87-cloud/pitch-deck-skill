@@ -16,8 +16,12 @@ echo "› проверка на утечки"; zsh scripts/leakcheck.sh
 if [ "$2" != --quick ]; then echo "› самопроверка"; zsh scripts/setup.sh --selftest | grep -E "Демо.pptx|фактов|Галерея_"; fi
 
 DIST=$(mktemp -d); trap 'rm -rf "$DIST"' EXIT
-echo "› установочные md"; zsh scripts/package.sh "$DIST" | tail -1
-SHA=$(zsh scripts/package.sh "$DIST" | sed -n 's/.*sha256 \([0-9a-f]*\).*/\1/p')
+echo "› установочные md"
+OUT=$(zsh scripts/package.sh "$DIST"); echo "$OUT" | tail -1
+SHA=$(echo "$OUT" | sed -n 's/.*sha256 \([0-9a-f]*\).*/\1/p')
+# GitHub не принимает кириллицу в именах файлов релиза: латинские имена, русские подписи
+cp "$DIST/pitch-deck-skill — установка (с Magic-MCP).md" "$DIST/pitch-deck-skill-install-full.md"
+cp "$DIST/pitch-deck-skill — установка (без Magic-MCP).md" "$DIST/pitch-deck-skill-install-lite.md"
 
 NOTES="$DIST/notes.md"
 awk -v v="## $VER" '$0 ~ "^"v {f=1; next} f && /^## / {exit} f' CHANGELOG.md > "$NOTES"
@@ -25,5 +29,7 @@ printf '\n---\nSHA-256 архива внутри установочных md: `%
 
 if git config user.signingkey >/dev/null; then git tag -s "v$VER" -m "pitch-deck-skill $VER"; else git tag -a "v$VER" -m "pitch-deck-skill $VER"; fi
 git push origin HEAD "v$VER"
-gh release create "v$VER" --title "pitch-deck-skill $VER" --notes-file "$NOTES" "$DIST"/*.md
+gh release create "v$VER" --title "pitch-deck-skill $VER" --notes-file "$NOTES" --verify-tag \
+  "$DIST/pitch-deck-skill-install-full.md#Установка с Magic-MCP (21st, платный ключ)" \
+  "$DIST/pitch-deck-skill-install-lite.md#Установка без Magic-MCP"
 echo "релиз v$VER опубликован, sha256 $SHA"
