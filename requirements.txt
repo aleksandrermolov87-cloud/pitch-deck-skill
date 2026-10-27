@@ -1,6 +1,6 @@
 # Python-зависимости скилла, версии закреплены (обновлять осознанно, с самопроверкой setup.sh --selftest)
 numpy==2.0.2
-pillow==11.3.0
+pillow==13.0.0
 openpyxl==3.1.5
 python-pptx==1.0.2
 defusedxml==0.7.1
