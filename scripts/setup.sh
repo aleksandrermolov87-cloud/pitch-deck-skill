@@ -85,6 +85,7 @@ const fs = require("fs"), f = process.argv[1], c = JSON.parse(fs.readFileSync(f,
 const mode = process.argv[2]; if (mode) { c.mode = mode; c.magic_mcp = mode === "full"; }
 if (process.argv[3] === "1") { c.magicpatterns = false; c.image_provider = "none"; }
 if (!c.image_provider) c.image_provider = c.magicpatterns === false ? "none" : "auto";   // config.json до 1.8.0
+if (!(c.config_v >= 2)) { if (c.update_check_days == null || c.update_check_days === 7) c.update_check_days = 1; c.config_v = 2; }   // до 1.11.1 по умолчанию раз в неделю; переводим один раз, свой выбор потом не трогаем
 fs.writeFileSync(f, JSON.stringify(c, null, 2) + "\n");
 console.log("  режим: " + c.mode + ", 21st Magic MCP: " + (c.magic_mcp ? "да" : "нет") + ", 3D Magic Patterns: " + (c.magicpatterns ? "да" : "нет") + ", провайдер 3D: " + c.image_provider); ' "$SKILL/config.json" "$MODE" "$NO3D"
 

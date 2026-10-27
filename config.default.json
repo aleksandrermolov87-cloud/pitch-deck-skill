@@ -7,7 +7,7 @@
   "brand": "alfa",
   "font_fallback": "Arial",
   "figma_refs": [],
-  "notes": "mode: full — 21st Magic MCP (платный ключ) для подбора компонентов; lite — без него, компоненты из встроенного каталога. magicpatterns: генерация 3D-объектов (платный план Magic Patterns). image_provider: auto | magicpatterns | codex-imagegen | none — кто рисует 3D; auto: в Claude — MagicPatterns, в Codex — встроенный image_gen; Нужны ли 3D в конкретной деке, планировщик спрашивает каждый раз. В промпты уходит только обобщённое описание объекта. figma: chrome | computer-use | none. Файл config.json создаёт setup.sh, правьте его, а не этот шаблон.",
+  "notes": "mode: full — 21st Magic MCP (платный ключ) для подбора компонентов; lite — без него, компоненты из встроенного каталога. magicpatterns: генерация 3D-объектов (платный план Magic Patterns). image_provider: auto | magicpatterns | codex-imagegen | none — кто рисует 3D; auto: в Claude — MagicPatterns, в Codex — встроенный image_gen; Нужны ли 3D в конкретной деке, планировщик спрашивает каждый раз. В промпты уходит только обобщённое описание объекта. figma: chrome | computer-use | none. update_check_days: как часто проверять новую версию, дней (1 — каждый день, 0 — не проверять). Файл config.json создаёт setup.sh, правьте его, а не этот шаблон.",
   "font_source": "",
-  "update_check_days": 7
+  "update_check_days": 1
 }

@@ -1,14 +1,14 @@
 #!/bin/zsh
-# Проверка новой версии скилла не чаще раза в неделю. Ничего не ставит — только сообщает, если есть подписанный релиз новее.
-#   zsh check_update.sh           — проверить, если с прошлой проверки прошло update_check_days дней (config.json, по умолчанию 7; 0 — не проверять)
+# Проверка новой версии скилла не чаще раза в день (по умолчанию). Ничего не ставит — только сообщает, если есть подписанный релиз новее.
+#   zsh check_update.sh           — проверить, если с прошлой проверки прошло update_check_days дней (config.json, по умолчанию 1; 0 — не проверять)
 #   zsh check_update.sh --force   — проверить сейчас
 # Вывод пустой, если проверять рано, обновлений нет или сети нет. Иначе первая строка начинается с «ОБНОВЛЕНИЕ:».
 # Код выхода всегда 0: проверка не должна мешать работе.
 SKILL="${0:A:h:h}"
 REPO=aleksandrermolov87-cloud/pitch-deck-skill
 STAMP="$SKILL/.update-check"
-DAYS=$(zsh "$SKILL/scripts/jget.sh" "$SKILL/config.json" update_check_days 7)
-[[ "$DAYS" =~ '^[0-9]+$' ]] || DAYS=7
+DAYS=$(zsh "$SKILL/scripts/jget.sh" "$SKILL/config.json" update_check_days 1)
+[[ "$DAYS" =~ '^[0-9]+$' ]] || DAYS=1
 [ "$DAYS" = 0 ] && [ "$1" != --force ] && exit 0
 NOW=$(date +%s)
 if [ "$1" != --force ] && [ -f "$STAMP" ]; then
