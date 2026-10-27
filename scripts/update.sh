@@ -3,13 +3,15 @@
 #   zsh update.sh            — показать, что изменится (код 2: нужно подтверждение)
 #   zsh update.sh --yes      — переключиться на последний релиз и доустановить зависимости
 #   zsh update.sh --yes v1.4.0 — на конкретный релиз
+#   --allow-unsigned          — разрешить релиз без проверенной подписи (только если автор подтвердил это лично)
+# Подпись проверяется по .github/allowed_signers из ТЕКУЩЕЙ, уже доверенной версии, а не из нового релиза.
 # Локальные config.json, learnings/, *.local.md в git не входят и не меняются.
 set -e
 SKILL="${0:A:h:h}"
 cd "$SKILL"
 [ -d .git ] || { echo "Скилл стоит не из git. Переустановите: git clone https://github.com/aleksandrermolov87-cloud/pitch-deck-skill.git (см. README)"; exit 1; }
-YES=0; WANT=""
-for a in "$@"; do case "$a" in --yes) YES=1 ;; v*) WANT="$a" ;; esac; done
+YES=0; WANT=""; UNSIGNED=0
+for a in "$@"; do case "$a" in --yes) YES=1 ;; --allow-unsigned) UNSIGNED=1 ;; v*) WANT="$a" ;; esac; done
 [ -z "$(git status --porcelain --untracked-files=no)" ] || { echo "В папке скилла есть изменённые файлы из репозитория (git status). Сохраните их отдельно или верните: git stash"; exit 1; }
 
 git fetch --quiet --tags --force origin
@@ -20,7 +22,17 @@ CUR=$(git describe --tags --exact-match 2>/dev/null || git rev-parse --short HEA
 if [ "$CUR" = "$NEW" ]; then echo "уже стоит последний релиз $NEW"; exit 0; fi
 
 echo "Сейчас: $CUR → релиз: $NEW"
-if git verify-tag "$NEW" >/dev/null 2>&1; then echo "подпись релиза проверена"; else echo "релиз без проверяемой подписи: сверьте автора и изменения ниже"; fi
+SIGNERS=$(mktemp); trap 'rm -f "$SIGNERS"' EXIT
+cp "$SKILL/.github/allowed_signers" "$SIGNERS" 2>/dev/null || : > "$SIGNERS"
+if [ -s "$SIGNERS" ] && git -c gpg.ssh.allowedSignersFile="$SIGNERS" verify-tag "$NEW" >/dev/null 2>&1; then
+  echo "подпись релиза проверена ключом автора"
+elif [ $UNSIGNED = 1 ]; then
+  echo "ВНИМАНИЕ: подпись не проверена, обновление по --allow-unsigned"
+else
+  echo "Подпись релиза $NEW не проверена ключом из .github/allowed_signers. Не обновляйте, пока автор не подтвердит релиз лично."
+  echo "Если автор сменил ключ, он сообщит об этом; тогда: zsh $SKILL/scripts/update.sh --yes --allow-unsigned $NEW"
+  exit 1
+fi
 echo "\nЧто нового (CHANGELOG.md):"
 git show "$NEW:CHANGELOG.md" | awk 'NR>2 && /^## /{n++} n<1' | head -40
 echo "\nИзменения в исполняемых частях и инструкциях агента:"

@@ -40,7 +40,7 @@ zsh ~/.claude/skills/pitch-deck-skill/scripts/update.sh          # покаже�
 zsh ~/.claude/skills/pitch-deck-skill/scripts/update.sh --yes    # переключит на последний релиз
 ```
 
-Обновление ставит только релизы (теги `vX.Y.Z`) и перед этим показывает, что меняется в скриптах и инструкциях агента. Ваши `config.json`, уроки (`learnings/`) и `*.local.md` не входят в git и не меняются.
+Обновление ставит только релизы (теги `vX.Y.Z`), подписанные ключом автора, и перед этим показывает, что меняется в скриптах и инструкциях агента. Подпись проверяется по `.github/allowed_signers` из уже установленной версии; релиз без подписи или с чужой подписью не ставится. На GitHub у подписанных тегов стоит отметка «Verified». Ваши `config.json`, уроки (`learnings/`) и `*.local.md` не входят в git и не меняются.
 
 ## Безопасность
 
@@ -52,7 +52,9 @@ zsh ~/.claude/skills/pitch-deck-skill/scripts/update.sh --yes    # перекл�
 ## Для автора: выпуск версии
 
 1. Изменения, `VERSION`, раздел `## X.Y.Z` в `CHANGELOG.md`, коммит.
-2. `zsh scripts/release.sh X.Y.Z` — проверка на утечки, самопроверка, тег, пуш, релиз на GitHub с двумя установочными md (с Magic-MCP и без).
+2. `zsh scripts/release.sh X.Y.Z` — проверка на утечки, самопроверка, подписанный тег, пуш, релиз на GitHub с двумя установочными md (с Magic-MCP и без).
+
+Подпись: отдельный SSH-ключ `~/.ssh/pitch_deck_signing_ed25519`, он же добавлен в GitHub как signing key, публичная часть — в `.github/allowed_signers`. Настройка в клоне: `git config gpg.format ssh`, `git config user.signingkey ~/.ssh/pitch_deck_signing_ed25519.pub`, `git config gpg.ssh.allowedSignersFile "$PWD/.github/allowed_signers"`. Смена ключа: новый ключ добавляется в `allowed_signers` релизом, подписанным старым ключом; если старый утерян, коллег нужно предупредить лично.
 
 ## Лицензия
 
