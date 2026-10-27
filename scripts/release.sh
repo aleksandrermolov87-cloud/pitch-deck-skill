@@ -18,6 +18,7 @@ KEY=$(git config user.signingkey || true)
 grep -qF "$(cut -d' ' -f2 "${KEY/#\~/$HOME}")" .github/allowed_signers || { echo "ключ подписи не записан в .github/allowed_signers — коллеги не смогут проверить релиз"; exit 1; }
 
 echo "› проверка на утечки"; zsh scripts/leakcheck.sh
+echo "› уязвимости зависимостей"; zsh scripts/deps_audit.sh || { echo "аудит зависимостей не пройден — релиз не выпускается"; exit 1; }
 if [ "$2" != --quick ]; then
   echo "› самопроверка"; zsh scripts/setup.sh --selftest --no-mcp | grep -E "Демо.pptx|фактов|Галерея_"
   echo "› тесты скриптов (tests/*/run.sh, кроме приёмочного)"

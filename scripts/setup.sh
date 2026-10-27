@@ -55,6 +55,10 @@ if [ -x "$SKILL/.venv/bin/python" ] && ! "$SKILL/.venv/bin/python" -I -c 'import
   say "venv на $("$SKILL/.venv/bin/python" -V) — пересоздаю на $("$PY" -V)"; rm -rf "$SKILL/.venv"
 fi
 [ -x "$SKILL/.venv/bin/python" ] || "$PY" -m venv "$SKILL/.venv"
+# pip из python -m venv отстаёт от исправленных версий (pip-audit: уязвимости до 26.2): сначала поднимаем его до закреплённой
+PIP_VERSION=26.2.2
+[ "$("$SKILL/.venv/bin/python" -I -m pip --version 2>/dev/null | cut -d' ' -f2)" = "$PIP_VERSION" ] \
+  || "$SKILL/.venv/bin/python" -I -m pip -q install --disable-pip-version-check "pip==$PIP_VERSION"
 "$SKILL/.venv/bin/pip" -q install --disable-pip-version-check -r "$SKILL/requirements.txt"
 
 say "pptxgenjs (сборка PPTX)"

@@ -9,7 +9,7 @@ jobs:
   check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1, закреплено по SHA
         with:
           persist-credentials: false
       - name: zsh
@@ -23,3 +23,22 @@ jobs:
       - name: Изменения в исполняемых частях видны в ревью
         if: github.event_name == 'pull_request'
         run: git diff --stat origin/${{ github.base_ref }}...HEAD -- scripts templates SKILL.md reference || true
+  deps:
+    # известные уязвимости в закреплённых зависимостях: npm по package-lock.json, Python по requirements.txt
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
+        with:
+          node-version: 22
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0  # v7.1.0
+        with:
+          python-version: '3.12'
+      - name: npm audit
+        run: npm audit --omit=dev --audit-level=low
+      - name: pip-audit
+        run: |
+          python -m pip install --disable-pip-version-check pip==26.2.2 pip-audit==2.10.1
+          pip-audit -r requirements.txt --progress-spinner off

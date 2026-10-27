@@ -26,6 +26,8 @@ PY=$(zsh "$SKILL/scripts/python.sh") && ok "Python $("$PY" -V | cut -d' ' -f2)" 
 if [ -x "$SKILL/.venv/bin/python" ] && "$SKILL/.venv/bin/python" -I -c 'import sys; sys.exit(sys.version_info < (3, 11))'; then ok "venv скилла на $("$SKILL/.venv/bin/python" -V) (numpy, pillow, openpyxl, python-pptx)"
 elif [ -x "$SKILL/.venv/bin/python" ]; then fail "venv скилла на $("$SKILL/.venv/bin/python" -V): пересоздайте на 3.11+ — zsh $SKILL/scripts/setup.sh"
 else fail "нет venv: zsh $SKILL/scripts/setup.sh"; fi
+PIPV=$(sed -n 's/^PIP_VERSION=//p' "$SKILL/scripts/setup.sh"); HAVE=$("$SKILL/.venv/bin/python" -I -m pip --version 2>/dev/null | cut -d' ' -f2)
+[ -z "$HAVE" ] || [ "$HAVE" = "$PIPV" ] || warn "pip в venv $HAVE, нужен $PIPV (у старого pip известные уязвимости): zsh $SKILL/scripts/setup.sh"
 [ -d "$SKILL/node_modules/pptxgenjs" ] && ok "pptxgenjs" || fail "нет pptxgenjs: zsh $SKILL/scripts/setup.sh"
 CHROME=$(zsh "$SKILL/scripts/chrome.sh" 2>/dev/null) && ok "браузер для рендера: ${CHROME:t}" || fail "нет Google Chrome / Chromium (нужен для PNG-превью): zsh $SKILL/scripts/setup.sh --system"
 

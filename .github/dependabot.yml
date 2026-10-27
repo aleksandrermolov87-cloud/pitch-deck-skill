@@ -1,0 +1,15 @@
+# Обновления зависимостей и предупреждения об уязвимостях (Dependabot). Версии закреплены: PR Dependabot
+# проходит самопроверку автора (setup.sh --selftest, release.sh) до слияния.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule: { interval: weekly }
+    open-pull-requests-limit: 5
+  - package-ecosystem: pip
+    directory: /
+    schedule: { interval: weekly }
+    open-pull-requests-limit: 5
+  - package-ecosystem: github-actions
+    directory: /
+    schedule: { interval: weekly }
