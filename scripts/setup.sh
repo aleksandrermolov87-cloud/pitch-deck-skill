@@ -22,10 +22,14 @@ say() { print -P "%F{cyan}›%f $1"; }
 [ -z "$MODE" ] || [ "$MODE" = full ] || [ "$MODE" = lite ] || { echo "--mode: full или lite"; exit 1; }
 
 command -v node >/dev/null || { echo "Нужен Node.js 18+: brew install node"; exit 1; }
-command -v python3 >/dev/null || { echo "Нужен Python 3: xcode-select --install"; exit 1; }
+PY=$(zsh "$SKILL/scripts/python.sh") || { echo "Нужен Python 3.11+ (системный python3 на macOS — 3.9): brew install python@3.12 или uv python install 3.12"; exit 1; }
 
-say "Python-окружение скилла"
-[ -x "$SKILL/.venv/bin/python" ] || python3 -m venv "$SKILL/.venv"
+say "Python-окружение скилла ($("$PY" -V))"
+# venv на старом Python (до 1.6.1 он собирался на системном 3.9) пересоздаётся: исправленный Pillow на нём не ставится
+if [ -x "$SKILL/.venv/bin/python" ] && ! "$SKILL/.venv/bin/python" -I -c 'import sys; sys.exit(sys.version_info < (3, 11))'; then
+  say "venv на $("$SKILL/.venv/bin/python" -V) — пересоздаю на $("$PY" -V)"; rm -rf "$SKILL/.venv"
+fi
+[ -x "$SKILL/.venv/bin/python" ] || "$PY" -m venv "$SKILL/.venv"
 "$SKILL/.venv/bin/pip" -q install --disable-pip-version-check -r "$SKILL/requirements.txt"
 
 say "pptxgenjs (сборка PPTX)"

@@ -1,6 +1,8 @@
 # Python-зависимости скилла, версии закреплены (обновлять осознанно, с самопроверкой setup.sh --selftest)
-numpy==2.0.2
-pillow==11.3.0
+# Нужен Python 3.11+ (scripts/python.sh находит его, setup.sh пересоздаёт venv на старом Python).
+numpy==2.3.5; python_version < "3.12"
+numpy==2.5.4; python_version >= "3.12"
+pillow==13.0.0
 openpyxl==3.1.5
 python-pptx==1.0.2
 defusedxml==0.7.1

@@ -40,13 +40,15 @@
 
 **Шаг 2. Проверь, что на компьютере есть нужные программы.**
 ```bash
-for c in git node python3 zsh; do command -v $c >/dev/null && echo "ok $c" || echo "НЕТ $c"; done; node -v 2>/dev/null
+for c in git node zsh; do command -v $c >/dev/null && echo "ok $c" || echo "НЕТ $c"; done; node -v 2>/dev/null
+for c in python3.13 python3.12 python3.11 python3; do p=$(command -v $c) && $p -c 'import sys; sys.exit(sys.version_info < (3, 11))' && { echo "ok python $($p -V)"; break; }; done || echo "НЕТ python 3.11+"
 ls "/Applications/Google Chrome.app" >/dev/null 2>&1 && echo "ok chrome" || echo "НЕТ chrome"
 command -v brew >/dev/null && echo "ok brew" || echo "НЕТ brew"
 ```
 Если чего-то нет — объясни простыми словами, зачем это нужно, и с согласия пользователя поставь:
 - есть Homebrew: `brew install node`, `brew install --cask google-chrome`;
-- нет git или python3: `xcode-select --install` — появится окно, попроси нажать «Установить» и дождаться конца (5–10 минут);
+- нет git: `xcode-select --install` — появится окно, попроси нажать «Установить» и дождаться конца (5–10 минут);
+- нет Python 3.11+ (системный python3 на macOS — 3.9, он не подходит): `brew install python@3.12`; без Homebrew попроси скачать установщик Python 3.12 для macOS с https://www.python.org/downloads/macos/ и пройти его до конца (пароль от компьютера вводит сам пользователь);
 - нет Homebrew и нет Node.js: попроси открыть https://nodejs.org, скачать версию «LTS» для macOS, открыть скачанный файл и нажимать «Продолжить» до конца (понадобится пароль от компьютера — его вводит сам пользователь);
 - нет Chrome: попроси скачать с https://www.google.com/chrome и перетащить в «Программы».
 
@@ -114,7 +116,7 @@ zsh ~/.claude/skills/pitch-deck-skill/scripts/doctor.sh
 
 ## Установка вручную (для тех, кто работает в терминале)
 
-Нужны macOS или Linux, Node.js 18+, Python 3.9+, Google Chrome, git.
+Нужны macOS или Linux, Node.js 18+, Python 3.11+, Google Chrome, git.
 
 ```bash
 mkdir -p ~/.claude/skills && cd ~/.claude/skills

@@ -20,8 +20,10 @@ fail() { print -P "  %F{red}✗%f $1"; bad=1; }
 echo "pitch-deck-skill $(cat "$SKILL/VERSION" 2>/dev/null) — $SKILL"
 echo "Обязательное:"
 command -v node >/dev/null && ok "Node $(node -v)" || fail "Node.js не найден: brew install node (или https://nodejs.org)"
-command -v python3 >/dev/null && ok "Python $(python3 -V | cut -d' ' -f2)" || fail "Python 3 не найден: xcode-select --install"
-[ -x "$SKILL/.venv/bin/python" ] && ok "venv скилла (numpy, pillow, openpyxl, python-pptx)" || fail "нет venv: zsh $SKILL/scripts/setup.sh"
+PY=$(zsh "$SKILL/scripts/python.sh") && ok "Python $("$PY" -V | cut -d' ' -f2)" || fail "нет Python 3.11+: brew install python@3.12 или uv python install 3.12"
+if [ -x "$SKILL/.venv/bin/python" ] && "$SKILL/.venv/bin/python" -I -c 'import sys; sys.exit(sys.version_info < (3, 11))'; then ok "venv скилла на $("$SKILL/.venv/bin/python" -V) (numpy, pillow, openpyxl, python-pptx)"
+elif [ -x "$SKILL/.venv/bin/python" ]; then fail "venv скилла на $("$SKILL/.venv/bin/python" -V): пересоздайте на 3.11+ — zsh $SKILL/scripts/setup.sh"
+else fail "нет venv: zsh $SKILL/scripts/setup.sh"; fi
 [ -d "$SKILL/node_modules/pptxgenjs" ] && ok "pptxgenjs" || fail "нет pptxgenjs: zsh $SKILL/scripts/setup.sh"
 CHROME=$(zsh "$SKILL/scripts/chrome.sh" 2>/dev/null) && ok "браузер для рендера: ${CHROME:t}" || fail "нет Google Chrome / Chromium (нужен для PNG-превью): brew install --cask google-chrome"
 

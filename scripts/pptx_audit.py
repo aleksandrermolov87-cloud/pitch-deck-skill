@@ -294,7 +294,7 @@ for n, slide in enumerate(prs.slides, 1):
                 im = _PIL.open(io.BytesIO(pic.image.blob))
                 if im.mode in ('RGBA', 'LA'):
                     al = im.getchannel('A')
-                    fill = sum(1 for v in al.getdata() if v > 128) / (im.width * im.height)
+                    fill = sum(al.histogram()[129:]) / (im.width * im.height)   # доля непрозрачных пикселей (alpha > 128)
             except Exception:
                 pass
         series.append((n, b[0] + b[2] / 2, b[1] + b[3] / 2, b[2] * b[3] * fill))

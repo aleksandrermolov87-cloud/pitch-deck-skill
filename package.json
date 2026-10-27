@@ -1,8 +1,11 @@
 {
   "name": "pitch-deck-skill-deps",
   "private": true,
-  "description": "Зависимости сборки PPTX; ставятся через npm ci --ignore-scripts",
+  "description": "Зависимости сборки PPTX; ставятся через npm ci --ignore-scripts. image-size поднят overrides до исправленной версии: pptxgenjs 3.12 объявляет его, но в коде не загружает",
   "dependencies": {
     "pptxgenjs": "3.12.0"
+  },
+  "overrides": {
+    "image-size": "2.0.4"
   }
 }
