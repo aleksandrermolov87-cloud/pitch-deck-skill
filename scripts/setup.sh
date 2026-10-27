@@ -126,12 +126,13 @@ if [ $SELFTEST = 1 ]; then
   say "Самопроверка: демо-дека в $SKILL/.selftest"
   # сборка в частной папке, затем подмена .selftest: параллельные самопроверки из разных сессий не мешают друг другу
   mkdir -p "$SKILL/.build"; ST=$(mktemp -d "$SKILL/.build/selftest.XXXXXX")
-  (cd "$ST" && zsh "$SKILL/scripts/new_deck.sh" src-demo "Демо" Демо '{"topic":"Страховая платформа в контуре банка (демо)","slides":6,"3d":true}' >/dev/null \
+  # pipefail: ошибка проверки внутри «… | tail -1» валит самопроверку, а не теряется в конвейере
+  (setopt pipefail; cd "$ST" && zsh "$SKILL/scripts/new_deck.sh" src-demo "Демо" Демо '{"topic":"Страховая платформа в контуре банка (демо)","slides":6,"3d":true}' >/dev/null \
     && cd src-demo && ./render.sh >/dev/null \
     && "$SKILL/.venv/bin/python" -I "$SKILL/scripts/pptx_audit.py" ../Демо.pptx | tail -1 \
     && "$SKILL/.venv/bin/python" -I "$SKILL/scripts/facts_check.py" out/facts.json --root . --html out/deck.html | tail -1 \
     && "$SKILL/.venv/bin/python" -I "$SKILL/scripts/library_check.py" . | tail -1 \
-    && "$SKILL/.venv/bin/python" -I "$SKILL/scripts/plan_check.py" . | head -1 \
+    && "$SKILL/.venv/bin/python" -I "$SKILL/scripts/plan_check.py" . | sed -n 1p \
     && "$SKILL/.venv/bin/python" -I "$SKILL/scripts/brief_coverage.py" check . --map data/coverage.example.json | tail -1 | cut -d';' -f1 \
     && "$SKILL/.venv/bin/python" -I "$SKILL/scripts/variants.py" check | tail -1) \
     || { rm -rf "$ST"; echo "  самопроверка не пройдена"; exit 1; }
@@ -139,6 +140,7 @@ if [ $SELFTEST = 1 ]; then
   echo "  PNG-превью: $SKILL/.selftest/src-demo/out/png"
   say "Галерея библиотеки компонентов"
   zsh "$SKILL/scripts/gallery.sh" | tail -3
+  [ ${pipestatus[1]} = 0 ] || { echo "  галерея не пройдена: переполнения или ошибки аудита"; exit 1; }
   echo "  контакт-лист: $SKILL/components/.gallery/sheet.png"
 fi
 say "Диагностика"

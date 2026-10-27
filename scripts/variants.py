@@ -468,11 +468,11 @@ def audit(comp, data):
             if f.get('type') == 'list' and isinstance(v, list):
                 if f.get('n') and not (f['n'][0] <= len(v) <= f['n'][1]) and (p, len(v), f['n']) not in count:
                     count.append((p, len(v), f['n']))
-                if f.get('item') == 'obj':
+                if f.get('item') == 'obj':   # рекурсивные списки (дети дерева) описаны без of: их поля не проверяются
                     for it in v:
-                        walk(f['of'], it, p + '[].')
+                        walk(f.get('of') or {}, it, p + '[].')
             elif f.get('type') == 'obj' and isinstance(v, dict):
-                walk(f['of'], v, p + '.')
+                walk(f.get('of') or {}, v, p + '.')
             elif isinstance(v, str) and f.get('tested') and len(v) > f['tested'] * 1.25 + 4:
                 long_.append((p, len(v), f['tested']))
     walk(FIELDS[comp]['fields'], data, '')

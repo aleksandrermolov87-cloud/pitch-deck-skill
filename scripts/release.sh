@@ -5,6 +5,7 @@
 # Тег подписывается SSH-ключом (git config gpg.format ssh, user.signingkey); без ключа релиз не выпускается.
 # Публичный ключ лежит в .github/allowed_signers: по нему update.sh у коллег проверяет подпись.
 set -e
+setopt pipefail   # ошибка самопроверки внутри «… | grep» останавливает релиз
 SKILL="${0:A:h:h}"
 cd "$SKILL"
 VER="$1"
