@@ -1,7 +1,7 @@
 # Полнота деки относительно брифа (reference/15-brief-coverage.md).
 #   brief_coverage.py init  <src>                 заготовка out/coverage.json по requirements.json (для сабагента)
 #   brief_coverage.py dump  <src> [--pptx файл]   текст каждого слайда и отдельно его заметки (вход для сабагента)
-#   brief_coverage.py check <src> [--pptx файл]   карта «требование → слайд → элемент / заметки / нет», ошибки, out/coverage.md
+#   brief_coverage.py check <src> [--pptx файл] [--json отчёт.json]   карта «требование → слайд → элемент / заметки / нет», ошибки, out/coverage.md
 # requirements.json (этап 1, до сборки): требования брифа к содержанию и месту.
 # out/coverage.json (этап 6, независимый сабагент): где каждое требование выполнено и почему так.
 # Скрипт не верит карте на слово: числа и ключевые слова требования он сам ищет в тексте слайдов и отдельно в заметках.
@@ -24,6 +24,7 @@ ap.add_argument('src')
 ap.add_argument('--pptx', help='готовый файл; по умолчанию ../<deck.json name>.pptx')
 ap.add_argument('--req', help='requirements.json; по умолчанию <src>/requirements.json')
 ap.add_argument('--map', help='coverage.json; по умолчанию <src>/out/coverage.json')
+ap.add_argument('--json', help='check: итог в JSON — требований, выполнено, исключено, не выполнены (для eval_deck.py)')
 a = ap.parse_args()
 
 src = os.path.abspath(a.src)
@@ -350,4 +351,7 @@ for w in warns:
     print('[WARN]', w)
 print(f"\nтребований {len(rows)}, выполнено {ok}, исключено {exc}, ошибок {len(errors)}, предупреждений {len(warns)} — "
       f"полнота {'пройдена' if not errors else 'НЕ пройдена'}; карта: {os.path.join(src, 'out', 'coverage.md')}")
+if a.json:
+    json.dump({'total': len(rows), 'ok': ok, 'excluded': exc, 'failed': [x[0] for x in rows if x[6] in ('notes', 'lost')],
+               'errors': len(errors), 'warnings': len(warns)}, open(a.json, 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
 sys.exit(1 if errors else 0)

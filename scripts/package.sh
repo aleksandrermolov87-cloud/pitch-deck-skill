@@ -15,7 +15,7 @@ rsync -a "$SKILL/" "$STAGE/" \
   --exclude '.venv' --exclude 'node_modules' --exclude 'dist' --exclude '.selftest' --exclude '__pycache__' --exclude '.DS_Store' \
   --exclude 'config.json' --exclude '*.local.md' --exclude 'leaks.local.txt' --exclude '.git' \
   --exclude 'learnings/ratings.jsonl' --exclude 'learnings/gallery' --exclude 'learnings/LESSONS.md' \
-  --exclude 'learnings/copy_edits.jsonl' --exclude 'learnings/bg_edits.jsonl' --exclude '.acceptance' --exclude '.build' \
+  --exclude 'learnings/copy_edits.jsonl' --exclude 'learnings/bg_edits.jsonl' --exclude 'learnings/picks.jsonl' --exclude 'learnings/prefs.json' --exclude '.acceptance' --exclude '.build' \
   --exclude 'templates/deck-starter/img/3d/*.png' --exclude 'templates/deck-starter/img/3d/cover_*.json' \
   --exclude 'templates/deck-starter/img/3d/step_*.json' --exclude 'templates/deck-starter/img/bg*.jpg' \
   --exclude 'templates/deck-starter/out' --exclude 'templates/install' --exclude 'components/.gallery*'

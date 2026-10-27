@@ -2,7 +2,7 @@
 # deck.json → plan: { "topic": "<тема>", "slides": <число> | "auto", "3d": true | false, "slides_why"?: "<почему отклонились>" }
 # Проверяет: все три ответа записаны; при точном числе слайдов видимых слайдов ровно столько (иначе нужна причина
 # slides_why, согласованная с пользователем); при «без 3D» в деке нет сгенерированных картинок; при «с 3D» записан провайдер.
-# Запуск: $SKILL/.venv/bin/python -I plan_check.py <src-проекта>   код 1 при ошибке
+# Запуск: $SKILL/.venv/bin/python -I plan_check.py <src-проекта> [--json report.json]   код 1 при ошибке
 import argparse
 import json
 import sys
@@ -10,6 +10,7 @@ from pathlib import Path
 
 ap = argparse.ArgumentParser()
 ap.add_argument('src')
+ap.add_argument('--json', help='итог в JSON: проверок, пройдено, ошибки, предупреждения (для eval_deck.py)')
 a = ap.parse_args()
 SRC = Path(a.src)
 errors, warns = [], []
@@ -51,4 +52,9 @@ for w in warns:
     print('[WARN]', w)
 for e in errors:
     print('[ERR]', e)
+if a.json:
+    # проверок: три ответа + число слайдов (если задано числом и дека собрана) + исполнение ответа про 3D
+    n = 3 + (isinstance(slides, int) and not isinstance(slides, bool) and visible is not None) + isinstance(d3, bool)
+    json.dump({'checks': n, 'passed': max(0, n - len(errors)), 'errors': errors, 'warnings': warns},
+              open(a.json, 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
 sys.exit(1 if errors else 0)

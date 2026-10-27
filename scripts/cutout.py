@@ -1,8 +1,13 @@
 # Вырезка белого фона у сгенерированного 3D-объекта: заливка от краёв по светлым пикселям, мягкая альфа по краю.
 # PNG с готовой прозрачностью (image_gen в Codex) не вырезается: только обрезка полей, fill и превью.
-# Запуск: $SKILL/.venv/bin/python -I cutout.py <img.jpg> [--out img.png] [--tol 18] [--preview]
+# Запуск: $SKILL/.venv/bin/python -I cutout.py <img.jpg> [--out img.png] [--tol 18] [--preview] [--qc [--theme theme.json]]
 # --preview дополнительно пишет <img>_check.png: объект на тёмном и на светлом фоне, чтобы проверить ореол.
+# --qc после вырезки печатает img_qc.py check: палитра, кайма, край, текст, резкость. Тема — ближайший theme.json выше
+# картинки или --theme. Код 1, если есть FAIL (файл всё равно записан).
 import argparse
+import os
+import subprocess
+import sys
 from collections import deque
 
 import numpy as np
@@ -13,6 +18,8 @@ ap.add_argument('src')
 ap.add_argument('--out')
 ap.add_argument('--tol', type=int, default=18, help='насколько пиксель может отличаться от фона, 0–255')
 ap.add_argument('--preview', action='store_true')
+ap.add_argument('--qc', action='store_true', help='проверить результат img_qc.py check')
+ap.add_argument('--theme', help='theme.json для --qc; по умолчанию ближайший выше картинки')
 ap.add_argument('--shadow', choices=['keep', 'dark'], default='keep',
                 help='dark: светлая серая тень становится полупрозрачной чёрной. Может задеть белые части объекта: проверять --preview. Лучше генерировать без тени')
 a = ap.parse_args()
@@ -98,3 +105,13 @@ if a.preview:
     p = dst.rsplit('.', 1)[0] + '_check.png'
     tile.save(p)
     print('preview', p)
+if a.qc:
+    theme = a.theme
+    d = os.path.dirname(os.path.abspath(dst))
+    while not theme and d != os.path.dirname(d):
+        theme = os.path.join(d, 'theme.json') if os.path.isfile(os.path.join(d, 'theme.json')) else None
+        d = os.path.dirname(d)
+    here = os.path.dirname(os.path.abspath(__file__))
+    cmd = [sys.executable, '-I', os.path.join(here, 'img_qc.py'), 'check', dst] + (['--theme', theme] if theme else [])
+    sys.stdout.flush()
+    sys.exit(subprocess.run(cmd).returncode)

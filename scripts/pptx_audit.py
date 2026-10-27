@@ -50,6 +50,7 @@ TEXT_WORDS_MAX = 90
 prs = Presentation(a.pptx)
 SW, SH = prs.slide_width / EMU, prs.slide_height / EMU
 issues = []
+stats = []      # по слайдам для --json: картинки, графика, контейнеры, архетип (eval_deck.py: визуальная плотность)
 
 
 def add(level, slide, msg):
@@ -233,6 +234,8 @@ for n, slide in enumerate(prs.slides, 1):
             pass
         elif images_n == 0 and graphics < 2:
             add('WARN', n, f'бедный слайд: {containers} контейнер(а) с текстом, нет инфографики и 3D-объекта. Добавьте кодирование данных или контекстный объект')
+    stats.append({'n': n, 'hidden': slide._element.get('show') == '0', 'archetype': ARCH.get(n, ''), 'images': images_n,
+                  'graphics': graphics, 'containers': containers})
     body_h = BODY_BOT - BODY_TOP
     if content_bottom and (BODY_BOT - content_bottom) / body_h > 0.3:
         add('WARN', n, f'нижние {(BODY_BOT - content_bottom) / body_h:.0%} тела пустые (содержимое кончается на {content_bottom:.2f}″): растяните сетку или перекомпонуйте')
@@ -449,5 +452,5 @@ for i in issues:
     print(f"[{i['level']}] слайд {i['slide']}: {i['msg']}")
 print(f'\n{os.path.basename(a.pptx)}: {len(prs.slides)} слайдов, холст {SW:.3f}×{SH:.3f}″, ошибок {err}, предупреждений {warn}')
 if a.json:
-    json.dump({'errors': err, 'warnings': warn, 'issues': issues}, open(a.json, 'w'), ensure_ascii=False, indent=1)
+    json.dump({'errors': err, 'warnings': warn, 'issues': issues, 'slides': stats}, open(a.json, 'w'), ensure_ascii=False, indent=1)
 sys.exit(1 if err or (a.strict and warn) else 0)

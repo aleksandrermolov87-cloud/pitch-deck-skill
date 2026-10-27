@@ -8,6 +8,7 @@
 # Содержание слайдов снимается со slides.js (вызовы K.* без сборки PPTX) или берётся из --content (этап 0, slides.js ещё нет).
 # Каждый suggest — новый прогон out/variants/<id>/ с замороженным содержанием; demo по готовому прогону пишет новый прогон
 # и прошлые не трогает. Выдуманных полей нет: чего нет в данных, то «не заполнено» или причина исключения.
+# Ранжирование учитывает оценки и выборы пользователя (learnings/prefs.json, learn.py digest); pick пишет выбор в learnings/picks.jsonl.
 # Запуск: $SKILL/.venv/bin/python -I variants.py …   Код 1 — ошибка входа, сборки или check.
 import argparse
 import datetime as dt
@@ -23,6 +24,26 @@ import tempfile
 
 SKILL = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FIELDS = {k: v for k, v in json.load(open(os.path.join(SKILL, 'components', 'fields.json'), encoding='utf-8')).items() if k != '_'}
+LEARN = os.environ.get('PITCH_LEARN_DIR') or os.path.join(SKILL, 'learnings')   # переменная — для тестов
+W_PREF = 1.5   # вес выученной поправки: при уверенности 1 и доле хороших 0,9 даёт +0,6 — меньше смыслового тега (+3)
+
+
+def load_prefs():
+    try:
+        return json.load(open(os.path.join(LEARN, 'prefs.json'), encoding='utf-8')).get('components') or {}
+    except (OSError, ValueError):
+        return {}
+
+
+PREFS = load_prefs()
+
+
+def pref(comp):
+    # по оценкам и выборам пользователя: (доля хороших − 0,5) × n/(n+5) — при паре оценок поправка почти нулевая
+    p = PREFS.get(comp)
+    if not p or not p.get('n'):
+        return 0.0
+    return W_PREF * (p['mean'] - 0.5) * p['n'] / (p['n'] + 5)
 
 # теги смысла по форме данных: первый — главный вопрос, если его не задал --content
 SHAPE_MEANING = {'matrix': 'compare-options', 'steps': 'process', 'ranked': 'ranking', 'series': 'trend', 'pair': 'change',
@@ -621,9 +642,11 @@ def content_from_file(path, want):
 def score(comp, mean, current, miss_opt, long_):
     cm = FIELDS[comp]['meaning']
     # главный вопрос слайда среди тегов (+3, и +1, если это главный вопрос самого компонента), доля общих тегов (+2),
-    # текущий компонент (+0,5); без смыслового поля −1 за поле, текст длиннее проверенного −0,3
+    # текущий компонент (+0,5); без смыслового поля −1 за поле, текст длиннее проверенного −0,3; оценки пользователя (pref)
     s = 3 * (mean[0] in cm) + (mean[0] == cm[0]) + 2 * len(set(mean) & set(cm)) / len(mean) + (0.5 if comp == current else 0)
     s -= 1.0 * sum(1 for m in miss_opt if m[2]) + 0.3 * len(long_)
+    if pr := pref(comp):   # без prefs.json счёт тот же, что до обучения
+        s += pr
     return round(s, 2)
 
 
@@ -659,7 +682,7 @@ def suggest_slide(s, src):
                       'limits': limits(comp), 'warn': [f'{p}: {n} знаков, в галерее проверено {t}' for p, n, t in long_] +
                                                        [f'{p}: {n} шт. при рассчитанных {a}–{b}' for p, n, (a, b) in count],
                       'status': 'частично' if partial else 'годится', 'partial': FIELDS[comp].get('partial', '') if partial else '',
-                      'score': score(comp, s["meaning"], cur, opt_miss, long_),
+                      'score': score(comp, s["meaning"], cur, opt_miss, long_), 'pref': round(pref(comp), 2),
                       'text': not set(s['meaning']) & set(FIELDS[comp]['meaning'])})
     # смысл совпадает, а формы данных у компонента нет
     for comp, f in FIELDS.items():
@@ -805,7 +828,8 @@ def report(rec, src):
     L = [f'# Варианты компонентов · прогон {rec["run"]}', '',
          f'Навык {rec["skill"]}, содержание из {rec["source"]}, библиотека {"навыка (что даст обновление)" if rec.get("lib") == "skill" else "деки"}. Кандидаты — по смыслу слайда и форме его данных; '
          'каждый прошёл пробный вызов в библиотеке этой деки. «Не заполнено» — поля, которых нет в данных: компонент рисует без них, '
-         'значения не выдумываются. Лимиты: n — рассчитанное число элементов, «≤N зн.» — длина, проверенная в галерее.', '']
+         'значения не выдумываются. Лимиты: n — рассчитанное число элементов, «≤N зн.» — длина, проверенная в галерее.'
+         + (f' Порядок учитывает ваши оценки и выборы ({len(PREFS)} компонентов в learnings/prefs.json).' if PREFS else ''), '']
     for s in rec['slides']:
         L.append(f'## Слайд {s["n"]} · «{s.get("title") or "без заголовка"}»' + (f' · сейчас: {s["current"]}' if s.get('current') else ''))
         if s.get('skip'):
@@ -822,6 +846,8 @@ def report(rec, src):
             lim = ', '.join(t['limits']) + (('; ⚠ ' + '; '.join(t['warn'])) if t['warn'] else '')
             ex = t['example'] if t.get('example') else 'нет галереи: zsh $SKILL/scripts/gallery.sh'
             name = t['component'] + (' (сейчас)' if t['current'] else '') + (' · запасной: другой смысл' if t['text'] else '')
+            if abs(t.get('pref') or 0) >= 0.05:
+                name += f' · по вашим оценкам: {t["pref"]:+.1f}'.replace('.', ',')
             L.append(f'| {t["id"]} | {name} | {t["status"]} | {", ".join(t["has"][:8])} | {miss} | {lim or "—"} | {ex} |')
             if t['partial']:
                 L.append(f'|  | | | | ↳ {t["partial"]} | | |')
@@ -1016,6 +1042,19 @@ def cmd_pick(a):
                                 'snippet': os.path.relpath(sp, src), 'at': dt.datetime.now().isoformat(timespec='seconds'), 'why': a.why or ''}
     json.dump(V, open(vp, 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
     open(vp, 'a', encoding='utf-8').write('\n')
+    # выбор — в обучение: выбранный +1, показанные рядом и не выбранные — мягкий отказ (learn.py digest → prefs.json)
+    try:
+        deck = json.load(open(os.path.join(src, 'deck.json'), encoding='utf-8')).get('name') or os.path.basename(src)
+    except (OSError, ValueError):
+        deck = os.path.basename(src)
+    os.makedirs(LEARN, exist_ok=True)
+    with open(os.path.join(LEARN, 'picks.jsonl'), 'a', encoding='utf-8') as f:
+        f.write(json.dumps({'date': dt.date.today().isoformat(), 'deck': deck, 'src': src, 'run': rid, 'slide': a.slide,
+                            'chosen': t['component'], 'variant': t['id'], 'shown': [x['component'] for x in s['candidates']],
+                            'demo': bool(seen), 'skill': skill_version()}, ensure_ascii=False) + '\n')
+    r = subprocess.run([sys.executable, '-I', os.path.join(SKILL, 'scripts', 'learn.py'), 'digest'], capture_output=True, text=True)
+    if r.returncode:
+        print(f'[WARN] learn.py digest: {(r.stderr or r.stdout).strip()[-300:]}')
     print(snip.rstrip())
     print(f'\nвыбор записан: {os.path.relpath(vp, src)} → слайд {a.slide} = {t["component"]} ({t["status"]}); вызов: {os.path.relpath(sp, src)}'
           + ('' if seen else '\n[WARN] вариант не показан в demo: посмотрите превью перед заменой'))

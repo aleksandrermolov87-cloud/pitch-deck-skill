@@ -21,5 +21,8 @@ templates/deck-starter/img/bg*.jpg
 .update-check
 learnings/copy_edits.jsonl
 learnings/bg_edits.jsonl
+learnings/picks.jsonl
+learnings/prefs.json
 .acceptance/
 .build/
+learnings/evals.jsonl

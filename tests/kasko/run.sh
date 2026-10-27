@@ -8,7 +8,8 @@
 #   3) сравнение lossy → fixed отделяет правки содержания от сборщика; повторная сборка fixed — контрольная;
 #   4) отчёт: версия навыка, компоненты, результаты проверок, отличия от предыдущей сборки;
 #   5) прошлые прогоны не перезаписываются;
-#   6) идентичность фактов и точность долей stackedShare (tests/kasko/identity.sh, отдельная дека).
+#   6) идентичность фактов и точность долей stackedShare (tests/kasko/identity.sh, отдельная дека);
+#   7) метрики качества fixed не ниже эталона tests/kasko/eval_baseline.json (eval_deck.py gate, reference/20-eval.md).
 # Код 1, если хоть один критерий не выполнен.
 set -e
 SKILL="${0:A:h:h:h}"; FIX="${0:A:h}"; PY="$SKILL/.venv/bin/python"
@@ -83,6 +84,13 @@ done
 
 echo "› критерий 6: идентичность фактов и точность долей (tests/kasko/identity.sh)"
 zsh "$FIX/identity.sh" "$OUT/identity" > identity.txt 2>&1 && ok "identity.sh: пройдена" || { bad "identity.sh не пройдена"; grep -v '✓' identity.txt; }
+
+echo "› критерий 7: оценка качества fixed не ниже эталона (eval_deck.py gate, tests/kasko/eval_baseline.json)"
+if "$PY" -I "$SKILL/scripts/eval_deck.py" gate src-fixed --baseline "$FIX/eval_baseline.json" > eval_gate.txt 2>&1; then
+  ok "eval_deck gate: $(tail -1 eval_gate.txt)"
+else
+  bad "eval_deck gate: качество упало против эталона"; grep -A20 'регрессия\|gate:' eval_gate.txt
+fi
 
 echo
 [ $fail = 0 ] && echo "приёмка пройдена: $OUT" || echo "приёмка НЕ пройдена: $OUT"
