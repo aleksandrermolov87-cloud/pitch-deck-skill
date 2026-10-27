@@ -1,6 +1,6 @@
 #!/bin/zsh
 # PNG каждого слайда из HTML-двойника (headless Chrome) + отчёт {font, overflow}.
-# OUT=out|out-light — каталог темы; SCALE=2 — 4K (3840×2160) вместо 1920×1080.
+# OUT=out|out-light — каталог темы; SCALE=2 — 4K (3840×2160) вместо 1920×1080; SLIDE='3 5' — только эти слайды (быстрая правка текста).
 cd "$(dirname "$0")"
 OUT=${OUT:-out}
 SCALE=${SCALE:-1}
@@ -16,7 +16,8 @@ trap 'rm -rf "$PROFILE"' EXIT
 DIR=$OUT/png$([ "$SCALE" = 1 ] || echo "@${SCALE}x")
 mkdir -p "$DIR"
 N=$(grep -o '<section class="slide"' "$HTML" | wc -l | tr -d ' ')
-for i in $(seq 1 $N); do
+LIST=${SLIDE:-$(seq 1 $N)}
+for i in ${=LIST}; do
   sed "s#</style>#body{padding:0}.slide:not(\#s$i){display:none}.slide{width:1920px}</style>#" "$HTML" > $OUT/_one.html
   perl -e 'alarm 45; exec @ARGV' "$CHROME" --headless=new --disable-gpu --use-mock-keychain --password-store=basic --no-first-run --user-data-dir="$PROFILE" --hide-scrollbars \
     --force-device-scale-factor=$SCALE --window-size=1920,1080 --virtual-time-budget=3000 \

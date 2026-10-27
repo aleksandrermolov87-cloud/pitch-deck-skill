@@ -43,5 +43,11 @@ cat > "$DIR/README.md" <<EOF
 4. \`zsh $SKILL/scripts/impeccable.sh detect out/deck.html\`
 5. \`$SKILL/.venv/bin/python -I $SKILL/scripts/pptx_audit.py ../$NAME.pptx\`
 6. \`$SKILL/.venv/bin/python -I $SKILL/scripts/facts_check.py out/facts.json --root . [--xlsx <модель.xlsx>]\`
+7. \`$SKILL/.venv/bin/python -I $SKILL/scripts/library_check.py .\` — тело каждого слайда из библиотеки или причина custom
+
+Быстрая правка текста: \`copy_edit.py list . --slide N\`, затем \`copy_edit.py apply . --edits '[…]'\`,
+\`ONLY=N node build.js && SLIDE='N' ./render.sh\` (reference/13-quick-copy-edit.md).
+Быстрая правка подложки: \`bg_edit.py show . --slide N\`, затем \`bg_edit.py apply . --slide N --do stripes-softer,glow-off\`
+(пересоберёт подложку и слайд, «было → стало» в out/review/).
 EOF
-echo "ok: $DIR (пример из 4 слайдов собран; замените data/ и slides.js)"
+echo "ok: $DIR (пример из 6 слайдов на компонентах библиотеки собран; замените data/ и slides.js)"

@@ -568,3 +568,17 @@ for (const f of fs.readdirSync(path.join(__dirname, 'kit')).filter(f => f.endsWi
   }
 }
 Object.assign(module.exports, { seg: U.seg, knock: U.knock, spread: U.spread, lines, lh, unitOf, minus, onBar });
+
+// Метка библиотеки: элементы, которые вернул компонент, помечаются его именем (e.lib). build.js пишет имена
+// в out/slides.json, scripts/library_check.py по ним проверяет приоритет библиотеки (SKILL.md, этап 2).
+const HELPERS = new Set(['sparkline', 'diamond', 'num', 'seg', 'knock', 'spread', 'lines', 'lh', 'unitOf', 'minus', 'onBar', 'wrap']);
+for (const k of Object.keys(module.exports)) {
+  const f = module.exports[k];
+  if (HELPERS.has(k) || typeof f !== 'function') continue;
+  module.exports[k] = function (...args) {
+    const els = f.apply(this, args);
+    if (Array.isArray(els)) els.forEach(e => { if (e && typeof e === 'object' && !e.lib) e.lib = k; });
+    return els;
+  };
+}
+module.exports.COMPONENTS = Object.keys(module.exports).filter(k => !HELPERS.has(k) && typeof module.exports[k] === 'function');

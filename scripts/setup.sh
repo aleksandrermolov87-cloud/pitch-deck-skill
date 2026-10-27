@@ -81,7 +81,8 @@ if [ $SELFTEST = 1 ]; then
   (cd "$SKILL/.selftest" && zsh "$SKILL/scripts/new_deck.sh" src-demo "Демо" Демо >/dev/null \
     && cd src-demo && ./render.sh >/dev/null \
     && "$SKILL/.venv/bin/python" -I "$SKILL/scripts/pptx_audit.py" ../Демо.pptx | tail -1 \
-    && "$SKILL/.venv/bin/python" -I "$SKILL/scripts/facts_check.py" out/facts.json --root . --html out/deck.html | tail -1)
+    && "$SKILL/.venv/bin/python" -I "$SKILL/scripts/facts_check.py" out/facts.json --root . --html out/deck.html | tail -1 \
+    && "$SKILL/.venv/bin/python" -I "$SKILL/scripts/library_check.py" . | tail -1)
   echo "  PNG-превью: $SKILL/.selftest/src-demo/out/png"
   say "Галерея библиотеки компонентов"
   zsh "$SKILL/scripts/gallery.sh" | tail -2

@@ -137,6 +137,35 @@ if a.cmd == 'digest':
             if v >= 2:
                 rules.append(f'- **{arch}**, «{k}» отмечено {v} раз(а): перенесите вывод в `reference/` или профиль бренда как правило.')
         lines.append('')
+    # как пользователь правит формулировки (copy_edit.py): последние правки — образцы голоса, частые замены — правила
+    ce = os.path.join(LEARN, 'copy_edits.jsonl')
+    edits = [json.loads(l) for l in open(ce, encoding='utf-8')] if os.path.isfile(ce) else []
+    if edits:
+        lines += ['## Как пользователь правит формулировки', '',
+                  f'Правок: {len(edits)}. Применяй тот же голос в новых текстах до показа, а не после.', '']
+        lines += [f"- «{e['old'][:70]}» → «{e['new'][:70]}»" + (f" ({e['why']})" if e.get('why') else '') for e in edits[-8:]]
+        words = Counter()
+        for e in edits:
+            ow, nw = set(re.findall(r'\w+', e['old'].lower())), set(re.findall(r'\w+', e['new'].lower()))
+            words.update(f'«{w}»' for w in ow - nw if len(w) > 3)
+        frequent = [w for w, c in words.most_common() if c >= 2]
+        if frequent:
+            lines += ['', 'Слова, которые пользователь убирает чаще всего (не используй их): ' + ', '.join(frequent[:12])]
+            rules.append('- Повторяющиеся замены формулировок: добавьте убираемые слова в стоп-лист `reference/01-brief-and-copy.md`.')
+        lines.append('')
+    # как пользователь правит подложки (bg_edit.py): частые приёмы — значения по умолчанию для новой деки
+    be = os.path.join(LEARN, 'bg_edits.jsonl')
+    bg_edits = [json.loads(l) for l in open(be, encoding='utf-8')] if os.path.isfile(be) else []
+    if bg_edits:
+        moves = Counter(m for e in bg_edits for m in e['moves'])
+        by_arch = Counter((e.get('archetype'), m) for e in bg_edits for m in e['moves'])
+        lines += ['## Как пользователь правит подложки', '',
+                  f"Правок: {len(bg_edits)}. Приёмы: " + ', '.join(f'{m} ×{c}' for m, c in moves.most_common(8)), '']
+        lines += [f'- **{a}**: {m} ×{c}' for (a, m), c in by_arch.most_common(6) if c >= 2]
+        for m, c in moves.items():
+            if c >= 3:
+                rules.append(f'- Подложки: «{m}» применялся {c} раз(а) — перенесите в `theme.json → bg` новой деки как значение по умолчанию.')
+        lines.append('')
     if rules:
         lines += ['## Кандидаты в правила', ''] + rules + ['']
     # стартовые уроки — сразу после шапки: общие (SEED.md, идут в пакет) и локальные (SEED.local.md, не идут)

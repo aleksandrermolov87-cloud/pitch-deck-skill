@@ -38,6 +38,11 @@ function fitBox(e) {
 
 PAGE.total = S.length;
 const slides = S.map((f, i) => { PAGE.n = i + 1; const sl = f(); sl.els = sl.els.filter(e => e && e.t !== 'skip'); return sl; });
+// подложка слайда из чата: deck.json → bg_override { "4": "bg_n4.jpg" } (scripts/bg_edit.py) заменяет bg, заданный в slides.js
+for (const [n, f] of Object.entries(META.bg_override || {})) {
+  if (!/^bg_[A-Za-z0-9_-]+\.jpg$/.test(f)) throw new Error(`deck.json bg_override: имя подложки вида bg_<имя>.jpg (${f})`);
+  if (slides[+n - 1]) slides[+n - 1].bg = f;
+}
 // Многострочным боксам — интервал не меньше 1,1 (≈1,32 em): плотнее читать трудно, impeccable это ловит.
 // Однострочные подписи (бокс ниже 1,8 строки) остаются на 1,0.
 slides.forEach(sl => sl.els.forEach(e => {
@@ -159,7 +164,11 @@ fs.writeFileSync(path.join(__dirname, 'out', 'facts.json'), JSON.stringify(FACTS
 // манифест для этапа 7: номер, функция, архетип и заголовок каждого слайда
 const titleOf = sl => (sl.els.find(e => e.t === 'text' && /-title$/.test(e.id || '')) || { runs: [] }).runs.map(r => r.t).join('');
 fs.writeFileSync(path.join(__dirname, 'out', 'slides.json'), JSON.stringify(slides.map((sl, i) => ({
-  n: i + 1, fn: S[i].name, archetype: sl.archetype || S[i].name, title: titleOf(sl), hidden: !!sl.hidden,
+  n: i + 1, fn: S[i].name, archetype: sl.archetype || S[i].name, title: titleOf(sl), hidden: !!sl.hidden, bg: sl.bg || null,
+  // какие компоненты библиотеки собрали тело слайда и почему, если ни одного (этап 2, library_check.py)
+  lib: [...new Set(sl.els.map(e => e.lib).filter(Boolean))], custom: sl.custom || null,
+  // тексты слайда по частям (runs) для быстрой правки формулировок (scripts/copy_edit.py)
+  texts: sl.els.filter(e => e.t === 'text').map(e => ({ id: e.id || null, lib: e.lib || null, runs: e.runs.map(r => r.t) })),
 })), null, 1));
 
 const name = `${META.name}${process.env.BOTH_THEMES ? (THEME === 'light' ? '_светлая' : '_темная') : (THEME === 'light' ? '_светлая' : '')}`;
