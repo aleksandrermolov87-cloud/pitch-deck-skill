@@ -12,13 +12,13 @@ PAT=(
 [ -f "$SKILL/scripts/leaks.local.txt" ] && PAT+=(${(f)"$(grep -v '^#' "$SKILL/scripts/leaks.local.txt" | grep -v '^$')"})
 HITS=""
 for p in $PAT; do
-  h=$(grep -rnIE -e "$p" "$DIR" --exclude-dir=.git --exclude-dir=.venv --exclude-dir=node_modules --exclude-dir=.selftest \
+  h=$(grep -rnIE -e "$p" "$DIR" --exclude-dir=.git --exclude-dir=.venv --exclude-dir=node_modules --exclude-dir=.selftest --exclude-dir=.acceptance \
       --exclude-dir='.gallery*' --exclude=leaks.local.txt --exclude='*.local.md' --exclude=config.json \
       --exclude=ratings.jsonl --exclude-dir=gallery 2>/dev/null | grep -v "scripts/leakcheck.sh:")
   [ -n "$h" ] && HITS+="$h"$'\n'
 done
 # картинки: текстовые чанки и EXIF с путями или именами
-for f in ${(f)"$(find "$DIR" -name '*.png' -not -path '*/.venv/*' -not -path '*/node_modules/*' -not -path '*/.selftest/*' -not -path '*/.gallery*' -not -path '*/learnings/gallery/*' 2>/dev/null)"}; do
+for f in ${(f)"$(find "$DIR" -name '*.png' -not -path '*/.venv/*' -not -path '*/node_modules/*' -not -path '*/.selftest/*' -not -path '*/.acceptance/*' -not -path '*/.gallery*' -not -path '*/learnings/gallery/*' 2>/dev/null)"}; do
   strings "$f" | grep -qiE '/Users/|tEXtAuthor|tEXtComment' && HITS+="$f: метаданные в PNG"$'\n'
 done
 if [ -n "$HITS" ]; then echo "Найдены возможные утечки:"; echo "$HITS" | head -40; exit 1; fi
