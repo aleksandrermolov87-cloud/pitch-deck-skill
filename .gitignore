@@ -1,0 +1,20 @@
+# Локальное у каждого пользователя: окружение, настройки, оценки, сборки. В репозиторий не попадает.
+.venv/
+node_modules/
+__pycache__/
+.DS_Store
+config.json
+*.local.md
+scripts/leaks.local.txt
+learnings/ratings.jsonl
+learnings/LESSONS.md
+learnings/gallery/
+.selftest/
+dist/
+components/.gallery*/
+templates/deck-starter/out/
+templates/deck-starter/out-light/
+templates/deck-starter/img/3d/*.png
+templates/deck-starter/img/3d/cover_*.json
+templates/deck-starter/img/3d/step_*.json
+templates/deck-starter/img/bg*.jpg

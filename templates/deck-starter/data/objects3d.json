@@ -1,0 +1,29 @@
+{
+ "deck": "Пример заготовки",
+ "objects": [
+  {"name": "cover_platform", "slide": 1, "entity": "Страховая платформа в контуре банка",
+   "facts": ["страхование оформляется внутри банка, без внешнего партнёра", "клиент и менеджер работают в одном контуре"],
+   "object": "a stylized bank building with classical columns enclosed by a translucent protective dome, a small laptop and a tablet resting on the front steps",
+   "details": ["a glossy red shield emblem on the building pediment", "the dome softly glowing red at its base, meaning everything stays inside the bank perimeter"],
+   "meaning": "insurance products sold fully inside the bank's own perimeter",
+   "placement": "hero", "trace": "data/example.json → cover"},
+  {"name": "step_catalog", "slide": 4, "entity": "Продукт в каталоге",
+   "facts": ["клиент видит страховку рядом с банковскими продуктами"],
+   "object": "a laptop showing a grid of product tiles without any text",
+   "details": ["one tile raised out of the screen with a small red shield on it", "neighbouring tiles show a card and a coin symbol"],
+   "meaning": "insurance offered right next to banking products in the online bank",
+   "placement": "row", "trace": "data/example.json → split.points[0]"},
+  {"name": "step_quote", "slide": 4, "entity": "Расчёт за минуту",
+   "facts": ["условия и цена считаются по данным компании"],
+   "object": "a company document folder feeding into a compact price calculator",
+   "details": ["a small red stopwatch leaning on the calculator", "data sheets sliding from the folder into the calculator"],
+   "meaning": "the price is calculated in a minute from the company's own data",
+   "placement": "row", "trace": "data/example.json → split.points[1]"},
+  {"name": "step_payment", "slide": 4, "entity": "Оплата со счёта",
+   "facts": ["платёжное поручение формируется автоматически"],
+   "object": "a payment order sheet with a red round stamp coming out of a bank account vault door",
+   "details": ["a bank card attached to the vault door", "a curved arrow from the vault to the sheet"],
+   "meaning": "payment from the company account is prepared automatically",
+   "placement": "row", "trace": "data/example.json → split.points[2]"}
+ ]
+}

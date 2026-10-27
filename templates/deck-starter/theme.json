@@ -1,0 +1,112 @@
+{
+  "brand": "alfa",
+  "font": {
+    "regular": "Styrene A LC",
+    "thin": "Styrene A LC Thin",
+    "widthK": 0.62,
+    "widthKBold": 0.66
+  },
+  "canvas": {
+    "w": 13.333,
+    "h": 7.5,
+    "margin": 0.6,
+    "top": 0.38,
+    "bodyTop": 1.92,
+    "bodyBottom": 6.82,
+    "step": 0.05
+  },
+  "type": {
+    "title": 36,
+    "titleMin": 24,
+    "sub": 15,
+    "h3": 14,
+    "body": 11,
+    "label": 10,
+    "caption": 9,
+    "min": 8
+  },
+  "palette": {
+    "dark": {
+      "bg": "060606",
+      "ink": "FFFFFF",
+      "ink2": "D4D4D4",
+      "muted": "9A9A9A",
+      "accent": "EF3124",
+      "accentDim": "6B1D17",
+      "onAccent": "FFFFFF",
+      "line": "4A4A4A",
+      "rule": "2E2E2E",
+      "axis": "6E6E6E",
+      "bar": "BDBDBD",
+      "panel": "000000",
+      "panelA": 0.72,
+      "card": "161616",
+      "cardA": 0.94,
+      "cardLine": "2A2A2A",
+      "band": "FFFFFF",
+      "bandA": 0.04,
+      "accentInk": "EF3124"
+    },
+    "light": {
+      "bg": "F4F4F3",
+      "ink": "141414",
+      "ink2": "3D3D3D",
+      "muted": "6E6E6E",
+      "accent": "EF3124",
+      "accentDim": "F2B3AC",
+      "onAccent": "FFFFFF",
+      "line": "DCDCDC",
+      "rule": "E9E9E9",
+      "axis": "A6A6A6",
+      "bar": "C6C6C6",
+      "panel": "FFFFFF",
+      "panelA": 0.9,
+      "card": "F5F5F5",
+      "cardA": 1,
+      "cardLine": "E3E3E3",
+      "band": "000000",
+      "bandA": 0.035,
+      "accentInk": "C41E12"
+    }
+  },
+  "mark": {
+    "text": "А",
+    "size": 26
+  },
+  "bg": {
+    "stripes": [
+      [
+        0.795,
+        0.842,
+        0.3
+      ],
+      [
+        0.852,
+        0.886,
+        0.85
+      ],
+      [
+        0.902,
+        0.952,
+        1.0
+      ],
+      [
+        0.962,
+        1.0,
+        0.55
+      ]
+    ],
+    "grain": true
+  },
+  "prompt3d": {
+    "palette": "only bright red (#EF3124), white and glossy black accents, no other colors, no gold, no blue, no green",
+    "style": "Premium fintech 3D illustration style, smooth glossy plastic and soft matte materials, soft studio lighting from the upper left",
+    "bg": "060606",
+    "sizes": {
+      "card": 1.25,
+      "hero": 4.0,
+      "row": 2.0,
+      "sticker": 0.75
+    }
+  }
+}

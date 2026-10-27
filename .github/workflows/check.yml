@@ -1,0 +1,25 @@
+name: check
+on:
+  push:
+    branches: [main]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: zsh
+        run: sudo apt-get install -y zsh >/dev/null
+      - name: Проверка на утечки
+        run: zsh scripts/leakcheck.sh .
+      - name: Синтаксис JS и Python
+        run: |
+          for f in templates/deck-starter/*.js templates/deck-starter/kit/*.js components/*.js; do node --check "$f"; done
+          python3 -m py_compile scripts/*.py templates/deck-starter/*.py components/demo-screens/make.py
+      - name: Изменения в исполняемых частях видны в ревью
+        if: github.event_name == 'pull_request'
+        run: git diff --stat origin/${{ github.base_ref }}...HEAD -- scripts templates SKILL.md reference || true

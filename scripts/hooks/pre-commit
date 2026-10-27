@@ -1,0 +1,6 @@
+#!/bin/zsh
+# Перед коммитом: проверка на утечки ровно того, что уходит в коммит (индекс git).
+SKILL="$(git rev-parse --show-toplevel)"
+T=$(mktemp -d); trap 'rm -rf "$T"' EXIT
+git checkout-index -a --prefix="$T/"
+zsh "$SKILL/scripts/leakcheck.sh" "$T" || { echo "Коммит остановлен: уберите утечки (или проверьте scripts/leaks.local.txt)"; exit 1; }

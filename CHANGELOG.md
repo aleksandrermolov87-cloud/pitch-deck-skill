@@ -1,0 +1,41 @@
+# Журнал изменений
+
+## 1.4.0 — 27.10.2026
+Первый публичный релиз на GitHub, по итогам аудита безопасности.
+- **Установка и обновление из git:** `git clone` релиза-тега, `scripts/update.sh` показывает изменения в скриптах и инструкциях агента и переключает на новый релиз только с `--yes`; `scripts/release.sh` выпускает версию (проверки, тег, релиз с установочными md и SHA-256).
+- **Агентская безопасность:** раздел «Безопасность» в SKILL.md — внешний контент как данные, без команд и ссылок из вводных, скачивание только с CDN Magic Patterns, во внешние сервисы только обобщённое, необратимое только с подтверждения; из шага Figma убраны JavaScript на странице и доступ к Finder.
+- **Скрипты:** значения в `node -e` передаются только через аргументы (`scripts/jget.sh`), проверка имён папок, режима, групп галереи и вердиктов оценок; impeccable не ищется в папке проекта; картинки слайдов только из `img/`; Chrome с песочницей, временный профиль через `mktemp`, CSP в HTML-двойнике, экранирование атрибутов.
+- **Шрифт:** только https, необязательный `FONT_SHA256`, распаковка только .otf/.ttf без путей и ссылок.
+- **Цепочка поставок:** `requirements.txt` с версиями (+ defusedxml), `package.json` и `package-lock.json`, `npm ci --ignore-scripts`; демо-3D только с `https://cdn.magicpatterns.com/`, с ограничением размера и сверкой sha256, если он указан.
+- **Утечки:** `scripts/leakcheck.sh` (ключи, токены, личные пути + локальный список `scripts/leaks.local.txt`), pre-commit-хук, CI на GitHub Actions; `.gitignore` для всего локального.
+- **Установка из md:** распаковка во временную папку с проверкой записей архива, хэш сверяется с релизом на GitHub.
+- Примеры и демо-данные обезличены: вымышленные числа и названия каналов.
+- README, LICENSE (MIT), THIRD_PARTY.md, SECURITY.md, CODEOWNERS.
+
+## 1.3.0 — 27.10.2026
+- **Библиотека — основа структуры и фирменного стиля.** Если приложены референсы, их оценивает сабагент-оценщик (промпт в `reference/00b-references.md`): что взять в токены, какой компонент библиотеки это покрывает, что не брать. При конфликте выигрывает библиотека и профиль бренда.
+- **20 текстовых раскладок** (`kit/textcore.js`, `kit/textops.js`, архетипы `text-…`): `statementHero`, `agendaTimed`, `sectionDivider`, `executiveSummary`, `keyTakeaways`, `principles`, `glossary`, `faqPairs`, `quoteWall`, `prosCons`, `nextStepsText`, `askStatement`, `assumptionsList`, `risksText`, `teamContacts`, `visionStatement`, `lessonsLearned`, `dosDonts`, `storyArc`, `methodNotes`. Аудит освобождает `text-…` от бана простых слайдов и следит за объёмом (до 90 слов).
+- **5 раскладок под мокапы экранов** (`kit/screens.js`): `phoneHero`, `phoneFlow`, `desktopShowcase`, `screensBeforeAfter`, `multiDevice`; заглушка `[экран: …]` и предупреждение аудита «мокап экрана не вставлен», демо-экраны в `components/demo-screens/`.
+- **Установка шрифта Styrene:** `scripts/font.sh install <папка | zip | ссылка>`, `setup.sh --font …` или `config.json → font_source`. Файлы шрифта в пакет не входят (коммерческая лицензия).
+- Рендер: Chrome запускается с `--use-mock-keychain` и своим профилем на каждый запуск — без окон связки ключей macOS и без конфликтов параллельных рендеров.
+- Галерея: 93 слайда (94 компонента), обе темы — переполнений 0, аудит 0/0, impeccable 0, сверка фактов 681/681.
+
+## 1.2.0 — 27.10.2026
+- **Библиотека выросла до 69 компонентов:** 50 новых сценариев в модулях `kit/` — рынок и деньги (`marketTam`, `unitEconomics`, `revenueFormula`, `cohortGrid`, `pricingTiers`, `driversDiverging`, `scenarioRange`, `breakEven`, `lineChart`, `stackedColumns`), продукт и клиент (`journeyMap`, `featureDots`, `beforeAfter`, `screenCallouts`, `personaCard`, `problemSolution`, `usageRanking`, `npsBar`, `quoteHero`, `caseStudy`), стратегия (`swot`, `okrTree`, `orgChart`, `raciMatrix`, `riskMatrix`, `bubble2x2`, `decisionOptions`, `strategyPillars`, `valueChain`, `systemsLayers`), сроки и статус (`milestonesVertical`, `statusBoard`, `burndown`, `progressBars`, `calendarHeat`, `phaseGate`, `deadlineStrip`, `weeklyHighlights`, `kanbanFlow`, `pairedColumns`), сравнения и просьба (`dumbbell`, `dotPlot`, `histogram`, `scatterLabeled`, `marimekko`, `treemap`, `kpiGrid`, `askFunds`, `bigCompare`, `rankingList`).
+- Общая галерея 68 слайдов в обеих темах: переполнений 0, аудит 0/0, impeccable 0, сверка фактов 647/647.
+- `kit/util.js`: перенос по словам (`wrap`, `lines`), `seg`, `knock`, `spread`; `gallery.sh <группа>` собирает отдельные группы, рендеры идут параллельно.
+- Исправлено: HTML-двойник без табличных цифр (в Styrene они меняли местами «×» и «=»); белый текст на акценте в `ganttLanes`, `comparison`, `hubDiagram` поднят до 12 pt жирного; `facts_check.py` не путает отрицательные числа со знаком «−» и даты вида «15 декабря».
+
+## 1.1.0 — 27.10.2026
+- **Библиотека компонентов** (`components/`, код `templates/deck-starter/components.js`): 19 готовых компонентов тела слайда — роадмапы (`timelineAxis`, `ganttLanes`, `nowNextLater`, `quarterHorizon`), таблицы (`tableEditorial`, `heatmap`, `comparison`), числа (`kpiHero`, `kpiList`, `barsTrend`, `stackedShare`, `bulletChart`, `waterfall`, `funnel`, `slope`, `pictoGrid`), связи (`processSteps`, `hubDiagram`, `matrix2x2`). Числа регистрируются через `fact()`, цвета из `theme.json`, обе темы проходят аудит.
+- Галерея компонентов: `scripts/gallery.sh` (PNG в обеих темах и контакт-лист), входит в `setup.sh --selftest`.
+- Сборка: ромб (`diamond`) и наклонные линии (`flipV`) в PPTX и HTML-двойнике.
+- **Референсы — шаг планировщика.** Запрос и просмотр Figma через Computer Use / Claude in Chrome идут внутри plan mode, style-spec входит в одобряемый план. Этапов стало 8 (0–7), справочники перенумерованы: `00b-references.md`, `02-components-magic.md` … `12-public-skill-patterns.md`.
+
+## 1.0.0 — 27.10.2026
+Первая версия для команды.
+- 9 этапов с воротами: план → вводные и humanizer → Figma → компоненты и генерация → сборка PPTX → сетка (impeccable) → taste-skill → факт-чек и отчёт → обучение на оценках.
+- Режимы `full` (21st Magic MCP) и `lite` (встроенный каталог компонентов); 3D через Magic Patterns по флагу.
+- Контекстные 3D-объекты (бриф из данных, `prompt3d.py`), размещение у якоря, оптический размер.
+- Раскладка без блоков, роадмапы и таблицы по вопросу зрителя, сквозная мысль, SMART (`smart_check.py`).
+- Проверки: `pptx_audit.py` (сетка, бан простых слайдов, размещение, линии через текст), `facts_check.py`, `smart_check.py`, `doctor.sh`.

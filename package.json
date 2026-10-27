@@ -1,0 +1,8 @@
+{
+  "name": "pitch-deck-skill-deps",
+  "private": true,
+  "description": "Зависимости сборки PPTX; ставятся через npm ci --ignore-scripts",
+  "dependencies": {
+    "pptxgenjs": "3.12.0"
+  }
+}
