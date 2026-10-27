@@ -1293,5 +1293,412 @@
    "after": {"type": "obj", "of": {"screen": {"type": "text", "tested": 21, "req": false}, "what": {"type": "text", "tested": 28, "req": false}, "head": {"type": "text", "tested": 5, "req": true}, "note": {"type": "text", "tested": 21, "req": false}}, "req": true},
    "changes": {"type": "list", "tested": 3, "of": {"name": {"type": "text", "tested": 17, "req": true}, "a": {"type": "number", "req": true}, "b": {"type": "number", "req": true}, "unit": {"type": "text", "tested": 3, "req": false}, "better": {"type": "text", "tested": 4, "req": false}}, "item": "obj", "req": true}
   }
+ },
+ "schemeMap": {
+  "group": "schemes",
+  "question": "Кто с кем и о чём взаимодействует?",
+  "archetype": "scheme-map",
+  "data": "`nodes [{id?, name, items?, kind?: hub/node/note, icon?, at?: [кол, ряд]}]`, `edges [{from, to, tag?, text?, kind?: solid/dashed, route?, pill?}]`, `zones? [{name, nodes, kind?}]`, `footnote?`",
+  "meaning": ["roles", "structure", "partners"],
+  "accepts": [],
+  "fields": {
+   "nodes": {"type": "list", "tested": 5, "n": [3, 9], "item": "obj", "req": true, "of": {"name": {"type": "text", "tested": 52, "req": true}, "items": {"type": "list", "tested": 4, "of": {"type": "text", "tested": 48}, "req": false}, "kind": {"type": "text", "tested": 4, "req": false}, "icon": {"type": "text", "tested": 18, "req": false}}},
+   "edges": {"type": "list", "tested": 5, "n": [2, 12], "item": "obj", "req": true, "of": {"from": {"type": "text", "tested": 6, "req": true}, "to": {"type": "text", "tested": 6, "req": true}, "tag": {"type": "text", "tested": 23, "req": false}, "text": {"type": "text", "tested": 32, "req": false}, "pill": {"type": "text", "tested": 11, "req": false}}},
+   "footnote": {"type": "text", "tested": 78, "req": false}
+  },
+  "partial": "без at узлы раскладываются сами; без tag/text связь без подписи; без icon узел без картинки"
+ },
+ "hubSpoke": {
+  "group": "schemes",
+  "question": "Кто вокруг центра и что каждый с ним делает?",
+  "archetype": "scheme-hub-spoke",
+  "data": "`center {name, note?, items?}`, `nodes [{name, items?, tag?, text?, kind?}]` 3–8",
+  "meaning": ["roles", "structure"],
+  "accepts": ["hub"],
+  "fields": {
+   "center": {"type": "obj", "req": true, "of": {"name": {"type": "text", "tested": 26, "req": true}, "note": {"type": "text", "tested": 31, "req": false}}},
+   "nodes": {"type": "list", "tested": 8, "n": [3, 8], "item": "obj", "req": true, "of": {"name": {"type": "text", "tested": 14, "req": true}, "items": {"type": "list", "tested": 2, "of": {"type": "text", "tested": 22}, "req": false}, "tag": {"type": "text", "tested": 8, "req": false}, "text": {"type": "text", "tested": 16, "req": false}}}
+  }
+ },
+ "contextDiagram": {
+  "group": "schemes",
+  "question": "С кем и чем обменивается система?",
+  "archetype": "scheme-context",
+  "data": "`system {name, items?}`, `boundary?`, `users [{name, items?, tag?, text?}]`, `external [{name, items?, tag?, text?, kind?}]`, всего до 5",
+  "meaning": ["structure", "partners"],
+  "accepts": [],
+  "fields": {
+   "system": {"type": "obj", "req": true, "of": {"name": {"type": "text", "tested": 20, "req": true}}},
+   "users": {"type": "list", "tested": 2, "item": "obj", "req": false, "of": {"name": {"type": "text", "tested": 14, "req": true}}},
+   "external": {"type": "list", "tested": 2, "item": "obj", "req": false, "of": {"name": {"type": "text", "tested": 14, "req": true}}}
+  }
+ },
+ "contourMap": {
+  "group": "schemes",
+  "question": "Что делаем сами, что отдаём наружу?",
+  "archetype": "scheme-contour",
+  "data": "`inside`, `outside?`, `nodes [{id, name, items?, zone: in/out, hub?}]` до 4 внутри и 2 снаружи, `edges [{from, to, tag?, text?, kind?}]`",
+  "meaning": ["structure", "partners", "roles"],
+  "accepts": [],
+  "fields": {
+   "inside": {"type": "text", "tested": 13, "req": true},
+   "nodes": {"type": "list", "tested": 6, "n": [2, 6], "item": "obj", "req": true, "of": {"name": {"type": "text", "tested": 19, "req": true}, "zone": {"type": "text", "tested": 3, "req": true}}},
+   "edges": {"type": "list", "tested": 5, "item": "obj", "req": true, "of": {"from": {"type": "text", "tested": 4, "req": true}, "to": {"type": "text", "tested": 4, "req": true}}}
+  }
+ },
+ "archFlows": {
+  "group": "schemes",
+  "question": "Как запрос проходит через систему?",
+  "archetype": "scheme-arch-flows",
+  "data": "`layers [{name, blocks [{id, name, note?, hub?}]}]` 2–4 слоя по 1–4 блока, `flows [{from, to, tag?, text?, kind?}]`",
+  "meaning": ["structure", "process"],
+  "accepts": [],
+  "fields": {
+   "layers": {"type": "list", "tested": 4, "n": [2, 4], "item": "obj", "req": true, "of": {"name": {"type": "text", "tested": 8, "req": true}, "blocks": {"type": "list", "tested": 3, "n": [1, 4], "req": true, "of": {"type": "obj"}}}},
+   "flows": {"type": "list", "tested": 8, "item": "obj", "req": true, "of": {"from": {"type": "text", "tested": 5, "req": true}, "to": {"type": "text", "tested": 5, "req": true}}}
+  }
+ },
+ "radialHub": {
+  "group": "radial",
+  "question": "Кто вокруг центра и что идёт по каждой связи?",
+  "archetype": "scheme-radial-hub",
+  "data": "`center {name, note?}`, `nodes [{name, items?, d?, tag?, text?, kind?}]` 4–8",
+  "meaning": ["roles", "structure", "ecosystem"],
+  "accepts": [],
+  "fields": {
+   "center": {"type": "obj", "of": {"name": {"type": "text", "tested": 22, "req": true}, "note": {"type": "text", "tested": 17, "req": false}}, "req": true},
+   "nodes": {"type": "list", "tested": 6, "n": [4, 8], "item": "obj", "req": true, "of": {"name": {"type": "text", "tested": 18, "req": true}, "items": {"type": "list", "tested": 2, "of": {"type": "text", "tested": 22}, "req": false}, "d": {"type": "text", "tested": 30, "req": false}, "tag": {"type": "text", "tested": 9, "req": false}, "text": {"type": "text", "tested": 20, "req": false}, "kind": {"type": "text", "tested": 6, "req": false}}}
+  },
+  "partial": "без tag/text — луч без подписи; без items — только имя"
+ },
+ "cycleLoop": {
+  "group": "radial",
+  "question": "Как этапы повторяются по кругу и что передаёт каждый следующему?",
+  "archetype": "scheme-cycle-loop",
+  "data": "`steps [{name, d?, via?}]` 4–6, `center? {name, note?}`",
+  "meaning": ["process", "cycle"],
+  "accepts": [],
+  "fields": {
+   "steps": {"type": "list", "tested": 5, "n": [4, 6], "item": "obj", "req": true, "of": {"name": {"type": "text", "tested": 14, "req": true}, "d": {"type": "text", "tested": 33, "req": false}, "via": {"type": "text", "tested": 10, "req": false}}},
+   "center": {"type": "obj", "req": false, "of": {"name": {"type": "text", "tested": 24, "req": true}, "note": {"type": "text", "tested": 34, "req": false}}}
+  },
+  "partial": "без via — дуги без подписей; без center — середина пустая"
+ },
+ "flywheel": {
+  "group": "radial",
+  "question": "Что раскручивает рост и почему каждый оборот даётся легче?",
+  "archetype": "scheme-flywheel",
+  "data": "`center {name, note?}`, `steps [{name, d?, boost?}]` 3–5",
+  "meaning": ["growth", "cycle", "strategy"],
+  "accepts": [],
+  "fields": {
+   "center": {"type": "obj", "of": {"name": {"type": "text", "tested": 19, "req": true}, "note": {"type": "text", "tested": 21, "req": false}}, "req": true},
+   "steps": {"type": "list", "tested": 4, "n": [3, 5], "item": "obj", "req": true, "of": {"name": {"type": "text", "tested": 25, "req": true}, "d": {"type": "text", "tested": 35, "req": false}, "boost": {"type": "text", "tested": 14, "req": false}}}
+  },
+  "partial": "без boost — дуги без ускорителей"
+ },
+ "orbitRings": {
+  "group": "radial",
+  "question": "Кто ближе к ядру, кто на периферии?",
+  "archetype": "scheme-orbit-rings",
+  "data": "`core {name, note?}`, `rings [{name, items}]` 2–3 от ближнего к дальнему",
+  "meaning": ["ecosystem", "structure"],
+  "accepts": [],
+  "fields": {
+   "core": {"type": "obj", "of": {"name": {"type": "text", "tested": 6, "req": true}, "note": {"type": "text", "tested": 0, "req": false}}, "req": true},
+   "rings": {"type": "list", "tested": 3, "n": [2, 3], "item": "obj", "req": true, "of": {"name": {"type": "text", "tested": 8, "req": true}, "items": {"type": "list", "tested": 5, "of": {"type": "text", "tested": 13}, "req": true}}}
+  },
+  "partial": "note ядра необязателен"
+ },
+ "partnerTriangle": {
+  "group": "radial",
+  "question": "Что получает каждая из трёх сторон друг от друга?",
+  "archetype": "scheme-partner-triangle",
+  "data": "`nodes [{name, items?}]` ×3, `edges [{from, to, tag?, text?, kind?}]`, `center?`; opt.hubTop",
+  "meaning": ["roles", "partnership", "value-exchange"],
+  "accepts": [],
+  "fields": {
+   "nodes": {"type": "list", "tested": 3, "n": [3, 3], "item": "obj", "req": true, "of": {"name": {"type": "text", "tested": 10, "req": true}, "items": {"type": "list", "tested": 2, "of": {"type": "text", "tested": 24}, "req": false}}},
+   "edges": {"type": "list", "tested": 3, "n": [1, 3], "item": "obj", "req": true, "of": {"from": {"type": "text", "tested": 0, "req": true}, "to": {"type": "text", "tested": 0, "req": true}, "tag": {"type": "text", "tested": 17, "req": false}, "text": {"type": "text", "tested": 23, "req": false}, "kind": {"type": "text", "tested": 6, "req": false}}},
+   "center": {"type": "text", "tested": 26, "req": false}
+  },
+  "partial": "from/to — индекс 0–2 или имя узла; без center — середина пустая"
+ },
+ "vennOverlap": {
+  "group": "radial",
+  "question": "Где зоны ответственности совпадают и что общее?",
+  "archetype": "scheme-venn-overlap",
+  "data": "`sets [{name, items?}]` 2–3, `overlap {name, items?}`",
+  "meaning": ["overlap", "roles", "compare-options"],
+  "accepts": [],
+  "fields": {
+   "sets": {"type": "list", "tested": 3, "n": [2, 3], "item": "obj", "req": true, "of": {"name": {"type": "text", "tested": 23, "req": true}, "items": {"type": "list", "tested": 2, "of": {"type": "text", "tested": 18}, "req": false}}},
+   "overlap": {"type": "obj", "of": {"name": {"type": "text", "tested": 18, "req": true}, "items": {"type": "list", "tested": 2, "of": {"type": "text", "tested": 20}, "req": false}}, "req": true}
+  },
+  "partial": "при 2 множествах общая зона пишется в линзе — 2–3 коротких слова"
+ },
+ "decisionTree": {
+  "group": "trees",
+  "question": "Что делать в каждом случае?",
+  "archetype": "scheme-decision-tree",
+  "data": "`root {name, note?}`, `children [{edge, name, note?, tone?: good/bad, link?, children?}]` до 3 уровней, до 6 листьев",
+  "meaning": ["decision", "process", "structure"],
+  "accepts": [],
+  "fields": {
+   "root": {"type": "obj", "of": {"name": {"type": "text", "tested": 33, "req": true}, "note": {"type": "text", "tested": 0, "req": false}}, "req": true},
+   "children": {"type": "list", "tested": 2, "n": [2, 3], "item": "obj", "req": true, "of": {"edge": {"type": "text", "tested": 17, "req": true}, "edgeNote": {"type": "text", "tested": 0, "req": false}, "name": {"type": "text", "tested": 26, "req": true}, "note": {"type": "text", "tested": 28, "req": false}, "tone": {"type": "text", "tested": 4, "req": false}, "link": {"type": "text", "tested": 6, "req": false}, "children": {"type": "list", "tested": 3, "n": [1, 3], "item": "obj", "req": false}}}
+  },
+  "partial": "без tone листья нейтральные; без edge стебель без подписи"
+ },
+ "driverTree": {
+  "group": "trees",
+  "question": "Из чего складывается цель и кто тянет каждый рычаг?",
+  "archetype": "scheme-driver-tree",
+  "data": "`root {name, note?}`, `children [{name, note?, owner?, children [{name, note?, owner?}]}]`",
+  "meaning": ["drivers", "structure", "roles"],
+  "accepts": [],
+  "fields": {
+   "root": {"type": "obj", "of": {"name": {"type": "text", "tested": 21, "req": true}, "note": {"type": "text", "tested": 30, "req": false}}, "req": true},
+   "children": {"type": "list", "tested": 3, "n": [2, 4], "item": "obj", "req": true, "of": {"name": {"type": "text", "tested": 33, "req": true}, "note": {"type": "text", "tested": 0, "req": false}, "owner": {"type": "text", "tested": 0, "req": false}, "children": {"type": "list", "tested": 3, "n": [1, 3], "item": "obj", "req": false, "of": {"name": {"type": "text", "tested": 31, "req": true}, "note": {"type": "text", "tested": 0, "req": false}, "owner": {"type": "text", "tested": 15, "req": false}}}}}
+  },
+  "partial": "без owner рычаги без владельца; без детей драйвер — лист"
+ },
+ "governanceTree": {
+  "group": "trees",
+  "question": "Кто принимает решения и как часто?",
+  "archetype": "scheme-governance-tree",
+  "data": "`levels?`, `root {name, meta?, items?}`, `children [{name, meta?, items?, children?}]`",
+  "meaning": ["governance", "structure", "roles"],
+  "accepts": [],
+  "fields": {
+   "levels": {"type": "list", "tested": 3, "of": {"type": "text", "tested": 11, "req": true}, "req": false},
+   "root": {"type": "obj", "of": {"name": {"type": "text", "tested": 22, "req": true}, "meta": {"type": "text", "tested": 32, "req": false}, "items": {"type": "list", "tested": 0, "req": false}}, "req": true},
+   "children": {"type": "list", "tested": 3, "n": [2, 4], "item": "obj", "req": true, "of": {"name": {"type": "text", "tested": 18, "req": true}, "meta": {"type": "text", "tested": 31, "req": false}, "items": {"type": "list", "tested": 0, "req": false}, "children": {"type": "list", "tested": 2, "n": [1, 3], "item": "obj", "req": false}}}
+  },
+  "partial": "без levels дерево на всю ширину; без meta только имена"
+ },
+ "mindMap": {
+  "group": "trees",
+  "question": "Из каких направлений состоит тема?",
+  "archetype": "scheme-mind-map",
+  "data": "`center {name, note?}`, `branches [{name, items?, link?}]` 4–8",
+  "meaning": ["structure", "scope"],
+  "accepts": [],
+  "fields": {
+   "center": {"type": "obj", "of": {"name": {"type": "text", "tested": 16, "req": true}, "note": {"type": "text", "tested": 26, "req": false}}, "req": true},
+   "branches": {"type": "list", "tested": 6, "n": [4, 8], "item": "obj", "req": true, "of": {"name": {"type": "text", "tested": 13, "req": true}, "items": {"type": "list", "tested": 2, "of": {"type": "text", "tested": 30, "req": true}, "req": false}, "link": {"type": "text", "tested": 6, "req": false}}}
+  },
+  "partial": "ветви без items — только имена"
+ },
+ "swimlaneFlow": {
+  "group": "lanes",
+  "question": "Кто что делает на каждом шаге и где решение?",
+  "archetype": "scheme-swimlane-flow",
+  "data": "`lanes [строки]`, `steps [{id, lane, col, name, kind?: start/end/decision}]`, `links [{from, to, label?, kind?}]`",
+  "meaning": ["process", "roles"],
+  "accepts": [],
+  "fields": {
+   "lanes": {"type": "list", "tested": 4, "of": {"type": "text", "tested": 11}, "req": true, "n": [2, 5]},
+   "steps": {"type": "list", "tested": 6, "of": {"id": {"type": "text", "req": true}, "lane": {"type": "number", "req": true}, "col": {"type": "number", "req": true}, "name": {"type": "text", "tested": 21, "req": true}, "kind": {"type": "text", "req": false}}, "item": "obj", "req": true, "n": [2, 12]},
+   "links": {"type": "list", "tested": 6, "of": {"from": {"type": "text", "req": true}, "to": {"type": "text", "req": true}, "label": {"type": "text", "tested": 11, "req": false}, "kind": {"type": "text", "req": false}}, "item": "obj", "req": false}
+  },
+  "partial": "без links — шаги по дорожкам без переходов"
+ },
+ "serviceBlueprint": {
+  "group": "lanes",
+  "question": "Что видит клиент и что происходит за сценой?",
+  "archetype": "scheme-service-blueprint",
+  "data": "`stages [строки]`, `lanes [строки]`, `lines? [{after, name, accent?}]`, `steps [{lane, stage, name}]`, `links [{from:[lane,stage], to:[lane,stage], label?}]`",
+  "meaning": ["process", "journey", "structure"],
+  "accepts": [],
+  "fields": {
+   "stages": {"type": "list", "tested": 4, "of": {"type": "text", "tested": 14}, "req": true, "n": [2, 5]},
+   "lanes": {"type": "list", "tested": 4, "of": {"type": "text", "tested": 10}, "req": true, "n": [2, 5]},
+   "lines": {"type": "list", "tested": 2, "of": {"after": {"type": "number", "req": true}, "name": {"type": "text", "tested": 14, "req": true}, "accent": {"type": "bool", "req": false}}, "item": "obj", "req": false},
+   "steps": {"type": "list", "tested": 13, "of": {"lane": {"type": "number", "req": true}, "stage": {"type": "number", "req": true}, "name": {"type": "text", "tested": 29, "req": true}}, "item": "obj", "req": true},
+   "links": {"type": "list", "tested": 8, "of": {"from": {"type": "list", "req": true}, "to": {"type": "list", "req": true}, "label": {"type": "text", "req": false}}, "item": "obj", "req": false}
+  },
+  "partial": "без lines — только разделители дорожек; пустые ячейки допустимы"
+ },
+ "sequenceDiagram": {
+  "group": "lanes",
+  "question": "Кто кому что передаёт и в каком порядке?",
+  "archetype": "scheme-sequence-diagram",
+  "data": "`actors [строки]`, `messages [{from, to, text, kind?: reply}]` до 8",
+  "meaning": ["process", "integration"],
+  "accepts": [],
+  "fields": {
+   "actors": {"type": "list", "tested": 4, "of": {"type": "text", "tested": 13}, "req": true, "n": [2, 5]},
+   "messages": {"type": "list", "tested": 8, "of": {"from": {"type": "text", "req": true}, "to": {"type": "text", "req": true}, "text": {"type": "text", "tested": 26, "req": true}, "kind": {"type": "text", "req": false}}, "item": "obj", "req": true, "n": [2, 8]}
+  }
+ },
+ "handoffTimeline": {
+  "group": "lanes",
+  "question": "Кто когда работает и где передаёт работу дальше?",
+  "archetype": "scheme-handoff-timeline",
+  "data": "`ticks [строки]`, `lanes [строки]`, `bars [{lane, from, to, name, accent?}]`, `handoffs [{at, from, to, text}]`",
+  "meaning": ["timeline", "roles", "process"],
+  "accepts": [],
+  "fields": {
+   "ticks": {"type": "list", "tested": 6, "of": {"type": "text", "tested": 3}, "req": true},
+   "lanes": {"type": "list", "tested": 4, "of": {"type": "text", "tested": 10}, "req": true, "n": [2, 5]},
+   "bars": {"type": "list", "tested": 5, "of": {"lane": {"type": "number", "req": true}, "from": {"type": "number", "req": true}, "to": {"type": "number", "req": true}, "name": {"type": "text", "tested": 20, "req": true}, "accent": {"type": "bool", "req": false}}, "item": "obj", "req": true},
+   "handoffs": {"type": "list", "tested": 4, "of": {"at": {"type": "number", "req": true}, "from": {"type": "number", "req": true}, "to": {"type": "number", "req": true}, "text": {"type": "text", "tested": 19, "req": false}}, "item": "obj", "req": false}
+  },
+  "partial": "без handoffs — гант по дорожкам"
+ },
+ "escalationLadder": {
+  "group": "lanes",
+  "question": "Куда идёт вопрос, если на уровне не решили, и как быстро?",
+  "archetype": "scheme-escalation-ladder",
+  "data": "`levels [{name, who?, sla?, items?}]` 2–5, `conditions [строки]` между уровнями",
+  "meaning": ["process", "roles", "governance"],
+  "accepts": [],
+  "fields": {
+   "levels": {"type": "list", "tested": 4, "of": {"name": {"type": "text", "tested": 22, "req": true}, "who": {"type": "text", "tested": 20, "req": false}, "sla": {"type": "text", "tested": 14, "req": false}, "items": {"type": "list", "tested": 2, "of": {"type": "text", "tested": 17}, "req": false}}, "item": "obj", "req": true, "n": [2, 5]},
+   "conditions": {"type": "list", "tested": 3, "of": {"type": "text", "tested": 19}, "req": false}
+  },
+  "partial": "без conditions — стрелки без условий; без sla и who — только имя уровня"
+ },
+ "stateMachine": {
+  "group": "layered",
+  "question": "Через какие статусы проходит объект и что их меняет?",
+  "archetype": "scheme-state-machine",
+  "data": "`states [{id, name, note?, kind?: start/end/bad}]`, `transitions [{from, to, label?}]`; возвраты к прежнему статусу — под схемой",
+  "meaning": ["process", "status", "lifecycle"],
+  "accepts": [],
+  "fields": {
+   "states": {"type": "list", "tested": 8, "n": [3, 10], "item": "obj", "req": true, "of": {"id": {"type": "text", "tested": 7, "req": true}, "name": {"type": "text", "tested": 14, "req": true}, "note": {"type": "text", "tested": 22, "req": false}, "kind": {"type": "text", "tested": 5, "req": false}}},
+   "transitions": {"type": "list", "tested": 8, "item": "obj", "req": true, "of": {"from": {"type": "text", "tested": 7, "req": true}, "to": {"type": "text", "tested": 7, "req": true}, "label": {"type": "text", "tested": 15, "req": false}}}
+  },
+  "partial": "без note и label — только статусы и стрелки"
+ },
+ "dependencyGraph": {
+  "group": "layered",
+  "question": "Что нужно сделать раньше, чтобы запустить следующее?",
+  "archetype": "scheme-dependency-graph",
+  "data": "`waves [строки]`, `items [{id, wave, name, owner?, note?}]`, `deps [{from, to, kind?: solid/dashed/muted}]`",
+  "meaning": ["dependencies", "roadmap", "sequence"],
+  "accepts": [],
+  "fields": {
+   "waves": {"type": "list", "tested": 3, "n": [2, 4], "of": {"type": "text", "tested": 12}, "req": true},
+   "items": {"type": "list", "tested": 7, "n": [3, 10], "item": "obj", "req": true, "of": {"id": {"type": "text", "tested": 5, "req": true}, "wave": {"type": "text", "tested": 12, "req": true}, "name": {"type": "text", "tested": 26, "req": true}, "owner": {"type": "text", "tested": 7, "req": false}, "note": {"type": "text", "tested": 18, "req": false}}},
+   "deps": {"type": "list", "tested": 6, "item": "obj", "req": true, "of": {"from": {"type": "text", "tested": 5, "req": true}, "to": {"type": "text", "tested": 5, "req": true}, "kind": {"type": "text", "tested": 6, "req": false}}}
+  },
+  "partial": "без owner и note — карточка с одним именем"
+ },
+ "dataFlow": {
+  "group": "layered",
+  "question": "Откуда приходят данные, где собираются и кому уходят?",
+  "archetype": "scheme-data-flow",
+  "data": "`sources [{id, name, note?}]`, `core {id, name, items?}`, `consumers [{id, name, note?}]`, `flows [{from, to, tag?, text?, kind?}]`, `heads?`",
+  "meaning": ["data", "integration", "structure"],
+  "accepts": [],
+  "fields": {
+   "sources": {"type": "list", "tested": 3, "n": [1, 4], "item": "obj", "req": true, "of": {"id": {"type": "text", "tested": 4, "req": true}, "name": {"type": "text", "tested": 18, "req": true}, "note": {"type": "text", "tested": 16, "req": false}}},
+   "core": {"type": "obj", "req": true, "of": {"id": {"type": "text", "tested": 3, "req": true}, "name": {"type": "text", "tested": 16, "req": true}, "items": {"type": "list", "tested": 3, "of": {"type": "text", "tested": 23}, "req": false}}},
+   "consumers": {"type": "list", "tested": 3, "n": [1, 4], "item": "obj", "req": true, "of": {"id": {"type": "text", "tested": 4, "req": true}, "name": {"type": "text", "tested": 15, "req": true}, "note": {"type": "text", "tested": 24, "req": false}}},
+   "flows": {"type": "list", "tested": 6, "item": "obj", "req": true, "of": {"from": {"type": "text", "tested": 4, "req": true}, "to": {"type": "text", "tested": 4, "req": true}, "tag": {"type": "text", "tested": 12, "req": false}, "text": {"type": "text", "tested": 17, "req": false}, "kind": {"type": "text", "tested": 6, "req": false}}},
+   "heads": {"type": "list", "tested": 3, "of": {"type": "text", "tested": 11}, "req": false}
+  },
+  "partial": "без tag и text — потоки без подписей; без heads — «Источники / Ядро / Потребители»"
+ },
+ "impactChain": {
+  "group": "layered",
+  "question": "Через какие метрики инициатива даёт эффект?",
+  "archetype": "scheme-impact-chain",
+  "data": "`cols [3–4 строки]`, `nodes [{id, col, name, note?}]`, `links [{from, to, main?, text?}]`; main — главная цепочка акцентом",
+  "meaning": ["impact", "drivers", "metrics"],
+  "accepts": [],
+  "fields": {
+   "cols": {"type": "list", "tested": 4, "n": [3, 4], "of": {"type": "text", "tested": 16}, "req": true},
+   "nodes": {"type": "list", "tested": 7, "n": [3, 10], "item": "obj", "req": true, "of": {"id": {"type": "text", "tested": 5, "req": true}, "col": {"type": "number", "req": true}, "name": {"type": "text", "tested": 25, "req": true}, "note": {"type": "text", "tested": 25, "req": false}}},
+   "links": {"type": "list", "tested": 8, "item": "obj", "req": true, "of": {"from": {"type": "text", "tested": 5, "req": true}, "to": {"type": "text", "tested": 5, "req": true}, "main": {"type": "bool", "req": false}, "text": {"type": "text", "tested": 15, "req": false}}}
+  },
+  "partial": "без main — все связи тонкие, без акцента цепочки"
+ },
+ "busIntegration": {
+  "group": "exchange",
+  "question": "Какие системы и как подключены к общей шине?",
+  "archetype": "scheme-bus-integration",
+  "data": "`bus {name, note?}`, `top [{name, note?, link?, kind?}]`, `bottom […]` по 1–4",
+  "meaning": ["integration", "structure"],
+  "accepts": [],
+  "fields": {
+   "bus": {"type": "obj", "of": {"name": {"type": "text", "tested": 16, "req": true}, "note": {"type": "text", "tested": 38, "req": false}}, "req": true},
+   "top": {"type": "list", "tested": 3, "of": {"name": {"type": "text", "tested": 20, "req": true}, "note": {"type": "text", "tested": 24, "req": false}, "link": {"type": "text", "tested": 20, "req": false}, "kind": {"type": "text", "tested": 6, "req": false}}, "item": "obj", "req": true, "n": [1, 4]},
+   "bottom": {"type": "list", "tested": 3, "of": {"name": {"type": "text", "tested": 17, "req": true}, "note": {"type": "text", "tested": 26, "req": false}, "link": {"type": "text", "tested": 20, "req": false}, "kind": {"type": "text", "tested": 6, "req": false}}, "item": "obj", "req": false, "n": [0, 4]}
+  },
+  "partial": "без bottom — системы только сверху; без link — коннектор без подписи"
+ },
+ "bridgeMapping": {
+  "group": "exchange",
+  "question": "Что во что переходит?",
+  "archetype": "scheme-bridge-mapping",
+  "data": "`left {head, items [{id, name, note?}]}`, `right {…}`, `links [{from, to, kind?: main/dashed}]`",
+  "meaning": ["change", "structure"],
+  "accepts": [],
+  "fields": {
+   "left": {"type": "obj", "of": {"head": {"type": "text", "tested": 5, "req": true}, "items": {"type": "list", "tested": 4, "of": {"id": {"type": "text", "tested": 1, "req": true}, "name": {"type": "text", "tested": 18, "req": true}, "note": {"type": "text", "tested": 26, "req": false}}, "item": "obj", "req": true, "n": [2, 6]}}, "req": true},
+   "right": {"type": "obj", "of": {"head": {"type": "text", "tested": 5, "req": true}, "items": {"type": "list", "tested": 3, "of": {"id": {"type": "text", "tested": 1, "req": true}, "name": {"type": "text", "tested": 23, "req": true}, "note": {"type": "text", "tested": 30, "req": false}}, "item": "obj", "req": true, "n": [2, 6]}}, "req": true},
+   "links": {"type": "list", "tested": 6, "of": {"from": {"type": "text", "tested": 1, "req": true}, "to": {"type": "text", "tested": 1, "req": true}, "kind": {"type": "text", "tested": 6, "req": false}}, "item": "obj", "req": true}
+  },
+  "partial": "без main — все связи тонкой осью"
+ },
+ "valueExchange": {
+  "group": "exchange",
+  "question": "Что каждая сторона даёт и получает?",
+  "archetype": "scheme-value-exchange",
+  "data": "`a {name, items?}`, `b {name, items?}`, `flows [{dir: ab/ba, tag?, text?, kind?}]` 2–6",
+  "meaning": ["partnership", "roles"],
+  "accepts": [],
+  "fields": {
+   "a": {"type": "obj", "of": {"name": {"type": "text", "tested": 4, "req": true}, "items": {"type": "list", "tested": 3, "of": {"type": "text", "tested": 24, "req": true}, "req": false}}, "req": true},
+   "b": {"type": "obj", "of": {"name": {"type": "text", "tested": 10, "req": true}, "items": {"type": "list", "tested": 3, "of": {"type": "text", "tested": 22, "req": true}, "req": false}}, "req": true},
+   "flows": {"type": "list", "tested": 5, "of": {"dir": {"type": "text", "tested": 2, "req": true}, "tag": {"type": "text", "tested": 8, "req": false}, "text": {"type": "text", "tested": 34, "req": false}, "kind": {"type": "text", "tested": 6, "req": false}}, "item": "obj", "req": true, "n": [2, 6]}
+  },
+  "partial": "без items — карточки только с именем; без tag — одно пояснение"
+ },
+ "platformTwoSided": {
+  "group": "exchange",
+  "question": "Кого соединяет платформа и что получает каждая сторона?",
+  "archetype": "scheme-platform-two-sided",
+  "data": "`left {name, items}`, `platform {name, items?}`, `right {name, items}`, `flows {left [{dir: in/out, tag?, text}], right […]}`",
+  "meaning": ["platform", "partnership"],
+  "accepts": [],
+  "fields": {
+   "left": {"type": "obj", "of": {"name": {"type": "text", "tested": 11, "req": true}, "items": {"type": "list", "tested": 3, "of": {"type": "text", "tested": 21, "req": true}, "req": true}}, "req": true},
+   "platform": {"type": "obj", "of": {"name": {"type": "text", "tested": 17, "req": true}, "items": {"type": "list", "tested": 3, "of": {"type": "text", "tested": 24, "req": true}, "req": false}}, "req": true},
+   "right": {"type": "obj", "of": {"name": {"type": "text", "tested": 13, "req": true}, "items": {"type": "list", "tested": 3, "of": {"type": "text", "tested": 15, "req": true}, "req": true}}, "req": true},
+   "flows": {"type": "obj", "of": {"left": {"type": "list", "tested": 2, "of": {"dir": {"type": "text", "tested": 3, "req": true}, "tag": {"type": "text", "tested": 8, "req": false}, "text": {"type": "text", "tested": 17, "req": true}}, "item": "obj", "req": true, "n": [1, 3]}, "right": {"type": "list", "tested": 2, "of": {"dir": {"type": "text", "tested": 3, "req": true}, "tag": {"type": "text", "tested": 8, "req": false}, "text": {"type": "text", "tested": 16, "req": true}}, "item": "obj", "req": true, "n": [1, 3]}}, "req": true}
+  },
+  "partial": "без items у платформы — только имя"
+ },
+ "matrixOrg": {
+  "group": "exchange",
+  "question": "Кто ведёт и кто участвует на пересечении направлений и функций?",
+  "archetype": "scheme-matrix-org",
+  "data": "`rows [{name, note?}]`, `cols [{name, note?}]`, `cells [{r, c, mark: lead/part, note?}]`",
+  "meaning": ["roles", "structure", "team"],
+  "accepts": [],
+  "fields": {
+   "rows": {"type": "list", "tested": 4, "of": {"name": {"type": "text", "tested": 21, "req": true}, "note": {"type": "text", "tested": 17, "req": false}}, "item": "obj", "req": true, "n": [2, 5]},
+   "cols": {"type": "list", "tested": 4, "of": {"name": {"type": "text", "tested": 7, "req": true}, "note": {"type": "text", "tested": 14, "req": false}}, "item": "obj", "req": true, "n": [2, 5]},
+   "cells": {"type": "list", "tested": 10, "of": {"r": {"type": "number", "req": true}, "c": {"type": "number", "req": true}, "mark": {"type": "text", "tested": 4, "req": true}, "note": {"type": "text", "tested": 17, "req": false}}, "item": "obj", "req": true}
+  },
+  "partial": "без note у ячеек — только маркеры"
+ },
+ "causeEffect": {
+  "group": "exchange",
+  "question": "Из-за чего возникает проблема?",
+  "archetype": "scheme-cause-effect",
+  "data": "`effect {name, note?}`, `bones [{name, causes [строки] до 3}]` 4–6",
+  "meaning": ["problem", "causes"],
+  "accepts": [],
+  "fields": {
+   "effect": {"type": "obj", "of": {"name": {"type": "text", "tested": 32, "req": true}, "note": {"type": "text", "tested": 22, "req": false}}, "req": true},
+   "bones": {"type": "list", "tested": 6, "of": {"name": {"type": "text", "tested": 12, "req": true}, "causes": {"type": "list", "tested": 2, "of": {"type": "text", "tested": 26, "req": true}, "req": true, "n": [1, 3]}}, "item": "obj", "req": true, "n": [4, 6]}
+  },
+  "partial": "нечётное число костей — снизу на одну меньше"
  }
 }

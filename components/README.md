@@ -1,7 +1,7 @@
 # Библиотека компонентов
 
-95 готовых компонентов тела слайда: роадмапы, таблицы, графики, схемы, рынок, продукт, стратегия, статус, просьба,
-20 текстовых раскладок и 5 мокапов экранов. Базовые 19 лежат в `templates/deck-starter/components.js`, ещё 76 — в модулях `templates/deck-starter/kit/*.js`; всё и копируется в каждый проект `new_deck.sh` как `src-<тема>/components.js`.
+125 готовых компонентов тела слайда: роадмапы, таблицы, графики, 30 сложных схем, рынок, продукт, стратегия, статус, просьба,
+20 текстовых раскладок и 5 мокапов экранов. Базовые 19 лежат в `templates/deck-starter/components.js`, ещё 106 — в модулях `templates/deck-starter/kit/*.js` (из них 30 схем); всё и копируется в каждый проект `new_deck.sh` как `src-<тема>/components.js`.
 Библиотека — основа структуры и фирменного стиля, и её приоритет обязателен: сначала компонент из библиотеки,
 21st (если включён) и сборка агентом — только для слайда, которому в библиотеке ничего не подошло, с записанной причиной
 (`custom: '…'` в слайде). Проверяет `scripts/library_check.py`: компоненты помечают свои элементы, сборка пишет их имена
@@ -52,7 +52,7 @@ function channels() {
 | Кто за что отвечает? | `hubDiagram` | `hub-diagram` | `center`, `nodes [{name, items, link, edge}]` до 4 | — |
 | Где мы среди игроков? | `matrix2x2` | `competition-2x2` | оси `x`, `y`, `points [{name, x, y, us}]`, `quadrants` | — |
 
-## Расширения (kit/): ещё 76 сценариев
+## Расширения (kit/): ещё 76 сценариев (схемы — отдельным разделом ниже)
 
 Код лежит в `templates/deck-starter/kit/<группа>.js`, `components.js` подключает модули сам: вызов тот же, `K.<имя>(box, data, opt)`.
 Образцы данных — `components/gallery-<группа>.js`. Галерея одной группы: `zsh $SKILL/scripts/gallery.sh <группа>`.
@@ -188,6 +188,73 @@ HTML-двойник рисует ту же геометрию фигурами. 
 | Что видит менеджер или клиент в вебе? | `desktopShowcase` | `desktop-showcase` | `screen`, `what`, `url?`, `callouts [{at [fx, fy], head, body?, value?}]` 3–4 |
 | Что изменилось в интерфейсе? | `screensBeforeAfter` | `screens-before-after` | `before/after {screen, head}`, `changes [{name, a, b, unit?, better}]`; разница — derived diff |
 | Как работает во всех каналах? | `multiDevice` | `multi-device` | `web {screen, url?}`, `phone {screen}`, `points [{value?, unit, label, head, body}]` 2–3 |
+
+## Схемы (под-скилл «Схемы»): 30 сложных схем
+
+Участники и связи, процессы по дорожкам, деревья, циклы, контуры и потоки. Каталог по вопросам, правила хорошей схемы,
+детектор `scripts/viz_suggest.py` и замены блоковых слайдов — `reference/19-schemes.md`. У всех архетип `scheme-…`:
+узлы-карточки схемы соединены связями, поэтому аудит не считает их блоками. Образцы данных — `components/gallery-<группа>.js`,
+галерея: `zsh $SKILL/scripts/gallery.sh schemes radial trees lanes layered exchange`.
+
+### Связи и роли (`kit/schemes.js`)
+
+| Вопрос зрителя | Компонент | Архетип | Данные |
+|----------------|-----------|---------|--------|
+| Кто с кем и о чём взаимодействует? | `schemeMap` | `scheme-map` | `nodes [{id?, name, items?, kind?: hub/node/note, icon?, at?}]`, `edges [{from, to, tag?, text?, kind?: solid/dashed, route?, pill?}]`, `zones?`, `footnote?`; без `at` раскладка сама |
+| Кто вокруг центра и что каждый с ним делает? | `hubSpoke` | `scheme-hub-spoke` | `center {name, note?, items?}`, `nodes [{name, items?, tag?, text?, kind?}]` 3–8 |
+| С кем и чем обменивается система? | `contextDiagram` | `scheme-context` | `system {name, items?}`, `boundary?`, `users [{name, items?, tag?, text?}]`, `external […]` |
+| Что делаем сами, что отдаём наружу? | `contourMap` | `scheme-contour` | `inside`, `outside?`, `nodes [{id, name, items?, zone: in/out, hub?}]`, `edges` |
+| Как запрос проходит через систему? | `archFlows` | `scheme-arch-flows` | `layers [{name, blocks [{id, name, note?, hub?}]}]`, `flows [{from, to, tag?, text?, kind?}]` |
+
+### Вокруг центра и циклы (`kit/radial.js`)
+
+| Вопрос зрителя | Компонент | Архетип | Данные |
+|----------------|-----------|---------|--------|
+| Кто вокруг центра и что идёт по каждой связи? | `radialHub` | `scheme-radial-hub` | `center {name, note?}`, `nodes [{name, items?, tag?, text?, kind?}]` 4–8 |
+| Как этапы повторяются по кругу? | `cycleLoop` | `scheme-cycle-loop` | `steps [{name, d?, via?}]` 4–6, `center?` |
+| Что раскручивает рост? | `flywheel` | `scheme-flywheel` | `center {name, note?}`, `steps [{name, d?, boost?}]` 3–5 |
+| Кто ближе к ядру, кто на периферии? | `orbitRings` | `scheme-orbit-rings` | `core {name}`, `rings [{name, items}]` 2–3 |
+| Что получает каждая из трёх сторон? | `partnerTriangle` | `scheme-partner-triangle` | `nodes` ×3, `edges [{from, to, tag?, text?, kind?}]`, `center?` |
+| Где зоны ответственности совпадают? | `vennOverlap` | `scheme-venn-overlap` | `sets [{name, items?}]` 2–3, `overlap {name, items?}` |
+
+### Деревья (`kit/trees.js`)
+
+| Вопрос зрителя | Компонент | Архетип | Данные |
+|----------------|-----------|---------|--------|
+| Что делать в каждом случае? | `decisionTree` | `scheme-decision-tree` | `root {name, note?}`, `children [{edge, name, note?, tone?: good/bad, link?, children?}]` до 3 уровней, до 6 листьев |
+| Из чего складывается цель и кто тянет каждый рычаг? | `driverTree` | `scheme-driver-tree` | `root {name, note?}`, `children [{name, note?, owner?, children [{name, note?, owner?}]}]` |
+| Кто принимает решения и как часто? | `governanceTree` | `scheme-governance-tree` | `levels?`, `root {name, meta?, items?}`, `children [{name, meta?, items?, children?}]` |
+| Из каких направлений состоит тема? | `mindMap` | `scheme-mind-map` | `center {name, note?}`, `branches [{name, items?, link?}]` 4–8 |
+
+### Процессы по дорожкам (`kit/lanes.js`)
+
+| Вопрос зрителя | Компонент | Архетип | Данные |
+|----------------|-----------|---------|--------|
+| Кто что делает на каждом шаге и где решение? | `swimlaneFlow` | `scheme-swimlane-flow` | `lanes`, `steps [{id, lane, col, name, kind?: start/end/decision}]`, `links [{from, to, label?, kind?}]` |
+| Что видит клиент и что происходит за сценой? | `serviceBlueprint` | `scheme-service-blueprint` | `stages`, `lanes`, `lines? [{after, name, accent?}]`, `steps [{lane, stage, name}]`, `links [{from: [lane, stage], to: [lane, stage]}]` |
+| Кто кому что передаёт и в каком порядке? | `sequenceDiagram` | `scheme-sequence-diagram` | `actors`, `messages [{from, to, text, kind?: reply}]` до 8 |
+| Кто когда работает и где передаёт работу дальше? | `handoffTimeline` | `scheme-handoff-timeline` | `ticks`, `lanes`, `bars [{lane, from, to, name, accent?}]`, `handoffs [{at, from, to, text}]` |
+| Куда идёт вопрос, если на уровне не решили, и как быстро? | `escalationLadder` | `scheme-escalation-ladder` | `levels [{name, who?, sla?, items?}]` 2–5, `conditions` между уровнями |
+
+### Графы слева направо (`kit/layered.js`)
+
+| Вопрос зрителя | Компонент | Архетип | Данные |
+|----------------|-----------|---------|--------|
+| Через какие статусы проходит объект и что их меняет? | `stateMachine` | `scheme-state-machine` | `states [{id, name, note?, kind?: start/end/bad}]`, `transitions [{from, to, label?}]`; возвраты — под схемой |
+| Что нужно сделать раньше, чтобы запустить следующее? | `dependencyGraph` | `scheme-dependency-graph` | `waves`, `items [{id, wave, name, owner?, note?}]`, `deps [{from, to, kind?}]` |
+| Откуда приходят данные, где собираются и кому уходят? | `dataFlow` | `scheme-data-flow` | `sources [{id, name, note?}]`, `core {id, name, items?}`, `consumers`, `flows [{from, to, tag?, text?, kind?}]` |
+| Через какие метрики инициатива даёт эффект? | `impactChain` | `scheme-impact-chain` | `cols [3–4]`, `nodes [{id, col, name, note?}]`, `links [{from, to, main?, text?}]` |
+
+### Обмен и структура (`kit/exchange.js`)
+
+| Вопрос зрителя | Компонент | Архетип | Данные |
+|----------------|-----------|---------|--------|
+| Какие системы и как подключены к общей шине? | `busIntegration` | `scheme-bus-integration` | `bus {name, note?}`, `top [{name, note?, link?, kind?}]`, `bottom […]` по 1–4 |
+| Что во что переходит? | `bridgeMapping` | `scheme-bridge-mapping` | `left {head, items [{id, name, note?}]}`, `right {…}`, `links [{from, to, kind?: main/dashed}]` |
+| Что каждая сторона даёт и получает? | `valueExchange` | `scheme-value-exchange` | `a {name, items?}`, `b {name, items?}`, `flows [{dir: ab/ba, tag?, text?, kind?}]` 2–6 |
+| Кого соединяет платформа и что получает каждая сторона? | `platformTwoSided` | `scheme-platform-two-sided` | `left {name, items}`, `platform {name, items?}`, `right {name, items}`, `flows {left [{dir: in/out, tag?, text}], right […]}` |
+| Кто ведёт и кто участвует на пересечении направлений и функций? | `matrixOrg` | `scheme-matrix-org` | `rows [{name, note?}]`, `cols [{name, note?}]`, `cells [{r, c, mark: lead/part, note?}]` |
+| Из-за чего возникает проблема? | `causeEffect` | `scheme-cause-effect` | `effect {name, note?}`, `bones [{name, causes [строки] до 3}]` 4–6 |
 
 ## Помощники
 

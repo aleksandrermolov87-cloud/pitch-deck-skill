@@ -192,6 +192,7 @@ for n, slide in enumerate(prs.slides, 1):
         if sh.shape_type == 13 and sh.width is not None and sh.width / EMU < SW * 0.95:
             content_right = max(content_right, (sh.left + sh.width) / EMU)
     graphics, containers = 0, 0
+    conts = []             # карточки и панели с текстом: (x, y, w, h)
     for b in body:
         if b[0] == 'chart':
             graphics += 2          # нативная диаграмма PowerPoint — инфографика сама по себе
@@ -203,6 +204,7 @@ for n, slide in enumerate(prs.slides, 1):
             graphics += 1          # полоса, сегмент, отметка, ячейка матрицы с числом
         else:
             containers += 1        # карточка или панель с текстом
+            conts.append(b[1:5])
     # линии не считаются: разделители и оси не кодируют данные сами по себе
     if ARCH.get(n, '').startswith('text-'):
         words = sum(len(t[5].split()) for t in body if t[0] == 'text')
@@ -211,8 +213,22 @@ for n, slide in enumerate(prs.slides, 1):
     elif body and not slide._element.get('show') == '0':
         if images_n == 0 and graphics < 2 and containers == 0:
             add('ERR', n, 'простой слайд: только текст, нет инфографики, 3D-объекта или экрана (бан простых слайдов)')
-        if containers > 3:
-            add('WARN', n, f'блочная раскладка: {containers} контейнеров с текстом. Замените часть сеткой, линиями и воздухом (reference/10-beyond-blocks.md)')
+        # Запрет блоковых слайдов (правило пользователя 27.10.2026, reference/10-beyond-blocks.md): ряд или сетка одинаковых
+        # карточек с текстом без связей между ними — типичный блоковый слайд; 4+ контейнера — блочная раскладка. Схемы связей
+        # библиотеки (архетип scheme-*) — исключение: их узлы соединены линиями.
+        same = []
+        for c in conts:
+            grp = [d for d in conts if abs(d[2] - c[2]) <= 0.08 * c[2] and abs(d[3] - c[3]) <= 0.08 * c[3]]
+            if len(grp) > len(same):
+                same = grp
+        aligned = len(same) >= 3 and (len({round(d[1], 1) for d in same}) < len(same) or len({round(d[0], 1) for d in same}) < len(same))
+        if ARCH.get(n, '').startswith('scheme-'):
+            graphics += 2          # схема связей (reference/19-schemes.md): узлы-карточки соединены линиями, это не блочная раскладка
+        elif aligned:
+            add('ERR', n, f'блоковый слайд: {len(same)} одинаковых карточки с текстом рядом или сеткой. Запрещено: замените схемой '
+                          f'(viz_suggest.py deck), инфографикой или раскладкой без контейнеров (reference/10-beyond-blocks.md)')
+        elif containers > 3:
+            add('ERR', n, f'блочная раскладка: {containers} контейнеров с текстом. Замените часть сеткой, линиями и воздухом (reference/10-beyond-blocks.md)')
         if images_n == 0 and graphics < 2 and containers == 0:
             pass
         elif images_n == 0 and graphics < 2:

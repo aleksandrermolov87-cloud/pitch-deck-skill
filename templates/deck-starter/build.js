@@ -69,6 +69,7 @@ pptSlides.forEach((sl, i) => {
     if (e.twin) return;   // фигуры HTML-двойника нативной диаграммы: в PPTX её рисует сам chart
     if (e.t === 'chart') { s.addChart(e.type, e.data, { x: e.x, y: e.y, w: e.w, h: e.h, ...e.opts }); CHARTS.push(e); }
     else if (e.t === 'rect') s.addShape(e.r ? pres.shapes.ROUNDED_RECTANGLE : pres.shapes.RECTANGLE, { x: e.x, y: e.y, w: e.w, h: e.h, rectRadius: e.r || 0, fill: fill(e), line: line(e) });
+    else if (e.t === 'tri') s.addShape(pres.shapes.ISOSCELES_TRIANGLE, { x: e.x, y: e.y, w: e.w, h: e.h, rotate: e.rot || 0, fill: fill(e), line: { type: 'none' } });
     else if (e.t === 'diamond') s.addShape(pres.shapes.DIAMOND, { x: e.x, y: e.y, w: e.w, h: e.h, fill: fill(e), line: line(e) });
     else if (e.t === 'oval') s.addShape(pres.shapes.OVAL, { x: e.x, y: e.y, w: e.w, h: e.h, fill: fill(e), line: line(e) });
     else if (e.t === 'line') s.addShape(pres.shapes.LINE, { x: e.x, y: e.y, w: e.w, h: e.h, flipV: !!e.flipV, line: { color: e.color || C.line, width: e.lw || 1, dashType: e.dash ? 'dash' : 'solid', endArrowType: e.arrow ? 'triangle' : undefined } });
@@ -124,10 +125,11 @@ function toHtml(sl, i) {
     if (host.has(k)) return '';
     const box = `left:${pct(e.x, W)};top:${pct(e.y, H)};width:${pct(e.w, W)};height:${pct(e.h, H)}`;
     if (e.t === 'diamond') return `<div class="e" style="${box};clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);background:${rgba(e.fill, e.alpha ?? 1)}"></div>`;
+    if (e.t === 'tri') return `<div class="e" style="${box};clip-path:polygon(50% 0,100% 100%,0 100%);transform:rotate(${e.rot || 0}deg);background:${rgba(e.fill, e.alpha ?? 1)}"></div>`;   // наконечник стрелки схемы
     if (e.t === 'rect' || e.t === 'oval') {
       const r = e.t === 'oval' ? '50%' : `${+((e.r ?? 0) * 100 / W).toFixed(3)}cqw`;
       const inner = (kids.get(k) || []).map(t => textHtml(sl.els[t], e)).join('');
-      return `<div class="e" style="${box};border-radius:${r};background:${e.fill ? rgba(e.fill, e.alpha ?? 1) : 'transparent'};${e.line ? `box-shadow:inset 0 0 0 ${cq(e.lw || 1)} #${e.line}` : ''}">${inner}</div>`;
+      return `<div class="e" style="${box};border-radius:${r};background:${e.fill ? rgba(e.fill, e.alpha ?? 1) : 'transparent'};${e.line ? (e.dash ? `border:${cq(e.lw || 1)} dashed #${e.line};box-sizing:border-box` : `box-shadow:inset 0 0 0 ${cq(e.lw || 1)} #${e.line}`) : ''}">${inner}</div>`;
     }
     if (e.t === 'line') {
       const st = `${e.dash ? 'dashed' : 'solid'} ${cq(e.lw || 1)} #${e.color || C.line}`;

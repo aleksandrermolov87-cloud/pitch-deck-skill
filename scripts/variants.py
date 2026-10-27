@@ -114,6 +114,8 @@ FROM = {
     'principles': lambda d, o: ('points', {'items': [{'head': i['name'], **keep(i, 'd', 'accent')} for i in d['items']]}),
     'executiveSummary': lambda d, o: ('points', {'items': d['items']}),
     'hubDiagram': lambda d, o: ('hub', {'center': d['center'], 'nodes': d['nodes']}),
+    'hubSpoke': lambda d, o: ('hub', {'center': d['center'], 'nodes': [{**keep(n, 'name', 'items'), **({'edge': n['tag']} if n.get('tag') else {}),
+                                                                         **({'link': 'dashed'} if n.get('kind') == 'dashed' else {})} for n in d['nodes']]}),
     'systemsLayers': lambda d, o: ('layers', {'groups': [{**keep(l, 'name', 'note'), 'items': l['systems']} for l in d['layers']], **keep(d, 'links')}),
     'nowNextLater': lambda d, o: ('layers', {'groups': [{'name': c['head'], 'items': [{'name': i['t'], **keep(i, note='d')} for i in c['items']]} for c in d['cols']]}),
 }
@@ -440,6 +442,8 @@ TO = {
     ('points', 'executiveSummary'): lambda c: ({'items': c['items']}, srcopt(c)),
     ('points', 'storyArc'): lambda c: ({'steps': [{'lead': i['head'], 't': i['d']} for i in c['items']]}, srcopt(c)),
     ('hub', 'hubDiagram'): t_hub,
+    ('hub', 'hubSpoke'): lambda c: ({'center': c['center'], 'nodes': [{**keep(n, 'name', 'items'), **({'tag': n['edge']} if n.get('edge') else {}),
+                                                                      **({'kind': 'dashed'} if n.get('link') == 'dashed' else {})} for n in c['nodes']]}, srcopt(c)) if c.get('center') else t_hub(c),
     ('hub', 'principles'): lambda c: ({'items': [{'name': n['name'], 'd': '; '.join(n.get('items', []))} for n in c['nodes']]}, srcopt(c)),
     ('layers', 'systemsLayers'): t_layers,
     ('layers', 'nowNextLater'): t_nnl,
