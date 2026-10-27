@@ -3,8 +3,8 @@
 // регистрируются как derived от уже зарегистрированных меток. Цвет только из C.*, один акцент на слайд.
 const L = require('../lib.js');
 const U = require('./util.js');
-const { C, THEME, rect, oval, hline, vline, text, tw } = L;
-const { num, minus, unitOf, lines, lh, onBar, seg, knock, sparkline } = U;
+const { C, THEME, rect, oval, hline, vline, text, tw, nb, fmt } = L;
+const { num, minus, unitOf, lines, fitPt, known, NA, naText, lh, onBar, seg, knock, sparkline } = U;
 
 // ── локальные помощники ──
 const srcOf = (it, data, opt) => (it && it.src) || data.src || opt.src;
@@ -389,24 +389,65 @@ function askFunds(box, data, opt = {}) {
 // под числами полосы в общем масштабе и подписи. Вопрос: «насколько стало лучше?»
 // data: { label, before: { when, value, unit?, caption, src? }, after: { when, value, unit?, caption, src? },
 //         digits?, mode?: 'ratio'|'diff', better?: 'up'|'down', note?: 'быстрее', diffUnit?, src? }
+// opt: { midW, maxPt: 120, minPt: 56, unitLine: 'auto'|true|false, fit: 'error'|'warn' }
+// Кегль числа подбирается до раскладки: число с единицей одной строкой, а если так выходит заметно мельче — единица
+// отдельной строкой под числом («%» всегда при числе). Единица не пропадает и не сокращается. Обе колонки одним кеглем.
+// Ниже minPt сборка падает с советом (opt.fit: 'warn' — только предупреждение). Итог подбора — els.fit.
+// Отрицательное значение — с типографским минусом, полоса по модулю. Кратность — только для положительных значений.
 // Знак «×» не используем: в Styrene A LC он рисуется как «=».
 function bigCompare(box, data, opt = {}) {
   const { x, y, w, h } = box, d = data.digits || 0, lab = data.label || 'значение', mid = opt.midW || 2.8, els = [];
   const colW = (w - mid) / 2, cols = [[data.before, x, false], [data.after, x + colW + mid, true]];
-  const lb = `${lab}: ${data.before.when}`, la = `${lab}: ${data.after.when}`, mx = Math.max(data.before.value, data.after.value);
-  const ny = y + 0.38, nh = 2.05, barY = y + 2.62;
-  cols.forEach(([s, cx, now]) => {
-    const vs = num(now ? la : lb, s.value, srcOf(s, data, opt), d);
-    els.push(text(cx, y, colW, 0.34, s.when, { size: 15, bold: true, color: now ? C.ink : C.muted, valign: 'middle' }));
-    els.push(text(cx, ny, colW, nh, [{ t: vs }, { t: unitOf(s.unit), s: 36 }], { size: 120, bold: true, color: now ? C.ink : C.muted, valign: 'middle' }));
-    els.push(rect(cx, barY, Math.max(0.06, s.value / mx * colW), 0.3, { fill: now ? C.accent : C.bar }));
+  const lb = `${lab}: ${data.before.when}`, la = `${lab}: ${data.after.when}`;
+  const mx = Math.max(Math.abs(data.before.value), Math.abs(data.after.value)) || 1;
+  const ratio = (data.mode || 'ratio') === 'ratio';
+  if (ratio && !(data.before.value > 0 && data.after.value > 0)) throw new Error(`bigCompare «${lab}»: кратность считается только для положительных значений — возьмите mode: 'diff'`);
+  const hi = opt.maxPt || 120, lo = opt.minPt || 56, upt = pt => Math.max(15, Math.round(pt * 0.3));
+  const vss = cols.map(([s, , now]) => { const v = num(now ? la : lb, s.value, srcOf(s, data, opt), d); return s.value < 0 ? minus(v) : v; });
+  // подбор: одной строкой; единица отдельной строкой (кроме «%»); высота — до низа подписей не ниже бокса
+  const own = s => !!s.unit && s.unit !== '%' && opt.unitLine !== false;
+  const ub = s => unitOf(s.unit).replace(/ /g, nb);          // для оценки: единица не делится
+  const ny = y + 0.38, ph = pt => pt * 1.2 / 72 + 0.06;      // строка числа при интервале 1,0
+  const uh = (s, pt) => lh(upt(pt)) * lines(s.unit, upt(pt), colW, true) + 0.04;
+  const capH = Math.max(...cols.map(([s]) => lh(15) * lines(s.caption, 15, colW) + 0.04));
+  const geo = (pt, split) => {
+    const block = split ? ph(pt) + Math.max(0, ...cols.map(([s]) => (own(s) ? uh(s, pt) : 0))) : 0, nh = Math.max(2.05, block);
+    return { nh, block, barY: y + 2.62 + (nh - 2.05) };   // по умолчанию полосы на прежнем месте
+  };
+  const one = Math.min(...cols.map(([s], i) => fitPt(pt => [{ t: vss[i], b: true }, { t: ub(s), b: true, s: upt(pt) }], colW, hi, 20) || 0));
+  let two = 0;
+  if (cols.some(([s]) => own(s))) {
+    two = Math.min(...cols.map(([s], i) => fitPt(pt => [{ t: vss[i], b: true }, { t: own(s) ? '' : ub(s), b: true, s: upt(pt) }], colW, hi, 20) || 0));
+    while (two >= 20 && geo(two, true).barY + 0.55 + capH > y + h + 0.01) two -= 2;
+    if (two < 20) two = 0;
+  }
+  const split = two > 0 && (opt.unitLine === true || (one < hi && two >= one * 1.15));
+  const pt = split ? two : one, G = geo(pt, split), barY = G.barY;
+  // диагностика читаемости: по умолчанию сборка падает, opt.fit: 'warn' — предупреждение и кегль ниже порога
+  const tell = (what, got, min, tip) => {
+    const msg = `bigCompare «${lab}»: ${what} помещается только кеглем ${got || `меньше ${min}`} pt при пороге ${min} pt — ${tip}`;
+    if (opt.fit !== 'warn') throw new Error(msg);
+    console.warn(msg);
+  };
+  if (!pt) throw new Error(`bigCompare «${lab}»: число не помещается в колонку ${fmt(colW, 2)}″ даже кеглем 20 pt — возьмите kpiHero, dumbbell или barsTrend`);
+  if (pt < lo) tell(`число с единицей в колонку ${fmt(colW, 2)}″`, pt, lo, 'уменьшите digits, перенесите единицу в подпись (caption) или в заголовок, уменьшите opt.midW либо возьмите kpiHero, dumbbell или barsTrend');
+  cols.forEach(([s, cx, now], i) => {
+    const color = now ? C.ink : C.muted;
+    els.push(text(cx, y, colW, 0.34, s.when, { size: 15, bold: true, color, valign: 'middle' }));
+    if (!split) els.push(text(cx, ny, colW, G.nh, [{ t: vss[i] }, { t: unitOf(s.unit), s: upt(pt) }], { size: pt, bold: true, color, valign: 'middle' }));
+    else {
+      const by = ny + (G.nh - G.block) / 2;
+      els.push(text(cx, by, colW, ph(pt), own(s) ? vss[i] : [{ t: vss[i] }, { t: unitOf(s.unit), s: upt(pt) }], { size: pt, bold: true, color, valign: 'middle' }));
+      if (own(s)) els.push(text(cx, by + ph(pt), colW, uh(s, pt), s.unit, { size: upt(pt), bold: true, color, ls: 1.1 }));
+    }
+    els.push(rect(cx, barY, Math.max(0.06, Math.abs(s.value) / mx * colW), 0.3, { fill: now ? C.accent : C.bar }));
     const cl = lines(s.caption, 15, colW);
     els.push(text(cx, barY + 0.55, colW, lh(15) * cl + 0.04, s.caption, { size: 15, color: C.ink2 }));
   });
   els.push(hline(x, x + w, barY + 0.3, { color: C.rule, lw: 0.75 }));
   // кратность (во сколько раз лучше) или разница со знаком
   let big;
-  if ((data.mode || 'ratio') === 'ratio') {
+  if (ratio) {
     const down = data.better === 'down', r0 = down ? data.before.value / data.after.value : data.after.value / data.before.value;
     const r = rnd(r0, 1), rd = Number.isInteger(r) ? 0 : 1, rv = rnd(r0, rd);
     const word = rd || [2, 3, 4].includes(rv % 10) && ![12, 13, 14].includes(rv % 100) ? 'раза' : 'раз';
@@ -415,24 +456,36 @@ function bigCompare(box, data, opt = {}) {
     const dv = rnd(data.after.value - data.before.value, d);
     big = [{ t: signed(dv, num(`${lab}: разница`, dv, { type: 'derived', from: [la, lb], op: 'diff' }, d)) }, { t: data.diffUnit ? ` ${data.diffUnit}` : '', s: 24 }];
   }
-  const ax0 = x + colW + 0.3, ax1 = x + colW + mid - 0.3, ay = ny + nh / 2;
+  // кратность или разница — тоже под ширину середины: 48 pt, мельче до 28 pt, подписи при числе вдвое мельче
+  const midAt = p => big.map(r => (r.s ? { ...r, s: Math.round(p / 2) } : r));
+  let mp = fitPt(p => midAt(p).map(r => ({ ...r, b: true })), mid - 0.5, 48, 28) || 0;   // по 0,25″ воздуха до чисел
+  if (!mp) { tell(`«${big.map(r => r.t).join('')}» в середину ${fmt(mid, 2)}″`, 0, 28, 'увеличьте opt.midW, сократите diffUnit или digits'); mp = 28; }
+  const ax0 = x + colW + 0.3, ax1 = x + colW + mid - 0.3, ay = ny + G.nh / 2;
   els.push(hline(ax0, ax1, ay, { color: C.accent, lw: 2, arrow: true }));
-  els.push(text(x + colW, ay - 0.88, mid, 0.8, big, { size: 48, bold: true, color: C.accentInk, align: 'center', valign: 'bottom' }));
+  els.push(text(x + colW, ay - 0.88, mid, 0.8, mp === 48 ? big : midAt(mp), { size: mp, bold: true, color: C.accentInk, align: 'center', valign: 'bottom' }));
   if (data.note) els.push(text(x + colW, ay + 0.1, mid, 0.32, data.note, { size: 15, color: C.ink2, align: 'center', valign: 'top' }));
+  els.fit = { pt, unitPt: upt(pt), unitLine: split, midPt: mp };
   return els;
 }
 
 // Рейтинг: топ-N строк — место (derived count), название, полоса значения, значение, изменение места стрелкой
 // (▲ рост акцентом, ▼ падение серым; derived diff к прошлому месту). Вопрос: «кто в лидерах?»
-// data: { label, unit?, digits?, nameHead?, valueHead?, changeHead?, src?, rows: [{ name, value, prev (место раньше), us?, src? }] }  opt: { top }
+// data: { label, unit?, digits?, nameHead?, valueHead?, changeHead?, noData?: 'нет данных', src?,
+//         rows: [{ name, value, prev (место раньше), us?, src? }] }  opt: { top, change?: true|false }
+// prev неизвестно (null, undefined, 'unknown') — в колонке «нет данных» (data.noData), без стрелки и без расчёта сдвига;
+// строка вместо числа — причина, она и показывается («вне топ-10»). Ни одного прошлого места — колонка скрыта (opt.change: true — показать).
 function rankingList(box, data, opt = {}) {
   const { x, y, w, h } = box, d = data.digits || 0, lab = data.label || 'значение', els = [];
   const rows = [...data.rows].sort((a, b) => b.value - a.value).slice(0, opt.top || data.rows.length);
-  const PW = 0.6, NW = opt.nameW || sn(Math.min(3.6, Math.max(1.8, ...rows.map(r => tw(r.name, 15, !!r.us) + 0.5)))), VW = 1.5, CW = 1.2, bx = x + PW + NW, bwMax = w - PW - NW - VW - CW - 0.3;
+  const na = r => naText(r.prev, data.noData || NA);
+  const showCh = opt.change ?? rows.some(r => known(r.prev) || naText(r.prev, '') !== '');
+  const CW = !showCh ? 0 : sn(Math.min(2.2, Math.max(1.2, ...rows.filter(r => !known(r.prev)).map(r => tw(na(r), 12) + 0.15))));
+  const PW = 0.6, NW = opt.nameW || sn(Math.min(3.6, Math.max(1.8, ...rows.map(r => tw(r.name, 15, !!r.us) + 0.5)))), VW = 1.5, bx = x + PW + NW, bwMax = w - PW - NW - VW - CW - 0.3;
   const headH = 0.42, rh = Math.min(opt.rowH || 0.6, (h - headH) / rows.length), mx = rows[0].value;
   const hd = (hx, hw, t, al) => els.push(text(hx, y, hw, headH - 0.1, t, { size: 11, color: C.muted, align: al, valign: 'bottom' }));
   hd(x, PW, 'Место', 'left'); hd(x + PW, NW, data.nameHead || 'Участник', 'left');
-  hd(x + w - CW - VW, VW, data.valueHead || `${lab}${data.unit ? `, ${data.unit}` : ''}`, 'right'); hd(x + w - CW, CW, data.changeHead || 'Место', 'right');
+  hd(x + w - CW - VW, VW, data.valueHead || `${lab}${data.unit ? `, ${data.unit}` : ''}`, 'right');
+  if (showCh) hd(x + w - CW, CW, data.changeHead || 'Место', 'right');
   els.push(hline(x, x + w, y + headH, { color: C.axis, lw: 0.75 }));
   const vL = r => `${lab}: ${r.name}`;
   rows.forEach((r, i) => {
@@ -440,15 +493,17 @@ function rankingList(box, data, opt = {}) {
     const vs = num(vL(r), r.value, src, d);
     const pl = `место ${r.name} (${lab})`, ppl = `место ${r.name} раньше (${lab})`;
     const place = num(pl, i + 1, { type: 'derived', from: rows.slice(0, i + 1).map(vL), op: 'count' });
-    num(ppl, r.prev, src);
+    if (known(r.prev)) num(ppl, r.prev, src);
     els.push(text(x, yy, PW, rh, place, { size: 18, bold: true, color: r.us ? C.accentInk : C.muted, valign: 'middle' }));
     els.push(text(x + PW, yy, NW - 0.2, rh, r.name, { size: 15, bold: !!r.us, color: r.us ? C.ink : C.ink2, valign: 'middle' }));
     els.push(rect(bx, cy - 0.1, Math.max(0.04, r.value / mx * bwMax), 0.2, { fill: r.us ? C.accent : C.bar }));
     els.push(text(x + w - CW - VW, yy, VW, rh, vs, { size: 15, bold: true, align: 'right', valign: 'middle' }));
-    const dv = r.prev - (i + 1);
-    const ds = num(`изменение места ${r.name} (${lab})`, dv, { type: 'derived', from: [ppl, pl], op: 'diff' });
-    const ch = dv > 0 ? { t: `▲ ${ds}`, c: C.accentInk } : dv < 0 ? { t: `▼ ${ds.replace(/^-/, '')}`, c: C.muted } : { t: 'на месте', c: C.muted };
-    els.push(text(x + w - CW, yy, CW, rh, ch.t, { size: 13, bold: dv > 0, color: ch.c, align: 'right', valign: 'middle' }));
+    if (showCh && known(r.prev)) {
+      const dv = r.prev - (i + 1);
+      const ds = num(`изменение места ${r.name} (${lab})`, dv, { type: 'derived', from: [ppl, pl], op: 'diff' });
+      const ch = dv > 0 ? { t: `▲ ${ds}`, c: C.accentInk } : dv < 0 ? { t: `▼ ${ds.replace(/^-/, '')}`, c: C.muted } : { t: 'на месте', c: C.muted };
+      els.push(text(x + w - CW, yy, CW, rh, ch.t, { size: 13, bold: dv > 0, color: ch.c, align: 'right', valign: 'middle' }));
+    } else if (showCh) els.push(text(x + w - CW, yy, CW, rh, na(r), { size: 12, color: C.muted, align: 'right', valign: 'middle' }));
     if (i < rows.length - 1) els.push(hline(x, x + w, yy + rh, { color: C.rule, lw: 0.5 }));
   });
   return els;

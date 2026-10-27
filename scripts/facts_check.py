@@ -5,6 +5,9 @@
 # Факт с auto: true — число, которое компонент нарисовал (высота столбца, точка линии), но не подписал. Он проверяется
 # по источнику так же, как подписанный. shown (пишет build.js) — читается ли число на слайде: отчёт различает
 # «влияет на график» и «можно прочитать». Что из брифа обязано читаться, проверяет brief_coverage.py, а не этот скрипт.
+# shown_as (build.js): label — число читается вместе с периодом и единицей в одной подписи, value — читается только число
+# (период на оси, единица в подзаголовке), graph — только нарисовано. Идентичность факта компонента: lib, path, series,
+# period, unit, id. calc — запись расчёта (остаток stackedShare, сверка суммы с точностью) выводится в [INFO].
 import argparse
 import json
 import os
@@ -97,7 +100,9 @@ for f in F:
                 errors.append(f"{where}: нет исходных фактов {f['from']}")
                 continue
             v = [s['value'] for s in src]
-            got = {'count': len(v), 'sum': sum(v), 'ratio': v[0] / v[1] if len(v) > 1 and v[1] else float('nan'), 'diff': v[0] - v[1] if len(v) > 1 else float('nan')}[f['op']] / f.get('scale', 1)
+            # rest — остаток до целого: whole − сумма частей (stackedShare, rest.type = computed)
+            got = {'count': len(v), 'sum': sum(v), 'ratio': v[0] / v[1] if len(v) > 1 and v[1] else float('nan'), 'diff': v[0] - v[1] if len(v) > 1 else float('nan'),
+                   'rest': f.get('whole', 100) - sum(v)}[f['op']] / f.get('scale', 1)
             if abs(got - f['value']) <= tol:
                 ok += 1
             else:
@@ -162,12 +167,19 @@ if graph_only:
         per[f['slide']].append(f"{f['label'].split(' [')[0]} = {f['value']}")
     for n_, xs in sorted(per.items()):
         notes.append(f"слайд {n_}: только в графике, без подписи ({len(xs)}): " + '; '.join(xs[:6]) + (' …' if len(xs) > 6 else ''))
+for f in F:
+    if f.get('calc'):
+        notes.append(f"слайд {f['slide']}: расчёт «{f['label']}»: {f['calc']}")
 for n in notes:
     print('[INFO]', n)
 shown_n = sum(1 for f in F if f.get('shown'))
+labeled = sum(1 for f in F if f.get('shown') and f.get('shown_as') == 'label')
+value_only = sum(1 for f in F if f.get('shown') and f.get('shown_as') == 'value')
 print(f'\nфактов {len(F)}, сошлось {ok}, расхождений {len(errors)}, чисел без источника {len(unregistered)}'
-      + (f'; читаются на слайде {shown_n}, только в графике {len(graph_only)}' if any('shown' in f for f in F) else ''))
+      + (f'; читаются на слайде {shown_n}, только в графике {len(graph_only)}' if any('shown' in f for f in F) else '')
+      + (f'; подписаны с периодом и единицей {labeled}, только число {value_only}' if any('shown_as' in f for f in F) else ''))
 if a.json:
     json.dump({'total': len(F), 'ok': ok, 'errors': errors, 'unregistered': unregistered, 'notes': notes,
-               'shown': shown_n, 'graph_only': len(graph_only)}, open(a.json, 'w'), ensure_ascii=False, indent=1)
+               'shown': shown_n, 'graph_only': len(graph_only), 'labeled': labeled, 'value_only': value_only},
+              open(a.json, 'w'), ensure_ascii=False, indent=1)
 sys.exit(1 if errors or unregistered else 0)

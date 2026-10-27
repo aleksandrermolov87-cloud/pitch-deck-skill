@@ -340,30 +340,85 @@ function barsTrend(box, data, opt = {}) {
   return els;
 }
 
-// Полоса долей вместо круговой диаграммы. data: { label, parts: [{ name, value, src? }], digits?, unit? }
+// Полоса долей вместо круговой диаграммы. data: { label, parts: [{ name, value, src? }], digits?, unit?, shareDigits?, display?, rest? }
 // Доли считаются как derived ratio к итогу; сегменты уже 0,7″ подписываются в легенде под полосой.
+// shareDigits — знаков у доли независимо от digits значений (по умолчанию 0). display: 'share' | 'value' | 'both' — что
+// подписывать: долю, исходное значение или оба (по умолчанию оба; значение в % не повторяется, если равно доле).
+// rest — остаток до целого, только явно, сам «Прочие» не появляется: { type: 'known', name?, value, src? } — известен из
+// источника; { type: 'computed', name?, whole? } — целое минус сумма частей (derived rest); { type: 'unknown', name?, whole? } —
+// не известен: часть полосы до целого пустая, без числа. Целое: rest.whole (вне % — факт с источником rest.src), для % — 100.
+// При целом 100% доля — само значение: одна подпись с digits знаками (15,64%), без второй округлённой.
+// Перед показом остатка сумма частей сверяется с целым с точностью n × 0,5 единицы последнего знака digits;
+// расход сверх точности — ошибка сборки, расчёт пишется в факт (calc) и выводится в facts_check.py.
 function stackedShare(box, data, opt = {}) {
   const { x, y, w } = box, d = data.digits || 0, lab = data.label || 'значение', els = [];
-  const total = data.parts.reduce((a, p) => a + p.value, 0), tones = [C.accent, C.bar, C.axis, C.muted, C.line];
+  const R = data.rest, pct = data.unit === '%', fresh = !!(R || data.shareDigits != null || data.display);   // без новых опций — как раньше
+  const sd = data.shareDigits ?? 0, tones = [C.accent, C.bar, C.axis, C.muted, C.line];
+  const rnd = (v, k) => Math.round(v * 10 ** k) / 10 ** k, pl = p => `${lab}: ${p.name}`, last = () => L.FACTS[L.FACTS.length - 1];
+  const sumP = data.parts.reduce((a, p) => a + p.value, 0), tol = data.parts.length * 0.5 * 10 ** -d + 1e-9;
+  let parts = data.parts, whole = null, gap = 0, calc = null, wholeL = null;
+  if (R) {
+    if (!['known', 'computed', 'unknown'].includes(R.type)) throw new Error('stackedShare: rest.type = known | computed | unknown');
+    const rn = R.name || (R.type === 'unknown' ? 'Нет данных' : 'Прочие');
+    if (R.whole != null && !(pct && R.whole === 100)) { wholeL = `${lab}: целое`; num(wholeL, R.whole, R.src || opt.src, d); }
+    whole = R.whole ?? (pct ? 100 : null);
+    if (R.type === 'computed' && whole == null) throw new Error('stackedShare: rest computed — нужно целое rest.whole с источником');
+    const list = ps => ps.map(p => fmt(p.value, d)).join(' + ');
+    if (R.type === 'known') {
+      if (typeof R.value !== 'number') throw new Error('stackedShare: rest known — нужно value с источником');
+      parts = [...parts, { name: rn, value: R.value, src: R.src, rest: 'known' }];
+      const s = sumP + R.value, t2 = tol + 0.5 * 10 ** -d;
+      if (whole != null && Math.abs(s - whole) > t2) throw new Error(`stackedShare: части и остаток дают ${fmt(s, d)}, а целое ${fmt(whole, d)} (точность ±${fmt(t2, d + 1)})`);
+      calc = `${list(parts)} = ${fmt(rnd(s, d), d)}` + (whole != null ? ` при целом ${fmt(whole, d)}, точность ±${fmt(t2, d + 1)}` : '');
+    } else if (whole != null) {
+      const r = rnd(whole - sumP, d), zero = Math.abs(whole - sumP) <= tol;
+      if (whole - sumP < -tol) throw new Error(`stackedShare: сумма частей ${fmt(rnd(sumP, d), d)} больше целого ${fmt(whole, d)} сверх точности ±${fmt(tol, d + 1)}`);
+      calc = `${fmt(whole, d)} − (${list(data.parts)}) = ${fmt(zero ? 0 : r, d)}` + (zero ? `: в пределах точности ±${fmt(tol, d + 1)}, остатка нет` : '');
+      if (R.type === 'computed' && !zero) parts = [...parts, { name: rn, value: r, rest: 'computed' }];
+      if (R.type === 'unknown' && !zero) gap = r;
+    } else calc = `${list(data.parts)} = ${fmt(rnd(sumP, d), d)}; целое и остаток неизвестны, доли не считаются`;
+    if (gap) parts = [...parts, { name: rn, value: gap, rest: 'unknown' }];
+  }
+  const shown = parts.filter(p => p.rest !== 'unknown'), total = shown.reduce((a, p) => a + p.value, 0);
+  const D = whole ?? total, same100 = pct && whole === 100, noShare = R && R.type === 'unknown' && whole == null;
+  const show = noShare ? 'value' : data.display || 'both';
   const totLabel = `${lab} итого`;
-  num(totLabel, total, { type: 'derived', from: data.parts.map(p => `${lab}: ${p.name}`), op: 'sum' }, d);
+  num(totLabel, total, { type: 'derived', from: shown.map(pl), op: 'sum' }, d);
+  if (calc) last().calc = calc;
   let xx = x;
   const by = y + 0.75, bh = Math.min(1.2, box.h * 0.3), legend = [];
-  data.parts.forEach((p, i) => {
-    const pw = p.value / total * w, fill = tones[i % tones.length];
-    const v = num(`${lab}: ${p.name}`, p.value, p.src || opt.src, d) + unitOf(data.unit);
-    const share = num(`доля ${p.name}`, Math.round(p.value / total * 100), { type: 'derived', from: [`${lab}: ${p.name}`, totLabel], op: 'ratio', scale: 0.01 });
-    const same = data.unit === '%' && Math.round(p.value / total * 100) === p.value;   // данные уже в процентах: второй раз не пишем
+  parts.forEach((p, i) => {
+    const pw = p.value / D * w, fill = p.rest ? C.line : tones[i % tones.length];
+    if (p.rest === 'unknown') {   // остаток не известен: пустая часть полосы, подпись без числа
+      els.push(rect(xx, by, Math.max(0.03, pw - 0.03), bh, { line: C.rule, lw: 0.75 }));
+      if (pw >= tw(p.name, 13) + 0.25) els.push(text(xx, by + bh + 0.12, pw - 0.1, 0.62, p.name, { size: 13, color: C.muted, ls: 1.1 }));
+      else legend.push({ fill: null, t: p.name });
+      xx += pw;
+      return;
+    }
+    const vsrc = p.rest === 'computed' ? { type: 'derived', from: data.parts.map(pl), op: 'rest', whole } : p.src || opt.src;
+    const v = num(pl(p), p.value, vsrc, d) + unitOf(data.unit);
+    if (p.rest === 'computed') last().calc = calc;
+    let share = null, same = false;
+    if (same100) { share = v.replace(/%$/, ''); same = true; }   // доля от 100% — само значение, вторая подпись не нужна
+    else if (show !== 'value') {
+      const sv = rnd(p.value / D * 100, sd);
+      share = num(`доля ${p.name}`, sv, { type: 'derived', from: [pl(p), wholeL || totLabel], op: 'ratio', scale: 0.01 }, sd);
+      last().unit = '%';
+      same = pct && Math.abs(sv - p.value) < 1e-9;   // данные уже в процентах: второй раз не пишем
+    }
+    const big = show === 'value' ? v : `${share}%`, both = show === 'both' && !same;
     els.push(rect(xx, by, Math.max(0.03, pw - 0.03), bh, { fill }));
-    if (pw >= Math.max(0.7, tw(p.name, 13, true) + 0.25)) {   // подпись в сегменте, только если имя в него влезает
-      els.push(text(xx, y, pw - 0.1, 0.62, `${share}%`, { size: i === 0 ? 36 : 24, bold: true, color: i === 0 ? C.accentInk : C.ink, valign: 'bottom' }));
-      els.push(text(xx, by + bh + 0.12, pw - 0.1, 0.62, same ? p.name : [{ t: p.name, b: true, c: C.ink }, { t: `\n${v}` }], { size: 13, color: same ? C.ink : C.muted, bold: same, ls: 1.1 }));
-    } else legend.push({ fill, t: same ? `${p.name}: ${share}%` : `${p.name}: ${share}%, ${v}` });
+    const fit = Math.max(0.7, tw(p.name, 13, true) + 0.25, fresh ? tw(big, i === 0 ? 36 : 24, true) + 0.1 : 0);
+    if (pw >= fit) {   // подпись в сегменте, только если имя (и число) в него влезает
+      els.push(text(xx, y, pw - 0.1, 0.62, big, { size: i === 0 ? 36 : 24, bold: true, color: i === 0 ? C.accentInk : C.ink, valign: 'bottom' }));
+      els.push(text(xx, by + bh + 0.12, pw - 0.1, 0.62, !both ? p.name : [{ t: p.name, b: true, c: C.ink }, { t: `\n${v}` }], { size: 13, color: !both ? C.ink : C.muted, bold: !both, ls: 1.1 }));
+    } else legend.push({ fill, t: both ? `${p.name}: ${share}%, ${v}` : `${p.name}: ${big}` });
     xx += pw;
   });
   legend.forEach((l, i) => {
     const ly = by + bh + 0.9 + i * 0.32;
-    els.push(rect(x + w - 3.4, ly + 0.08, 0.14, 0.14, { fill: l.fill }));
+    els.push(rect(x + w - 3.4, ly + 0.08, 0.14, 0.14, l.fill ? { fill: l.fill } : { line: C.rule, lw: 0.75 }));
     els.push(text(x + w - 3.18, ly, 3.18, 0.3, l.t, { size: 12, color: C.ink2, valign: 'middle' }));
   });
   return els;
@@ -578,66 +633,144 @@ const HELPERS = new Set(['sparkline', 'diamond', 'num', 'seg', 'knock', 'spread'
 // тоже идут в реестр фактов с пометкой auto: источник берётся из item.src, data.src или opt.src. Без источника
 // facts_check.py выдаст ошибку. build.js потом отмечает у каждого факта shown: можно ли прочитать число на слайде.
 // В обход идут только поля данных (DATA_KEYS), служебные числа раскладки (digits, at, w, from/to-индексы) не трогаются.
+// Идентичность факта: компонент (lib), вызов (cid), путь в данных (path: series[0].values[5]), ряд (series), период
+// (period — из periods / cols / ticks ближайшего объекта, в том числе вложенного: kpiHero.series.periods), единица (unit)
+// и источник. Число, которое компонент подписал через num(), получает те же поля: точка данных сопоставляется с его
+// фактом по ряду и периоду в подписи, затем по значению; один факт закрывает одну точку. Равные значения разных рядов —
+// разные факты, а не одно число.
 const DATA_KEYS = new Set(['value', 'values', 'series', 'plan', 'fact', 'target', 'a', 'b', 'us', 'avg', 'others', 'count',
   'units', 'share', 'kd', 'cac', 'ltv', 'margin', 'lo', 'base', 'hi', 'price', 'amount', 'scope', 'detractors', 'passives',
   'promoters', 'start', 'end', 'total', 'x', 'y', 'prev', 'cur', 'size', 'cost', 'median']);
 const NOT_DATA = { matrix2x2: ['x', 'y'], pictoGrid: ['value'] };   // позиции на схеме, а не измерения
-function plotted(name, data, opt, before) {
+const lc = s => String(s ?? '').replace(/[\s  ]+/g, ' ').trim().toLowerCase();
+function plotted(name, data, opt, before, cid) {
   if (!data || typeof data !== 'object') return;
-  const got = L.FACTS.slice(before).map(f => f.value), skip = new Set(NOT_DATA[name] || []);
-  const periods = data.periods || data.cols || data.ticks;
-  const walk = (o, path, src, key, owner) => {
-    if (Array.isArray(o)) return o.forEach((v, i) => walk(v, `${path}[${i}]`, src, key, owner));
+  const own = L.FACTS.slice(before), skip = new Set(NOT_DATA[name] || []), cand = [];
+  const walk = (o, path, c, key) => {
+    if (Array.isArray(o)) return o.forEach((v, i) => walk(v, `${path}[${i}]`, c, key));
     if (o && typeof o === 'object') {
-      const s = o.src || src, own = o.name || o.label || owner;
-      return Object.entries(o).forEach(([k, v]) => { if (k !== 'src') walk(v, path ? `${path}.${k}` : k, s, k, own); });
+      const n = { src: o.src || c.src, owner: o.name || o.label || c.owner, unit: o.unit ?? c.unit, periods: o.periods || o.cols || o.ticks || o.cats || c.periods };
+      return Object.entries(o).forEach(([k, v]) => { if (k !== 'src') walk(v, path ? `${path}.${k}` : k, n, k); });
     }
     if (typeof o !== 'number' || !Number.isFinite(o) || !DATA_KEYS.has(key) || skip.has(key)) return;
-    if (got.some(g => Math.abs(g - o) < 1e-9)) return;
-    const i = +((path.match(/\[(\d+)\]$/) || [])[1] ?? -1), when = Array.isArray(periods) && i >= 0 && periods[i] != null ? ` ${periods[i]}` : '';
-    const digits = (String(o).split('.')[1] || '').length;
-    L.FACTS.push({ slide: L.PAGE.n, label: `${name}: ${owner ? owner + ', ' : ''}${key}${when} [${path}]`, value: o, digits,
-      ...(src || { type: 'none' }), scale: (src && src.scale) || 1, auto: true, owner: owner || null, when: when.trim() || null });
-    got.push(o);
+    const i = +((path.match(/\[(\d+)\]$/) || [])[1] ?? -1), per = Array.isArray(c.periods) && i >= 0 && c.periods[i] != null ? String(c.periods[i]) : null;
+    cand.push({ value: o, path, key, src: c.src, owner: c.owner || null, period: per, unit: typeof c.unit === 'string' && c.unit ? c.unit : null });
   };
-  walk(data, '', (opt && opt.src) || data.src, null, null);
+  walk(data, '', { src: (opt && opt.src) || data.src, unit: opt && opt.unit }, null);
+  // подписанное число ↔ точка данных: сначала ряд и период совпадают с подписью факта, потом только значение
+  const free = own.filter(f => f.path == null), used = new Set();
+  const fits = (f, c) => f.type !== 'derived' && [c.owner, c.period].every(t => !t || lc(f.label).includes(lc(t)));
+  for (const strict of [true, false]) cand.forEach(c => {
+    if (c.f) return;
+    c.f = free.find(f => !used.has(f) && Math.abs(f.value - c.value) < 1e-9 && (!strict || fits(f, c)));
+    if (c.f) used.add(c.f);
+  });
+  cand.forEach(c => {
+    const id = { path: c.path, series: c.owner, period: c.period, unit: c.unit, id: `${cid}/${c.path}`, cid };
+    if (c.f) return Object.entries(id).forEach(([k, v]) => { if (c.f[k] == null) c.f[k] = v; });
+    const digits = (String(c.value).split('.')[1] || '').length;
+    L.FACTS.push({ slide: L.PAGE.n, label: `${name}: ${c.owner ? c.owner + ', ' : ''}${c.key}${c.period ? ' ' + c.period : ''} [${c.path}]`, value: c.value, digits,
+      ...(c.src || { type: 'none' }), scale: (c.src && c.src.scale) || 1, auto: true, owner: c.owner, when: c.period, ...id });
+  });
 }
 
-// opt.show: числа, которые бриф требует показать читаемо (coverage.json → show). Элемент — число, строка (часть подписи
-// факта: период, имя ряда) или { value | match, label?, unit? }. Если компонент сам не подписал такое число, обёртка
-// забирает 0,4″ снизу у бокса компонента и подписывает его строкой под графиком: «2024: 51,4%».
-function showStrip(name, box, els, opt, before) {
-  const facts = L.FACTS.slice(before), txt = els.filter(e => e && e.t === 'text').map(e => e.runs.map(r => r.t).join('')).join('\n');
-  const flat = s => s.replace(/[\s\u00a0\u202f]/g, '');
-  const seen = new Set((txt.match(/\d[\d\u00a0\u202f]*(?:[.,]\d+)?/g) || []).map(flat));
-  const runs = [], missing = [];
+// Видимость факта (build.js → shown и shown_as; showStrip — подписывать ли число). Число читается, если его токен есть
+// в тексте, связанном с фактом: у факта компонента — в текстах того же вызова (cid), у fact() из slides.js — в любом
+// тексте слайда. Один токен подтверждает один факт: равное число из другой подписи второму факту не засчитывается.
+// Строка opt.show (e.facts) подтверждает только свои факты. shown_as: label — в той же подписи есть период, единица и ряд
+// (ряд — если на этот период у вызова несколько рядов); value — число читается, контекст в другом месте (ось, подзаголовок);
+// graph — компонент число только нарисовал; none — не читается и не нарисовано. У нативной диаграммы (элемент t: 'chart'
+// того же вызова, kit/charts.js) подпись значения стоит на своей категории, а ряд назван в легенде: категории и имена
+// рядов считаются контекстом подписи, единица по-прежнему должна быть в самой подписи.
+const flatNum = s => s.replace(/[\s  ]/g, '');
+function linkShown(facts, els) {
+  const T = (els || []).filter(e => e && e.t === 'text').map(e => {
+    const s = e.runs.map(r => r.t).join('');
+    return { n: lc(s), cid: e.cid || null, only: Array.isArray(e.facts) ? new Set(e.facts) : null,
+      toks: (s.match(/\d[\d  ]*(?:[.,]\d+)?/g) || []).map(t => ({ v: flatNum(t), used: false })) };
+  });
+  const chart = new Map();   // вызов → категории и ряды нативной диаграммы
+  (els || []).forEach(e => { if (e && e.t === 'chart' && e.cid) chart.set(e.cid, new Set((e.data || []).flatMap(d => [...(d.labels || []), ...((e.data || []).length > 1 ? [d.name] : [])]).map(lc))); });
+  const rows = new Map();   // вызов|период → ряды
+  facts.forEach(f => { if (f.cid && f.period != null) { const k = `${f.cid}|${f.period}`; rows.set(k, (rows.get(k) || new Set()).add(f.series)); } });
+  const need = f => [f.period, f.unit, f.period != null && (rows.get(`${f.cid}|${f.period}`) || new Set()).size > 1 ? f.series : null]
+    .filter(t => t != null && t !== '').map(lc);
+  const res = new Map(), rank = f => (f.cid ? (f.auto ? 1 : 0) : 2);   // свои подписи компонента, точки графика, потом тексты слайда
+  [...facts].sort((a, b) => rank(a) - rank(b)).forEach(f => {
+    const exact = flatNum(fmt(Math.abs(f.value), f.digits || 0)), ctx = need(f);
+    const want = new Set([f.digits || 0, 0, 1, 2].map(d => flatNum(fmt(Math.abs(f.value), d))));
+    let best = null, score = -1;
+    T.forEach(t => {
+      if ((f.cid && t.cid !== f.cid) || (t.only && !t.only.has(f.id))) return;
+      const cc = chart.get(f.cid), full = ctx.every(c => t.n.includes(c) || (cc && cc.has(c)));
+      t.toks.forEach(k => {
+        const s = !k.used && want.has(k.v) ? (t.only ? 4 : 0) + (k.v === exact ? 2 : 0) + (full ? 1 : 0) : -1;
+        if (s > score) { best = { k, full }; score = s; }
+      });
+    });
+    if (best) best.k.used = true;
+    res.set(f, best ? (best.full ? 'label' : 'value') : f.lib ? 'graph' : 'none');
+  });
+  return res;
+}
+
+// opt.show: числа, которые бриф требует показать читаемо (coverage.json → show). Элемент — число, строка (период, имя ряда,
+// часть подписи факта или путь в данных 'series[0].values[5]') или { value | match | ref | series | period, label?, unit? }.
+// Если компонент сам не подписал этот факт, обёртка забирает 0,4″ снизу у бокса компонента и подписывает его строкой
+// под графиком: «2024: 51,4%». Единица — из spec.unit, opt.unit или данных факта.
+function showStrip(name, box, els, opt, before, cid) {
+  const facts = L.FACTS.slice(before), seen = linkShown(facts, els), runs = [], missing = [], ids = [];
+  const pick = spec => {
+    if (spec.ref != null) return facts.filter(f => f.path === spec.ref);
+    let c = facts;
+    if (spec.series != null) c = c.filter(f => lc(f.series).includes(lc(spec.series)));
+    if (spec.period != null) c = c.filter(f => f.period != null && lc(f.period) === lc(spec.period));
+    if (spec.value != null) c = c.filter(f => Math.abs(f.value - spec.value) < 1e-9);
+    if (spec.match != null) {
+      const m = lc(spec.match), p = c.filter(f => f.period != null && lc(f.period) === m);
+      c = p.length ? p : c.filter(f => String(f.label).includes(spec.match) || lc(f.series) === m);
+    }
+    return c;
+  };
   for (const w of opt.show) {
-    const spec = typeof w === 'object' ? w : typeof w === 'number' ? { value: w } : { match: w };
-    const f = facts.find(x => spec.value != null ? Math.abs(x.value - spec.value) < 1e-9 : String(x.label).includes(spec.match));
-    if (!f) { missing.push(spec.value ?? spec.match); continue; }
+    const spec = typeof w === 'object' ? w : typeof w === 'number' ? { value: w } : facts.some(f => f.path === w) ? { ref: w } : { match: w };
+    const c = pick(spec), f = c[0];
+    if (!f) { missing.push(spec.ref ?? spec.value ?? spec.match ?? [spec.series, spec.period].filter(x => x != null).join(' ')); continue; }
+    if (new Set(c.map(x => x.id)).size > 1 && spec.ref == null)
+      console.warn(`${name}: opt.show ${JSON.stringify(w)} — подходит ${c.length} факта (${c.slice(0, 3).map(x => x.path || x.label).join('; ')}), подписан первый; уточните series, period или ref`);
+    if (seen.get(f) === 'label' || seen.get(f) === 'value') continue;   // компонент уже подписал этот факт сам
     const v = fmt(f.value, f.digits || 0);
-    if (seen.has(flat(v))) continue;                       // компонент уже подписал число сам
     const label = spec.label || (f.auto ? [f.owner, f.when].filter(Boolean).join(', ') : f.label.replace(/^.*?:\s*/, '')) || f.label;
     if (runs.length) runs.push({ t: '    ' });
-    runs.push({ t: `${label}: ` }, { t: `${v}${unitOf(spec.unit ?? opt.unit ?? '')}`, b: true, c: C.ink });
+    runs.push({ t: `${label}: ` }, { t: `${v}${unitOf(spec.unit ?? opt.unit ?? f.unit ?? '')}`, b: true, c: C.ink });
+    ids.push(f.id);
   }
   if (missing.length) throw new Error(`${name}: opt.show — нет такого числа среди данных компонента: ${missing.join(', ')}`);
-  if (runs.length) els.push(text(box.x, box.y + box.h - 0.32, box.w, 0.3, runs, { size: 12, color: C.ink2, valign: 'middle', id: `${name}-show` }));
+  if (runs.length) els.push(text(box.x, box.y + box.h - 0.32, box.w, 0.3, runs, { size: 12, color: C.ink2, valign: 'middle', id: `${name}-show`, lib: name, cid, facts: ids }));
 }
 
+// cid — номер вызова компонента на слайде: «s6.lineChart#1». Им помечены факты и элементы вызова (связь подписи с фактом).
+const CALLS = {};
 for (const k of Object.keys(module.exports)) {
   const f = module.exports[k];
   if (HELPERS.has(k) || typeof f !== 'function') continue;
   module.exports[k] = function (...args) {
     const before = L.FACTS.length, opt = args[2], box = args[0];
+    const cid = `s${L.PAGE.n}.${k}#${CALLS[L.PAGE.n] = (CALLS[L.PAGE.n] || 0) + 1}`;
     const show = opt && Array.isArray(opt.show) && opt.show.length && box && box.h;
     if (show) args[0] = { ...box, h: box.h - 0.4 };
     const els = f.apply(this, args);
-    plotted(k, args[1], args[2], before);
-    L.FACTS.slice(before).forEach(f => { if (!f.lib) f.lib = k; });   // факт пришёл из компонента: число нарисовано им
-    if (show && Array.isArray(els)) showStrip(k, box, els, opt, before);
-    if (Array.isArray(els)) els.forEach(e => { if (e && typeof e === 'object' && !e.lib) e.lib = k; });
+    plotted(k, args[1], args[2], before, cid);
+    L.FACTS.slice(before).forEach(f => {   // факт пришёл из компонента: число нарисовано им
+      if (!f.lib) f.lib = k;
+      if (!f.cid) f.cid = cid;
+      if (!f.id) f.id = `${f.cid}/${f.label}`;
+    });
+    if (Array.isArray(els)) els.forEach(e => { if (e && typeof e === 'object') { if (!e.lib) e.lib = k; if (!e.cid) e.cid = cid; } });
+    if (show && Array.isArray(els)) showStrip(k, box, els, opt, before, cid);
     return els;
   };
 }
+HELPERS.add('linkShown');
+module.exports.linkShown = linkShown;
 module.exports.COMPONENTS = Object.keys(module.exports).filter(k => !HELPERS.has(k) && typeof module.exports[k] === 'function');

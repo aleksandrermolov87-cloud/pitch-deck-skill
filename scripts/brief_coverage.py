@@ -7,6 +7,8 @@
 # Скрипт не верит карте на слово: числа и ключевые слова требования он сам ищет в тексте слайдов и отдельно в заметках.
 # Число, которое есть только в заметках, не засчитывается как показанное на слайде. Число, которое только рисует
 # график (out/facts.json: shown = false), тоже: отчёт называет его «влияет на график, не подписано» и подсказывает opt.show.
+# Число, которое читается, но без своего периода или единицы в той же подписи (shown_as = value: период только на оси),
+# засчитывается как показанное с предупреждением «нарисовано и подписано числом, контекст отдельно».
 # out/coverage.md: требования по группам (на слайдах / изменено ради читаемости / только в заметках / нет или сокращено /
 # исключено) и карта по слайдам «слайд → требования». Код 1, если полнота не пройдена.
 # Запуск: $SKILL/.venv/bin/python -I brief_coverage.py …
@@ -163,13 +165,35 @@ def where_label(r):
     return 'обложка' if w == 'cover' else f"слайд {w.split(':')[1]}" if str(w).startswith('slide:') else 'любой слайд'
 
 
+def key_value(key):
+    try:
+        return float(norm(key).replace(' ', '').replace(',', '.'))
+    except ValueError:
+        return None
+
+
+def ident(f):
+    # идентичность факта из реестра: компонент, путь в данных, ряд, период
+    return ' '.join(x for x in (f.get('lib'), f.get('path'), f.get('series') if f.get('series') and f.get('path') else None,
+                                f.get('period')) if x) or f.get('label', '')
+
+
 def graph_only(key, nums):
     # число требования рисует компонент на этих слайдах (lib), но не подписано (shown = false в out/facts.json)
-    try:
-        v = float(norm(key).replace(' ', '').replace(',', '.'))
-    except ValueError:
+    v = key_value(key)
+    if v is None:
+        return [], []
+    fs = [f for f in FACTS if f.get('shown') is False and f.get('lib') and f['slide'] in nums and abs(abs(f['value']) - v) < 1e-9]
+    return sorted({f['slide'] for f in fs}), fs
+
+
+def value_only(key, nums):
+    # число видно, но ни один его факт на этих слайдах не подписан вместе с периодом и единицей (shown_as = value)
+    v = key_value(key)
+    if v is None:
         return []
-    return sorted({f['slide'] for f in FACTS if f.get('shown') is False and f.get('lib') and f['slide'] in nums and abs(abs(f['value']) - v) < 1e-9})
+    fs = [f for f in FACTS if f.get('shown') and f['slide'] in nums and abs(abs(f['value']) - v) < 1e-9]
+    return fs if fs and all(f.get('shown_as', 'label') == 'value' for f in fs) else []
 
 
 def where_is(key, nums):
@@ -190,6 +214,7 @@ for k in MAP:
         warns.append(f'coverage.json: «{k}» нет в requirements.json')
 
 rows = []
+soft, nolabel = [], set()   # подписано числом без периода и единицы: предупреждение, на полноту не влияет
 hits = {}            # слайд → требования, чьи числа или ключи на нём видны (карта по слайдам)
 for r in R:
     rid, must, req = r.get('id'), r.get('must', 'slide'), r.get('required', True)
@@ -251,10 +276,15 @@ for r in R:
                     if not note:
                         sev.append(f'{rid}: {kind} «{label}» нет в заметках')
                         mech.add('absent')
+                elif vis and kind == 'число' and value_only(alts(k)[0], vis):
+                    fs = value_only(alts(k)[0], vis)
+                    soft.append(f"{rid}: число «{label}» на слайде {sorted({f['slide'] for f in fs})} подписано без периода или единицы "
+                                f"в той же подписи ({ident(fs[0])}): нарисовано и читается, контекст только на оси или в подзаголовке")
+                    nolabel.add(rid)
                 elif not vis:
-                    g = graph_only(alts(k)[0], tgt) if kind == 'число' else []
+                    g, gf = graph_only(alts(k)[0], tgt) if kind == 'число' else ([], [])
                     if g:
-                        sev.append(f'{rid}: число «{label}» влияет на график слайда {g}, но его нельзя прочитать: подпишите его '
+                        sev.append(f'{rid}: число «{label}» влияет на график слайда {g} ({ident(gf[0])}), но его нельзя прочитать: подпишите его '
                                    f'(opt.show у компонента, подпись или текст рядом с графиком)')
                         mech.add('graph')
                     elif anyvis:
@@ -283,12 +313,13 @@ for r in R:
     else:
         bucket = 'slide'
     rows.append((rid, r['text'], st, place, (it or {}).get('paraphrase') or (it or {}).get('reason') or '', bad, bucket,
-                 sorted(mech)))
+                 sorted(mech | ({'nolabel'} if rid in nolabel else set()))))
+warns += soft
 
 # ── out/coverage.md: карта для REPORT.md ──
 GROUPS = [('slide', 'На слайдах'), ('edited', 'На слайдах, формулировка изменена ради читаемости'), ('notes', 'Только в заметках докладчика'),
           ('lost', 'Нет на слайдах или сокращено'), ('excluded', 'Исключено с причиной')]
-MECH = {'graph': 'число только в графике, без подписи', 'notes': 'только в заметках', 'elsewhere': 'не на том слайде', 'absent': 'нет в деке'}
+MECH = {'graph': 'число только в графике, без подписи', 'nolabel': 'число подписано без периода или единицы рядом', 'notes': 'только в заметках', 'elsewhere': 'не на том слайде', 'absent': 'нет в деке'}
 ok = sum(1 for x in rows if x[6] in ('slide', 'edited'))
 exc = sum(1 for x in rows if x[6] == 'excluded')
 md = ['## Полнота относительно брифа', '',

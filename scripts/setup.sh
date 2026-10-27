@@ -49,9 +49,10 @@ if [ ! -f "$SKILL/config.json" ]; then cp "$SKILL/config.default.json" "$SKILL/c
 node -e '
 const fs = require("fs"), f = process.argv[1], c = JSON.parse(fs.readFileSync(f, "utf8"));
 const mode = process.argv[2]; if (mode) { c.mode = mode; c.magic_mcp = mode === "full"; }
-if (process.argv[3] === "1") c.magicpatterns = false;
+if (process.argv[3] === "1") { c.magicpatterns = false; c.image_provider = "none"; }
+if (!c.image_provider) c.image_provider = c.magicpatterns === false ? "none" : "auto";   // config.json до 1.8.0
 fs.writeFileSync(f, JSON.stringify(c, null, 2) + "\n");
-console.log("  режим: " + c.mode + ", 21st Magic MCP: " + (c.magic_mcp ? "да" : "нет") + ", 3D Magic Patterns: " + (c.magicpatterns ? "да" : "нет"));' "$SKILL/config.json" "$MODE" "$NO3D"
+console.log("  режим: " + c.mode + ", 21st Magic MCP: " + (c.magic_mcp ? "да" : "нет") + ", 3D Magic Patterns: " + (c.magicpatterns ? "да" : "нет") + ", провайдер 3D: " + c.image_provider);' "$SKILL/config.json" "$MODE" "$NO3D"
 
 say "Шрифт бренда"
 [ -n "$FONTSRC" ] || FONTSRC=$(zsh "$SKILL/scripts/jget.sh" "$SKILL/config.json" font_source)
@@ -91,7 +92,8 @@ if [ $SELFTEST = 1 ]; then
     && "$SKILL/.venv/bin/python" -I "$SKILL/scripts/pptx_audit.py" ../Демо.pptx | tail -1 \
     && "$SKILL/.venv/bin/python" -I "$SKILL/scripts/facts_check.py" out/facts.json --root . --html out/deck.html | tail -1 \
     && "$SKILL/.venv/bin/python" -I "$SKILL/scripts/library_check.py" . | tail -1 \
-    && "$SKILL/.venv/bin/python" -I "$SKILL/scripts/brief_coverage.py" check . --map data/coverage.example.json | tail -1 | cut -d';' -f1) \
+    && "$SKILL/.venv/bin/python" -I "$SKILL/scripts/brief_coverage.py" check . --map data/coverage.example.json | tail -1 | cut -d';' -f1 \
+    && "$SKILL/.venv/bin/python" -I "$SKILL/scripts/variants.py" check | tail -1) \
     || { rm -rf "$ST"; echo "  самопроверка не пройдена"; exit 1; }
   zsh "$SKILL/scripts/publish_dir.sh" "$ST" "$SKILL/.selftest"
   echo "  PNG-превью: $SKILL/.selftest/src-demo/out/png"

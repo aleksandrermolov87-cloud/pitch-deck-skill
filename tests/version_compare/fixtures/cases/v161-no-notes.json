@@ -1,0 +1,43 @@
+{
+ "about": "1.6.x → новый: заметок в A нет, тексты и компоненты сравниваются, заметки — нет",
+ "A": {
+  "engine": "mid",
+  "inputs": {
+   "build.js": "build-mid",
+   "components.js": "components-mid"
+  },
+  "content_manifest": "no-notes",
+  "patch": [
+   [
+    "1",
+    "notes",
+    "__del__"
+   ],
+   [
+    "2",
+    "notes",
+    "__del__"
+   ]
+  ]
+ },
+ "B": {},
+ "expect": {
+  "comparable": true,
+  "kind": "контрольное сравнение версий навыка",
+  "checks": {
+   "content": "passed",
+   "pixels": "passed"
+  },
+  "changes": {
+   "1": [],
+   "2": []
+  },
+  "md_has": [
+   "Не сравнивались: заметки (нет в A)"
+  ],
+  "md_not": [
+   "заметки изменены",
+   "Содержание не удалось сравнить"
+  ]
+ }
+}

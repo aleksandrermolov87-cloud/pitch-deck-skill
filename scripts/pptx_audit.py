@@ -3,6 +3,7 @@
 # Код выхода 1, если есть ошибки (ERR). Предупреждения (WARN) не валят проверку, кроме --strict.
 import argparse
 import colorsys
+import io
 import json
 import os
 import re
@@ -98,7 +99,7 @@ for n, slide in enumerate(prs.slides, 1):
             add('ERR', n, f'«{sh.name}» выходит за холст: x {x:.2f} y {y:.2f} w {w:.2f} h {h:.2f}')
         if not full_bleed and y > BODY_TOP - 0.05 and y < BODY_BOT and w * h < SW * SH * 0.4:
             txt = sh.text_frame.text.strip() if sh.has_text_frame else ''
-            kind = 'image' if sh.shape_type == 13 else 'text' if txt else 'line' if (w < 0.02 or h < 0.02) else 'dot' if (w < 0.13 and h < 0.13) else 'shape'
+            kind = 'image' if sh.shape_type == 13 else 'chart' if getattr(sh, 'has_chart', False) else 'text' if txt else 'line' if (w < 0.02 or h < 0.02) else 'dot' if (w < 0.13 and h < 0.13) else 'shape'
             body.append((kind, x, y, w, h, txt))
         if sh.has_text_frame and sh.text_frame.text.strip():
             t = sh.text_frame.text.strip()
@@ -192,6 +193,9 @@ for n, slide in enumerate(prs.slides, 1):
             content_right = max(content_right, (sh.left + sh.width) / EMU)
     graphics, containers = 0, 0
     for b in body:
+        if b[0] == 'chart':
+            graphics += 2          # нативная диаграмма PowerPoint — инфографика сама по себе
+            continue
         if b[0] != 'shape':
             continue
         inner = holds(b)
@@ -223,8 +227,79 @@ for n, slide in enumerate(prs.slides, 1):
     if fill < 0.12 and len(texts) > 1:
         add('WARN', n, f'занято ~{fill:.0%} холста: проверьте пустоту без функции')
 
+# Нативные диаграммы PowerPoint (kit/charts.js → nativeChart): встроенная таблица без внешней связи, ссылки ряда
+# совпадают с кэшем диаграммы (иначе «Изменить данные» покажет другие числа), шрифты и кегли из темы.
+try:
+    import openpyxl as _xl
+except ImportError:
+    _xl = None
+
+
+def ref_values(ws, f):
+    # 'Sheet1!$B$2:$B$7' → значения ячеек по порядку
+    m = re.match(r"^'?([^'!]+)'?!\$?([A-Z]+)\$?(\d+)(?::\$?([A-Z]+)\$?(\d+))?$", f or '')
+    if not m:
+        return None
+    c1, r1, c2, r2 = m.group(2), int(m.group(3)), m.group(4) or m.group(2), int(m.group(5) or m.group(3))
+    return [c.value for row in ws[f'{c1}{r1}:{c2}{r2}'] for c in row]
+
+
+def same(a, b):
+    if isinstance(a, (int, float)) or isinstance(b, (int, float)):
+        try:
+            return abs(float(a) - float(b)) < 1e-9
+        except (TypeError, ValueError):
+            return False
+    return (a if a is not None else '') == (b if b is not None else '')
+
+
+for n, slide in enumerate(prs.slides, 1):
+    for sh in walk(slide.shapes):
+        if not getattr(sh, 'has_chart', False):
+            continue
+        cs, name = sh.chart._chartSpace, f'диаграмма «{sh.name}»'
+        for tf in sorted({t for t in cs.xpath('.//a:latin/@typeface') if not t.startswith('+')}):
+            if FONTS and tf not in FONTS:
+                add('ERR', n, f'{name}: шрифт «{tf}» не из темы {sorted(FONTS)}')
+        for sz in {int(v) for v in cs.xpath('.//a:defRPr/@sz')}:
+            if sz / 100 < MIN_PT:
+                add('ERR', n, f'{name}: кегль {sz / 100} pt меньше {MIN_PT}')
+        ext = [r for r in sh.chart.part.rels.values() if r.is_external]
+        if ext:
+            add('ERR', n, f'{name}: связь с внешним файлом ({ext[0].target_ref}): данные должны быть встроены')
+        wb = sh.chart.part.chart_workbook.xlsx_part
+        if wb is None:
+            add('ERR', n, f'{name}: нет встроенной таблицы, «Изменить данные» в PowerPoint не откроется')
+            continue
+        if _xl is None:
+            continue
+        try:
+            book = _xl.load_workbook(io.BytesIO(wb.blob))
+        except Exception as e:
+            add('ERR', n, f'{name}: встроенная таблица не читается ({e.__class__.__name__})')
+            continue
+        bad = []
+        for ser in cs.xpath('.//c:ser'):
+            for part, cache in (('c:tx', './/c:strCache//c:v'), ('c:cat', './/c:lvl/c:pt/c:v|.//c:strCache//c:v|.//c:numCache//c:v'), ('c:val', './/c:numCache/c:pt/c:v')):
+                fs = ser.xpath(f'./{part}//c:f')
+                if not fs:
+                    continue
+                f = fs[0].text
+                sheet = f.split('!')[0].strip("'")
+                if sheet not in book.sheetnames:
+                    bad.append(f'{f}: нет листа')
+                    continue
+                got = ref_values(book[sheet], f)
+                want = [v.text for v in ser.xpath(f'./{part}')[0].xpath(cache)]
+                if part == 'c:val':
+                    pts = {int(p.get('idx')): p.xpath('./c:v')[0].text for p in ser.xpath('./c:val//c:numCache/c:pt')}
+                    want = [pts.get(i) for i in range(len(got or []))]
+                if got is None or len(got) != len(want) or not all(same(g, w) for g, w in zip(got, want)):
+                    bad.append(f'{f}: таблица {got} ≠ кэш {want}')
+        if bad:
+            add('ERR', n, f'{name}: кэш диаграммы расходится со встроенной таблицей: {bad[0]}')
+
 # Размещение 3D-объектов и картинок (reference/09-3d-objects.md, раздел 6)
-import io
 try:
     from PIL import Image as _PIL
 except ImportError:

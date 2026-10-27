@@ -60,6 +60,38 @@ const S = [
     ],
   }, { src: SRC }), 'pricing-tiers'),
 
+  // неполные данные: цен нет — акцент на покрытии и условиях; цена известна не у всех тарифов
+  slide('pricingTiers', 'Три программы КАСКО по покрытию', 'Цены не раскрыты: вместо цены условия программы и состав покрытия', () => K.pricingTiers(B(0.3), {
+    noPrice: 'цена зависит от авто и стажа',
+    tiers: [
+      { name: 'Мини', note: 'только тотальная гибель и угон, ремонт за свой счёт' },
+      { name: 'Стандарт', note: 'ремонт на СТО партнёра, эвакуатор и аварийный комиссар', recommended: true },
+      { name: 'Премиум', note: 'ремонт у дилера, подменный автомобиль на время ремонта' },
+    ],
+    features: [
+      { name: 'Угон и тотальная гибель', values: [true, true, true] },
+      { name: 'Ремонт после ДТП', values: [false, 'СТО партнёра', 'у дилера'] },
+      { name: 'Эвакуатор', values: [false, true, true] },
+      { name: 'Подменный автомобиль', values: [false, false, true] },
+      { name: 'Стекла без справок', values: [false, true, 'unknown'] },
+    ],
+  }, { src: SRC }), 'pricing-tiers'),
+
+  slide('pricingTiers', 'Цена известна у двух тарифов из трёх', 'Тариф без цены показывает причину, остальные — цену крупно', () => K.pricingTiers(B(0.3), {
+    unit: '₽ в месяц',
+    tiers: [
+      { name: 'Базовый', price: 290, note: 'стены, пол и потолок' },
+      { name: 'Оптимальный', price: 590, note: 'квартира, вещи и соседи', recommended: true },
+      { name: 'Для бизнеса', price: 'по запросу', note: 'офис, склад и оборудование' },
+    ],
+    features: [
+      { name: 'Пожар и залив', values: [true, true, true] },
+      { name: 'Лимит', prefix: 'до ', unit: 'млн ₽', values: [1, 3, 'unknown'] },
+      { name: 'Кража вещей', values: [false, true, true] },
+      { name: 'Ответственность перед соседями', values: [false, true, true] },
+    ],
+  }, { src: SRC }), 'pricing-tiers'),
+
   slide('driversDiverging', 'Приложение перекрывает отток', 'Расходящиеся полосы от нуля, по убыванию, итог как сумма вкладов', () => K.driversDiverging(B(0.3), {
     label: 'вклад в рост выручки', unit: 'п. п.', digits: 1, total: 'Рост выручки за год',
     items: [

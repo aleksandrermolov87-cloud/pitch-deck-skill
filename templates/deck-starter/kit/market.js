@@ -4,7 +4,7 @@
 const L = require('../lib.js');
 const U = require('./util.js');
 const { C, THEME, rect, oval, hline, vline, text, tw } = L;
-const { num, minus, unitOf, lines, lh, onBar, seg, spread } = U;
+const { num, minus, unitOf, lines, known, NA, naText, lh, onBar, seg, spread } = U;
 
 const srcOf = (it, data, opt) => (it && it.src) || data.src || opt.src;
 const signed = (v, s) => (v > 0 ? `+${s}` : minus(s));
@@ -204,17 +204,23 @@ function cohortGrid(box, data, opt = {}) {
 
 // Тарифы колонками без карточек: цена крупно, рекомендуемый тариф тоном-подложкой, возможности списком с ✓ и —.
 // Вопрос: «сколько стоит и что входит?»
-// data: { unit: '₽ в месяц', badge?, tiers: [{ name, price, digits?, note, recommended?, src? }],
-//         features: [{ name, values: [true | false | 'текст' | число], unit?, prefix? }] }
+// data: { unit: '₽ в месяц', badge?, noPrice?: 'цена: нет данных', tiers: [{ name, price?, digits?, note, recommended?, src? }],
+//         features: [{ name, values: [true | false | 'текст' | число | 'unknown'], unit?, prefix? }] }
 // Числовое значение возможности (лимит) регистрируется как факт «имя: тариф».
+// price необязателен: null, undefined, 'unknown' — на месте цены «нет данных» (data.noPrice), строка — её текст («по запросу»).
+// Цены нет ни у одного тарифа — качественный режим: строки цены нет, крупнее название и условия (note), состав выше.
+// 'unknown' в возможности — «нет данных» пустым кружком: не «входит» и не «не входит». Без цены в реестр ничего не идёт.
 function pricingTiers(box, data, opt = {}) {
   const { x, y, w, h } = box, n = data.tiers.length, gap = 0.5, cw = (w - gap * (n - 1)) / n, pad = 0.22, iw = cw - 2 * pad, els = [];
-  const MW = 0.38, fy = y + 1.95, fs = 13;
+  const priced = data.tiers.some(t => known(t.price)), noP = t => naText(t.price, data.noPrice || 'цена: нет данных');
+  const NS = priced ? 11 : 13, nh = lh(NS) * Math.max(2, ...data.tiers.map(t => (t.note ? lines(t.note, NS, iw) : 0))) + 0.02;
+  const MW = 0.38, fy = priced ? y + 1.95 : y + 1.0 + nh + 0.34, fs = 13;
+  const unk = v => v === 'unknown';
   // подписи возможностей по тарифам; строки общие для всех колонок, высота — по самой длинной подписи в строке
   const labels = data.features.map(f => data.tiers.map((t, j) => {
     const v = f.values[j];
     return typeof v === 'number' ? `${f.name}: ${f.prefix || ''}${num(`${f.name}: ${t.name}`, v, srcOf(f, data, opt) || srcOf(t, data, opt), f.digits || 0)}${unitOf(f.unit)}`
-      : typeof v === 'string' ? `${f.name}: ${v}` : f.name;
+      : unk(v) ? `${f.name}: ${NA}` : typeof v === 'string' ? `${f.name}: ${v}` : f.name;
   }));
   const nl = labels.map(r => Math.max(...r.map(l => lines(l, fs, iw - MW))));
   const rg = Math.max(0.08, Math.min(0.2, (y + h - fy - nl.reduce((a, k) => a + k * lh(fs), 0)) / nl.length));
@@ -227,14 +233,23 @@ function pricingTiers(box, data, opt = {}) {
       els.push(rect(cx + cw - pad - bw, y - 0.21, bw, 0.32, { r: 0.16, fill: C.accent }));
       els.push(text(cx + cw - pad - bw, y - 0.21, bw, 0.32, b, { size: 13, bold: true, color: C.onAccent, align: 'center', valign: 'middle' }));
     }
-    els.push(text(tx, y + 0.14, iw, 0.34, t.name, { size: 15, bold: true, color: rec ? C.accentInk : C.ink, valign: 'middle' }));
-    els.push(text(tx, y + 0.52, iw, 0.7, [{ t: num(`цена ${t.name}`, t.price, srcOf(t, data, opt), t.digits || 0) }, { t: unitOf(data.unit || '₽'), s: 15, b: false, c: C.muted }], { size: 40, bold: true, color: rec ? C.accentInk : C.ink, valign: 'bottom' }));
-    if (t.note) els.push(text(tx, y + 1.28, iw, lh(11) * 2 + 0.02, t.note, { size: 11, color: C.muted, ls: 1.1 }));
+    if (priced) {
+      els.push(text(tx, y + 0.14, iw, 0.34, t.name, { size: 15, bold: true, color: rec ? C.accentInk : C.ink, valign: 'middle' }));
+      els.push(known(t.price)
+        ? text(tx, y + 0.52, iw, 0.7, [{ t: num(`цена ${t.name}`, t.price, srcOf(t, data, opt), t.digits || 0) }, { t: unitOf(data.unit || '₽'), s: 15, b: false, c: C.muted }], { size: 40, bold: true, color: rec ? C.accentInk : C.ink, valign: 'bottom' })
+        : text(tx, y + 0.52, iw, 0.7, noP(t), { size: 20, bold: true, color: C.muted, valign: 'bottom' }));
+      if (t.note) els.push(text(tx, y + 1.28, iw, lh(11) * 2 + 0.02, t.note, { size: 11, color: C.muted, ls: 1.1 }));
+    } else {
+      els.push(text(tx, y + 0.14, iw, 0.46, t.name, { size: 22, bold: true, color: rec ? C.accentInk : C.ink, valign: 'middle' }));
+      els.push(text(tx, y + 0.62, iw, 0.3, noP(t), { size: 13, color: C.muted, valign: 'middle' }));
+      if (t.note) els.push(text(tx, y + 1.0, iw, nh, t.note, { size: NS, color: C.ink2, ls: 1.1 }));
+    }
     els.push(hline(tx, tx + iw, fy - 0.12, { color: rec ? C.accent : C.axis, lw: rec ? 1.5 : 0.75 }));
     data.features.forEach((f, i) => {
-      const v = f.values[j], on = v !== false && v != null, yy = ry[i], d = 0.24, my = yy + lh(fs) / 2;
-      // «входит» — точка с галочкой (кодирование, а не символ в строке), «не входит» — тире
+      const v = f.values[j], on = v !== false && v != null && !unk(v), yy = ry[i], d = 0.24, my = yy + lh(fs) / 2;
+      // «входит» — точка с галочкой (кодирование, а не символ в строке), «не входит» — тире, «нет данных» — пустой кружок
       if (on) els.push(oval(tx + d / 2, my, d, { fill: rec ? C.accent : C.bar }), text(tx, my - d / 2, d, d, '✓', { size: 11, bold: true, color: rec ? C.onAccent : onBar(), align: 'center', valign: 'middle' }));
+      else if (unk(v)) els.push(oval(tx + d / 2, my, d - 0.04, { line: C.muted, lw: 1 }));
       else els.push(text(tx, yy, d, lh(fs), '—', { size: fs, color: C.muted, align: 'center', valign: 'middle' }));
       els.push(text(tx + MW, yy, iw - MW, nl[i] * lh(fs) + 0.02, labels[i][j], { size: fs, color: on ? C.ink : C.muted, ls: 1.1 }));
     });

@@ -50,7 +50,17 @@ if command -v claude >/dev/null; then
 else
   warn "CLI claude не найден в PATH: проверку MCP делает агент в чате (инструменты mcp__21st__*, generate_image)"
 fi
+echo "Проверка PPTX в целевом приложении (по желанию, pptx_target_check.sh; приложение здесь не запускается):"
+PPAPP="/Applications/Microsoft PowerPoint.app"
+if [ "$(uname)" = Darwin ] && [ -f "$PPAPP/Contents/Info.plist" ]; then
+  ok "Microsoft PowerPoint $(plutil -extract CFBundleShortVersionString raw "$PPAPP/Contents/Info.plist" 2>/dev/null) (экспорт в PDF через AppleScript; macOS может спросить разрешение на управление)"
+else warn "Microsoft PowerPoint не найден"; fi
+SOFFICE=$(command -v soffice || command -v libreoffice || { [ -x /Applications/LibreOffice.app/Contents/MacOS/soffice ] && echo /Applications/LibreOffice.app/Contents/MacOS/soffice; })
+[ -n "$SOFFICE" ] && ok "LibreOffice: $SOFFICE" || warn "LibreOffice не найден (по желанию: brew install --cask libreoffice)"
+miss=(); for t in pdfinfo pdftotext pdffonts pdfimages pdftoppm; do command -v $t >/dev/null || miss+=$t; done
+[ ${#miss} = 0 ] && ok "poppler (pdftotext, pdffonts, pdfimages, pdftoppm): разбор PDF из приложения" \
+  || warn "нет ${miss[*]}: без poppler приложение только откроет файл, а переносы, шрифты и картинки не проверятся (brew install poppler)"
+{ [ -f "$PPAPP/Contents/Info.plist" ] || [ -n "$SOFFICE" ]; } || warn "ни PowerPoint, ни LibreOffice: в отчёте будет «не выполнялось»; ручной просмотр — pptx_target_check.sh manual"
 echo "Ручные настройки (проверяет агент в чате):"
 echo "  • Claude in Chrome или Computer Use — для просмотра Figma-референсов в планировщике (этап 0)"
-echo "  • Microsoft PowerPoint — по желанию, для финальной проверки файла"
 exit $bad

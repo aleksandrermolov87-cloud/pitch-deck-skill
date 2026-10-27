@@ -1,0 +1,261 @@
+{
+ "manifest": {
+  "created": "2026-01-01T00:00:00",
+  "src": "/synthetic/src-test",
+  "themes": [
+   "dark",
+   "light"
+  ],
+  "environment": {
+   "os": "synthetic",
+   "node": "v0",
+   "pptxgenjs": "0",
+   "chrome": "synthetic",
+   "fonts": {},
+   "render_scale": 1,
+   "python": "3",
+   "python_packages": {},
+   "checks_skill": {
+    "version": "0",
+    "commit": "0",
+    "dirty": false
+   }
+  },
+  "checks": [],
+  "slides": {},
+  "outputs": {},
+  "inputs": {}
+ },
+ "engines": {
+  "old": {
+   "source": "v1.5.0",
+   "commit": "aaaaaaaaaaaa",
+   "version": "1.5.0"
+  },
+  "mid": {
+   "source": "v1.6.1",
+   "commit": "cccccccccccc",
+   "version": "1.6.1"
+  },
+  "new": {
+   "source": "skill",
+   "commit": "bbbbbbbbbbbb",
+   "version": "9.9.9",
+   "dirty": false
+  }
+ },
+ "inputs": {
+  "slides.js": "markup-1",
+  "data/brief.md": "brief-1",
+  "build.js": "build-new",
+  "components.js": "components-new"
+ },
+ "png": {
+  "s1": "p1",
+  "s2": "p2"
+ },
+ "content": {
+  "full": {
+   "1": {
+    "archetype": "text-statement",
+    "lib": [
+     "statementHero"
+    ],
+    "custom": null,
+    "title": "",
+    "texts": [
+     "Тестовая дека",
+     "Октябрь 2026"
+    ],
+    "notes": "Заметка к обложке."
+   },
+   "2": {
+    "archetype": "chart",
+    "lib": [
+     "barsTrend"
+    ],
+    "custom": null,
+    "title": "Выручка растёт",
+    "texts": [
+     "Выручка растёт",
+     "120 млн ₽",
+     "Источник: условные данные"
+    ],
+    "notes": "Числа условные."
+   }
+  },
+  "empty": {
+   "1": {
+    "archetype": "text-statement",
+    "lib": [],
+    "custom": null,
+    "title": "",
+    "texts": [],
+    "notes": ""
+   },
+   "2": {
+    "archetype": "chart",
+    "lib": [],
+    "custom": null,
+    "title": "",
+    "texts": [],
+    "notes": ""
+   }
+  },
+  "legacy150": {
+   "1": {
+    "archetype": "text-statement",
+    "lib": [],
+    "custom": null,
+    "title": "",
+    "texts": [],
+    "notes": ""
+   },
+   "2": {
+    "archetype": "chart",
+    "lib": [],
+    "custom": null,
+    "title": "",
+    "texts": [],
+    "notes": ""
+   }
+  },
+  "none": {}
+ },
+ "content_manifest": {
+  "full": {
+   "format": 1,
+   "source": "out/slides.json",
+   "fields": [
+    "archetype",
+    "lib",
+    "custom",
+    "texts",
+    "notes"
+   ],
+   "note": ""
+  },
+  "old150": {
+   "format": 1,
+   "source": "out/slides.json",
+   "fields": [
+    "archetype"
+   ],
+   "note": "сборщик 1.5.0 не записал в out/slides.json: компоненты, причина своего компонента (custom), тексты, заметки"
+  },
+  "no-notes": {
+   "format": 1,
+   "source": "out/slides.json",
+   "fields": [
+    "archetype",
+    "lib",
+    "custom",
+    "texts"
+   ],
+   "note": "сборщик 1.6.1 не записал в out/slides.json: заметки"
+  },
+  "no-slides": {
+   "format": 1,
+   "source": null,
+   "fields": [],
+   "note": "нет out/slides.json: сборка не удалась или сборщик его не пишет"
+  },
+  "future": {
+   "format": 99,
+   "source": "out/slides.json",
+   "fields": [
+    "archetype",
+    "lib",
+    "custom",
+    "texts",
+    "notes"
+   ],
+   "note": ""
+  }
+ },
+ "slides_json": {
+  "old": [
+   {
+    "n": 1,
+    "fn": "cover",
+    "archetype": "text-statement",
+    "title": "",
+    "hidden": false
+   },
+   {
+    "n": 2,
+    "fn": "revenue",
+    "archetype": "chart",
+    "title": "Выручка растёт",
+    "hidden": false
+   }
+  ],
+  "full": [
+   {
+    "n": 1,
+    "fn": "cover",
+    "archetype": "text-statement",
+    "title": "",
+    "hidden": false,
+    "bg": null,
+    "lib": [
+     "statementHero"
+    ],
+    "custom": null,
+    "texts": [
+     {
+      "id": null,
+      "lib": "statementHero",
+      "runs": [
+       "Тестовая дека"
+      ]
+     },
+     {
+      "id": null,
+      "lib": "statementHero",
+      "runs": [
+       "Октябрь 2026"
+      ]
+     }
+    ],
+    "notes": "Заметка к обложке."
+   },
+   {
+    "n": 2,
+    "fn": "revenue",
+    "archetype": "chart",
+    "title": "Выручка растёт",
+    "hidden": false,
+    "bg": null,
+    "lib": [
+     "barsTrend"
+    ],
+    "custom": null,
+    "texts": [
+     {
+      "id": null,
+      "lib": "barsTrend",
+      "runs": [
+       "Выручка растёт"
+      ]
+     },
+     {
+      "id": null,
+      "lib": "barsTrend",
+      "runs": [
+       "120 млн ₽"
+      ]
+     },
+     {
+      "id": null,
+      "lib": "barsTrend",
+      "runs": [
+       "Источник: условные данные"
+      ]
+     }
+    ],
+    "notes": "Числа условные."
+   }
+  ]
+ }
+}

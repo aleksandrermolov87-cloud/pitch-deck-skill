@@ -1,0 +1,46 @@
+{
+ "about": "1.5.0 → новый: новый прогон записал, что сборщик отдал только архетип",
+ "A": {
+  "engine": "old",
+  "inputs": {
+   "build.js": "build-old",
+   "components.js": "components-old"
+  },
+  "content": {
+   "1": {
+    "archetype": "text-statement",
+    "title": ""
+   },
+   "2": {
+    "archetype": "chart",
+    "title": "Выручка растёт"
+   }
+  },
+  "content_manifest": "old150"
+ },
+ "B": {},
+ "expect": {
+  "comparable": false,
+  "reason": "A: сборщик 1.5.0 не записал в out/slides.json: компоненты",
+  "kind": "контрольное сравнение версий навыка",
+  "checks": {
+   "pixels": "passed",
+   "control": "passed",
+   "pptx-content": "passed",
+   "content": "not_run"
+  },
+  "no_changes": true,
+  "md_has": [
+   "## Изменения содержания (редакционные)",
+   "Содержание не удалось сравнить",
+   "редакционных правок между прогонами не было"
+  ],
+  "md_not": [
+   "- **Слайд",
+   "текст: убрано",
+   "заметки изменены",
+   "компоненты: ",
+   "## Компоненты по слайдам"
+  ]
+ }
+}

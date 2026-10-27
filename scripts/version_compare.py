@@ -1,4 +1,4 @@
-# Контрольное сравнение версий навыка (reference/15-version-compare.md).
+# Контрольное сравнение версий навыка (reference/16-version-compare.md).
 #   version_compare.py run <src> --runs <папка> [--engine deck|skill|<git-тег>] [--label имя] [--themes dark,light] [--regen-bg]
 #       собирает деку в новой папке <runs>/<время>_<метка>/: входы (slides.js, data/, theme.json, deck.json, img/) — из проекта,
 #       сборщик и компоненты (build.js, lib.js, components.js, kit/, render.sh, bg.py) — из --engine:
@@ -33,6 +33,11 @@ CATS = {'markup': 'разметка (slides.js)', 'data': 'бриф и данн�
         'builder': 'сборщик (build.js, lib.js, render.sh, bg.py)', 'components': 'компоненты (components.js, kit/)'}
 ENV_SIGNIFICANT = ['os', 'node', 'pptxgenjs', 'chrome', 'fonts', 'render_scale']   # влияют на PPTX и PNG
 ENV_CHECKS_ONLY = ['python', 'python_packages', 'checks_skill']                      # влияют только на проверки
+# манифест содержания (manifest.json → content): формат и поля, которые сравниваются как правка, а не сборщик
+CONTENT_FORMAT = 1
+CONTENT_FIELDS = ['archetype', 'lib', 'custom', 'texts', 'notes']
+FIELD_NAMES = {'archetype': 'архетип', 'lib': 'компоненты', 'custom': 'причина своего компонента (custom)', 'texts': 'тексты', 'notes': 'заметки'}
+FIELD_TYPES = {'archetype': (str, type(None)), 'lib': list, 'custom': (str, type(None)), 'texts': list, 'notes': str}
 DISCLAIMER = ('Попиксельное совпадение PNG сравнивает HTML-двойник слайдов, отрендеренный в headless Chrome. Оно не подтверждает, '
               'что PPTX так же откроется в PowerPoint (шрифты, переносы, автоподбор), и не является оценкой качества дизайна: '
               'одинаково плохой слайд совпадёт сам с собой. Изменение пикселей — повод посмотреть слайд, а не вердикт.')
@@ -260,12 +265,20 @@ def cmd_run(a):
         rc, o = sh([PY, '-I', os.path.join(SKILL, 'scripts', 'library_check.py'), '.'], cwd=work)
         C.append(check('library', 'passed' if rc == 0 else 'failed', f'library_check.py, {CHECKS_FROM}', 'содержательные слайды',
                        (o.strip().splitlines() or [''])[-1][:300] + ('' if rc == 0 else '. Сборщик до 1.6.0 не помечает компоненты, у старых версий эта проверка не проходит по определению')))
-    # содержание по слайдам: компоненты, тексты, заметки — чтобы сравнение отделило правки от сборщика
+    # содержание по слайдам: компоненты, тексты, заметки — чтобы сравнение отделило правки от сборщика.
+    # Пишем только поля, которые сборщик отдал: отсутствующее поле ≠ пустое (сборщик до 1.6.0 не пишет тексты и компоненты)
     mp = os.path.join(work, 'out', 'slides.json')
     if os.path.isfile(mp):
-        man['content'] = {str(x['n']): {'archetype': x.get('archetype'), 'lib': x.get('lib') or [], 'custom': x.get('custom'),
-                                        'title': x.get('title', ''), 'texts': [''.join(t['runs']) for t in x.get('texts', [])],
-                                        'notes': x.get('notes', '')} for x in json.load(open(mp, encoding='utf-8'))}
+        raw = json.load(open(mp, encoding='utf-8'))
+        has = [f for f in CONTENT_FIELDS if all(f in x for x in raw)]
+        man['content'] = {str(x['n']): {**{f: x[f] for f in has if f != 'texts'}, 'title': x.get('title', ''),
+                                        **({'texts': [''.join(t['runs']) for t in x['texts']]} if 'texts' in has else {})} for x in raw}
+        lost = [f for f in CONTENT_FIELDS if f not in has]
+        man['content_manifest'] = {'format': CONTENT_FORMAT, 'source': 'out/slides.json', 'fields': has,
+                                   'note': f"сборщик {eng.get('version') or eng['source']} не записал в out/slides.json: {', '.join(FIELD_NAMES[f] for f in lost)}" if lost else ''}
+    else:
+        man['content_manifest'] = {'format': CONTENT_FORMAT, 'source': None, 'fields': [],
+                                   'note': 'нет out/slides.json: сборка не удалась или сборщик его не пишет'}
     if os.path.isfile(os.path.join(work, 'requirements.json')) and man['outputs']:
         cmap = os.path.join(src, 'out', 'coverage.json')
         if os.path.isfile(cmap):                       # карта покрытия лежит в out/ проекта: копия в прогоне, чтобы проверку можно было повторить
@@ -334,6 +347,53 @@ def diff_maps(a, b):
     return [k for k in keys if a.get(k) != b.get(k)]
 
 
+def legacy_fields(run, C):
+    # прогон до формата манифеста: отсутствующие поля записаны пустыми. Какие поля сборщик на самом деле отдал —
+    # по out/slides.json, сохранённому в src/ прогона; нет его — по самому содержанию (все пусты — значит, не записаны)
+    try:
+        raw = json.load(open(os.path.join(run, 'src', 'out', 'slides.json'), encoding='utf-8'))
+        return [f for f in CONTENT_FIELDS if all(f in x for x in raw)]
+    except (OSError, ValueError, TypeError):
+        pass
+    vals = [v for v in C.values() if isinstance(v, dict)] if isinstance(C, dict) else []
+    drop = ({'lib', 'custom', 'texts'} if vals and not any(v.get('texts') for v in vals) else set()) | \
+           ({'notes'} if vals and not any(v.get('notes') for v in vals) else set())
+    return [f for f in CONTENT_FIELDS if f not in drop]
+
+
+def content_side(M, run):
+    # содержание одного прогона для сравнения. content None — сравнивать нечего; это не «пустое содержание»
+    info, C = M.get('content_manifest'), M.get('content')
+    side = {'format': None, 'fields': [], 'note': '', 'content': None, 'reason': None}
+    if info is None:
+        if C is None:
+            return {**side, 'reason': 'в манифесте нет содержания слайдов (прогон без out/slides.json)'}
+        side.update(format='до формата 1', fields=legacy_fields(run, C))
+        lost = [FIELD_NAMES[f] for f in CONTENT_FIELDS if f not in side['fields']]
+        side['note'] = f"старый манифест: сборщик {M['engine'].get('version') or M['engine']['source']} не записал {', '.join(lost)}" if lost else ''
+    elif not isinstance(info, dict) or info.get('format') != CONTENT_FORMAT:
+        fmt = info.get('format') if isinstance(info, dict) else info
+        return {**side, 'format': fmt, 'reason': f'формат манифеста содержания {fmt} не поддерживается (эта версия читает {CONTENT_FORMAT})'}
+    else:
+        side.update(format=CONTENT_FORMAT, fields=[f for f in info.get('fields') or [] if f in CONTENT_FIELDS], note=info.get('note') or '')
+        if C is None:
+            return {**side, 'reason': side['note'] or 'манифест содержания объявлен, а содержания в нём нет'}
+    if 'texts' not in side['fields']:
+        return {**side, 'reason': side['note'] or 'в манифесте нет текстов слайдов'}
+    if not isinstance(C, dict):
+        return {**side, 'reason': 'частичная структура: content — не словарь слайдов'}
+    for k, v in C.items():
+        if not str(k).isdigit() or not isinstance(v, dict):
+            return {**side, 'reason': f'частичная структура: запись «{k}» — не слайд'}
+        miss = [FIELD_NAMES[f] for f in side['fields'] if f not in v]
+        bad = [FIELD_NAMES[f] for f in side['fields'] if f in v and (not isinstance(v[f], FIELD_TYPES[f]) or
+               isinstance(v[f], list) and not all(isinstance(t, str) for t in v[f]))]
+        if miss or bad:
+            return {**side, 'reason': f'частичная структура: слайд {k}' + (f", нет полей: {', '.join(miss)}" if miss else '')
+                    + (f", поля не того типа: {', '.join(bad)}" if bad else '')}
+    return {**side, 'content': C}
+
+
 def cmd_compare(a):
     ra, rb = os.path.abspath(a.a), os.path.abspath(a.b)
     for r in (ra, rb):
@@ -392,27 +452,38 @@ def cmd_compare(a):
             rows.append({'theme': th, 'slide': int(k[1:]), 'status': status, 'pair': f'pairs/{stem}.png',
                          'diff': f'diff/{stem}.png' if os.path.isfile(os.path.join(out, 'diff', f'{stem}.png')) else None, **res})
     # содержание слайдов: что поменяли правкой (компоненты, тексты, заметки), а не сборщиком
-    CA, CB = MA.get('content') or {}, MB.get('content') or {}
+    # Наличие и формат манифеста проверяются отдельно от значений: нет сопоставимых данных с одной стороны — содержание
+    # не сравнивается вовсе, ничего не считается добавленным или удалённым; вердикты по входам, пикселям, PPTX и среде не трогаем
+    SA, SB = content_side(MA, ra), content_side(MB, rb)
+    cok = SA['content'] is not None and SB['content'] is not None
+    fields = [f for f in CONTENT_FIELDS if f in SA['fields'] and f in SB['fields']] if cok else []
+    CA, CB = (SA['content'], SB['content']) if cok else ({}, {})
+    comp = lambda v: '+'.join(v.get('lib') or []) or v.get('custom') or '—'
     content = {}
     for k in sorted(set(CA) | set(CB), key=int):
         x, y = CA.get(k), CB.get(k)
         ch = []
-        if not x or not y:
-            ch.append('слайд добавлен' if not x else 'слайд удалён')
+        if x is None or y is None:
+            ch.append('слайд добавлен' if x is None else 'слайд удалён')
         else:
-            if x['lib'] != y['lib'] or x.get('custom') != y.get('custom'):
-                ch.append(f"компоненты: {'+'.join(x['lib']) or x.get('custom') or '—'} → {'+'.join(y['lib']) or y.get('custom') or '—'}")
-            if x.get('archetype') != y.get('archetype'):
-                ch.append(f"архетип: {x.get('archetype')} → {y.get('archetype')}")
+            if any(f in fields and x[f] != y[f] for f in ('lib', 'custom')):
+                ch.append(f'компоненты: {comp(x)} → {comp(y)}')
+            if 'archetype' in fields and x['archetype'] != y['archetype']:
+                ch.append(f"архетип: {x['archetype']} → {y['archetype']}")
             gone, new = [t for t in x['texts'] if t not in y['texts']], [t for t in y['texts'] if t not in x['texts']]
             if gone or new:
                 ch.append(f'текст: убрано {len(gone)}, добавлено {len(new)}')
-            if x.get('notes') != y.get('notes'):
+            if 'notes' in fields and x['notes'] != y['notes']:
                 ch.append('заметки изменены')
         content[k] = {'changes': ch, 'gone': [t for t in (x or {}).get('texts', []) if t not in (y or {}).get('texts', [])][:8],
                       'new': [t for t in (y or {}).get('texts', []) if t not in (x or {}).get('texts', [])][:8]}
     for r_ in rows:
-        r_['content'] = content.get(str(r_['slide']), {}).get('changes', []) if content else None
+        r_['content'] = content.get(str(r_['slide']), {}).get('changes', []) if cok else None
+    edit_inputs = [c['file'] for c in changed_inputs if c['category'] not in ('builder', 'components')]
+    content_cmp = {'comparable': cok, 'fields': fields, 'inputs_equal': not edit_inputs,
+                   'reason': None if cok else '; '.join(f"{n}: {s['reason']}" for n, s in (('A', SA), ('B', SB)) if s['content'] is None),
+                   'skipped': [f"{FIELD_NAMES[f]} (нет в {'A' if f not in SA['fields'] else 'B'})" for f in CONTENT_FIELDS if f not in fields] if cok else [],
+                   **{n: {k: s[k] for k in ('format', 'fields', 'note', 'reason')} for n, s in (('A', SA), ('B', SB))}}
     cnt = {s: sum(1 for r in rows if r['status'] == s) for s in ('identical', 'changed', 'missing_in_A', 'missing_in_B')}
     # проверки: из обоих прогонов и проверки самого сравнения
     checks = [dict(c, run='A') for c in MA['checks']] + [dict(c, run='B') for c in MB['checks']]
@@ -426,6 +497,12 @@ def cmd_compare(a):
     checks.append(dict(check('pptx-content', 'passed' if pa_ and len(same_pptx) == len(pa_) else 'warning' if pa_ else 'not_run',
                              'sha256 содержимого PPTX без docProps/core.xml', ', '.join(sorted(pa_)) or 'нет PPTX в обоих прогонах',
                              f"совпали: {', '.join(same_pptx) or 'нет'}" + ('' if len(same_pptx) == len(pa_) else '; XML слайдов различается: смотрите PowerPoint, PNG этого не покажут')), run='A↔B'))
+    ned = sum(1 for v in content.values() if v['changes'])
+    checks.append(dict(check('content', 'passed' if cok else 'not_run', 'манифест содержания (manifest.json → content из out/slides.json)',
+                             'тексты, компоненты, архетипы и заметки по слайдам',
+                             f"сравнены поля: {', '.join(FIELD_NAMES[f] for f in fields)}; слайдов с правкой {ned}"
+                             + (f"; не сравнивались: {', '.join(content_cmp['skipped'])}" if content_cmp['skipped'] else '') if cok else
+                             f"содержание не удалось сравнить: {content_cmp['reason']}"), run='A↔B'))
     if a.ppt_viewed:
         sel = {}
         for part in a.ppt_viewed.split(';'):
@@ -439,14 +516,17 @@ def cmd_compare(a):
     rep = {'created': dt.datetime.now().isoformat(timespec='seconds'), 'A': {k: MA[k] for k in ('id', 'label', 'engine')}, 'B': {k: MB[k] for k in ('id', 'label', 'engine')},
            'kind': kind, 'controlled': controlled, 'engine_changed': engine_changed, 'reasons_not_controlled': input_reasons + env_reasons,
            'changed_inputs': changed_inputs, 'environment_changes': env_changes, 'counts': cnt, 'slides': rows, 'checks': checks, 'disclaimer': DISCLAIMER,
-           'content': content, 'components': {'A': {k: v['lib'] or ([f"custom: {v['custom']}"] if v.get('custom') else []) for k, v in CA.items()},
-                                              'B': {k: v['lib'] or ([f"custom: {v['custom']}"] if v.get('custom') else []) for k, v in CB.items()}}}
+           'content': content, 'content_compare': content_cmp,
+           'components': {n: {k: v['lib'] or ([f"custom: {v['custom']}"] if v.get('custom') else []) for k, v in C_.items()} if 'lib' in fields else {}
+                          for n, C_ in (('A', CA), ('B', CB))}}
     json.dump(rep, open(os.path.join(out, 'report.json'), 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
     open(os.path.join(out, 'report.md'), 'w', encoding='utf-8').write(report_md(rep, ra, rb))
     print(f'сравнение: {out}\n  {kind}; пар {len(rows)}: совпали {cnt["identical"]}, изменились {cnt["changed"]}, '
           f'нет в A {cnt["missing_in_A"]}, нет в B {cnt["missing_in_B"]}')
     for r in rep['reasons_not_controlled']:
         print('  не контрольное:', r)
+    if not cok:
+        print('  содержание не удалось сравнить:', content_cmp['reason'])
     return 0
 
 
@@ -472,11 +552,13 @@ def report_md(r, ra, rb):
     L += ['', '## Слайды', '', f"Пар: {len(r['slides'])}. Совпали попиксельно: {c['identical']}. Изменились: {c['changed']}. "
           f"Нет в A: {c['missing_in_A']}. Нет в B: {c['missing_in_B']}.", '',
           '| Тема | Слайд | Статус | Изменено пикселей | Содержание (правка, не сборщик) | Пара | Разница |', '|---|---|---|---|---|---|---|']
+    cc_ = r.get('content_compare') or {}
+    cmpc = cc_.get('comparable') is False             # отчёты до формата манифеста этого ключа не имеют
     sname = {'identical': 'совпадает', 'changed': '**изменился**', 'missing_in_A': '**нет в A**', 'missing_in_B': '**нет в B**'}
     for s in r['slides']:
         px = f"{s['changed_pixels']} ({s['changed_share'] * 100:.3f}%)" if 'changed_pixels' in s else ('размер разный' if s.get('size_mismatch') else '—')
         dl = f"[разница]({s['diff']})" if s.get('diff') else '—'
-        cc = '—' if s.get('content') is None else '; '.join(s['content']) or 'не менялось'
+        cc = ('не сравнивалось' if cmpc else '—') if s.get('content') is None else '; '.join(s['content']) or 'не менялось'
         L.append(f"| {s['theme']} | {s['slide']} | {sname[s['status']]} | {px} | {cc} | [пара]({s['pair']}) | {dl} |")
     edited = sorted({s['slide'] for s in r['slides'] if s.get('content')})
     engine_only = sorted({s['slide'] for s in r['slides'] if s['status'] == 'changed' and s.get('content') == []})
@@ -484,6 +566,8 @@ def report_md(r, ra, rb):
         L += ['', f"Слайды с правкой содержания (тексты, компоненты, заметки): {', '.join(map(str, edited)) or 'нет'}. "
               f"Их различия — следствие правки, а не версии навыка. Изменились без правки содержания: {', '.join(map(str, engine_only)) or 'нет'}"
               + ('' if r['controlled'] else ' (сравнение неконтрольное: причиной может быть и тема, изображения или среда)') + '.']
+    if cc_.get('skipped'):
+        L += ['', f"Не сравнивались: {', '.join(cc_['skipped'])}. Их правка в отчёт не попадёт."]
     comp = r.get('components') or {}
     if comp.get('B'):
         L += ['', '## Компоненты по слайдам', '', '| Слайд | A | B |', '|---|---|---|']
@@ -491,7 +575,14 @@ def report_md(r, ra, rb):
             a_, b_ = '+'.join(comp.get('A', {}).get(k, [])) or '—', '+'.join(comp['B'].get(k, [])) or '—'
             L.append(f"| {k} | {a_} | {b_ if b_ == a_ else '**' + b_ + '**'} |")
     ed = {k: v for k, v in (r.get('content') or {}).items() if v['changes']}
-    if ed:
+    if cmpc:
+        L += ['', '## Изменения содержания (редакционные)', '', f"Содержание не удалось сравнить: {cc_['reason']}.",
+              '', 'Отсутствие данных не считается пустым содержанием: ни тексты, ни компоненты, ни заметки не помечены добавленными или '
+              'удалёнными. Вердикты по входам, пикселям, содержимому PPTX и среде от этого не зависят.']
+        if cc_.get('inputs_equal'):
+            L.append('Входы проекта (разметка, данные, тема, настройки, изображения) совпадают по контрольным суммам: '
+                     'редакционных правок между прогонами не было.')
+    elif ed:
         L += ['', '## Изменения содержания (редакционные)', '']
         for k, v in ed.items():
             L.append(f"- **Слайд {k}:** {'; '.join(v['changes'])}")

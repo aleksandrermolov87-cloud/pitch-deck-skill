@@ -1,7 +1,7 @@
 # Библиотека компонентов
 
-94 готовых компонента тела слайда: роадмапы, таблицы, графики, схемы, рынок, продукт, стратегия, статус, просьба,
-20 текстовых раскладок и 5 мокапов экранов. Базовые 19 лежат в `templates/deck-starter/components.js`, ещё 75 — в модулях `templates/deck-starter/kit/*.js`; всё и копируется в каждый проект `new_deck.sh` как `src-<тема>/components.js`.
+95 готовых компонентов тела слайда: роадмапы, таблицы, графики, схемы, рынок, продукт, стратегия, статус, просьба,
+20 текстовых раскладок и 5 мокапов экранов. Базовые 19 лежат в `templates/deck-starter/components.js`, ещё 76 — в модулях `templates/deck-starter/kit/*.js`; всё и копируется в каждый проект `new_deck.sh` как `src-<тема>/components.js`.
 Библиотека — основа структуры и фирменного стиля, и её приоритет обязателен: сначала компонент из библиотеки,
 21st (если включён) и сборка агентом — только для слайда, которому в библиотеке ничего не подошло, с записанной причиной
 (`custom: '…'` в слайде). Проверяет `scripts/library_check.py`: компоненты помечают свои элементы, сборка пишет их имена
@@ -42,7 +42,7 @@ function channels() {
 | Какое одно главное число? | `kpiHero` | `kpi-hero` | `value, unit, label, caption, series?` | — |
 | Какие ещё числа рядом с главным? | `kpiList` | `kpi-hero` | `items [{value, unit, label, caption}]` | — |
 | Как меняется во времени? | `barsTrend` | `bars-trend` | `label, periods, values`; рост «×N» — derived ratio | — |
-| Из чего складывается целое? | `stackedShare` | `stacked-share` | `label, parts [{name, value}]`; доли — derived ratio | — |
+| Из чего складывается целое? | `stackedShare` | `stacked-share` | `label, parts [{name, value}]`; доли — derived ratio. `shareDigits` — знаки доли отдельно от значений, `display: 'share' \| 'value' \| 'both'`, `rest: {type: 'known' \| 'computed' \| 'unknown'}` — остаток только явно, сумма сверяется с целым | — |
 | Выполнен ли план? | `bulletChart` | `plan-fact` | `rows [{name, plan, fact, target?}]`; отклонение — derived diff | — |
 | Что дало прирост и что съело? | `waterfall` | `waterfall` | `start`, `steps [{name, value ±}]`, `end`; итог — derived sum | — |
 | Где теряем клиентов? | `funnel` | `funnel` | `stages [{name, value}]`; конверсия — derived ratio, % | — |
@@ -52,7 +52,7 @@ function channels() {
 | Кто за что отвечает? | `hubDiagram` | `hub-diagram` | `center`, `nodes [{name, items, link, edge}]` до 4 | — |
 | Где мы среди игроков? | `matrix2x2` | `competition-2x2` | оси `x`, `y`, `points [{name, x, y, us}]`, `quadrants` | — |
 
-## Расширения (kit/): ещё 75 сценариев
+## Расширения (kit/): ещё 76 сценариев
 
 Код лежит в `templates/deck-starter/kit/<группа>.js`, `components.js` подключает модули сам: вызов тот же, `K.<имя>(box, data, opt)`.
 Образцы данных — `components/gallery-<группа>.js`. Галерея одной группы: `zsh $SKILL/scripts/gallery.sh <группа>`.
@@ -65,18 +65,27 @@ function channels() {
 | Окупается ли клиент? | `unitEconomics` | `unit-economics` | `cac, ltv, margin, months {value, note}`, `extra?`; LTV/CAC и окупаемость — derived |
 | Из чего складывается выручка? | `revenueFormula` | `revenue-formula` | `factors [{name, value, unit, from}] 3–4`, `result` — факт с источником |
 | Как держатся клиенты по когортам? | `cohortGrid` | `cohort-retention` | `cohorts [{name, size}]`, `values [[…]]` треугольником; среднее — derived |
-| Сколько стоит и что входит? | `pricingTiers` | `pricing-tiers` | `unit`, `tiers [{name, price, note, recommended}]`, `features [{name, values}]` |
+| Сколько стоит и что входит? | `pricingTiers` | `pricing-tiers` | `unit`, `tiers [{name, price?, note, recommended}]`, `features [{name, values}]`, `noPrice?`; без цен — режим покрытия и условий |
 | Что двигает рост, что тянет вниз? | `driversDiverging` | `drivers-diverging` | `label, unit, items [{name, value ±}]`, `total`; итог — derived sum |
 | Какой прогноз и насколько он уверен? | `scenarioRange` | `scenario-range` | `periods`, `rows [{lo?, base, hi?}]`, `names?` |
 | Когда выйдем в плюс? | `breakEven` | `break-even` | `values` — накопленный результат по месяцам, `every`; месяц безубыточности — derived count |
 | Как меняются несколько рядов? | `lineChart` | `line-chart` | `periods`, `series [{name, values, main?}]` 2–4, подписи на концах |
 | Как меняется состав во времени? | `stackedColumns` | `stacked-columns` | `periods`, `parts [{name, values}]` 2–4; итог — derived sum |
 
+### Нативные диаграммы PowerPoint (`kit/charts.js`)
+
+По выбору, когда данные будут править в PowerPoint: в PPTX настоящая диаграмма со встроенной книгой («Изменить данные»),
+HTML-двойник рисует ту же геометрию фигурами. Остальные графики библиотеки остаются фигурами. Образец — `components/gallery-charts.js`.
+
+| Вопрос зрителя | Компонент | Архетип | Данные |
+|----------------|-----------|---------|--------|
+| Как меняется во времени? Кто больше? (с правкой данных в PowerPoint) | `nativeChart` | по виду: `bars-trend`, `line-trend`, `ranking-bars`, `plan-fact` | `type: col/line/bar`, `label, unit?, digits?`, `periods` или `cats`, `values` или `series [{name, values, src?}]`, `source?, highlight?, labels?, unitOnLabels?, min?, max?`; `opt.native: false` — только фигуры |
+
 ### Продукт и клиент (`kit/product.js`)
 
 | Вопрос зрителя | Компонент | Архетип | Данные |
 |----------------|-----------|---------|--------|
-| Где клиенту плохо на пути? | `journeyMap` | `journey-map` | `stages [{name, note?, mood −2…2, pain?: {t, value?, unit?}}]` |
+| Где клиенту плохо на пути? | `journeyMap` | `journey-map` | `stages [{name, note?, mood? −2…2, pain?: {t, value?, unit?}}]`; без `mood` — путь без кривой |
 | Что важно какому сегменту? | `featureDots` | `feature-dots` | `segments`, `features [{name, note?, values [0…3]}]`, `levels?` |
 | Что изменилось после запуска? | `beforeAfter` | `before-after` | `before/after {head, note}`, `metrics [{name, a, b, unit?, better}]`; разница — derived diff |
 | Как это выглядит в продукте? | `screenCallouts` | `screen-callouts` | `file?` (экран в img/, иначе схема телефона), `callouts [{at [fx, fy], head, body?, value?}]` |
@@ -129,8 +138,8 @@ function channels() {
 | Как делится целое на много частей? | `treemap` | `treemap` | `items [{name, value}]`, `opt.maxItems, minShare`; «Прочие» — derived sum |
 | Как идут ключевые метрики? | `kpiGrid` | `kpi-grid` | `vs, items [{label, value, prev, unit, better, series}]` ×4–6 |
 | Сколько просим и на что? | `askFunds` | `ask-funds` | `amount, unit, uses [{name, value}]`, `milestones ×3`; доли — derived ratio |
-| Насколько стало лучше? | `bigCompare` | `big-compare` | `before/after {when, value, unit, caption}`, `mode: ratio/diff` |
-| Кто в лидерах? | `rankingList` | `ranking-list` | `rows [{name, value, prev, us?}]`; изменение места — derived diff |
+| Насколько стало лучше? | `bigCompare` | `big-compare` | `before/after {when, value, unit, caption}`, `mode: ratio/diff`; кегль подбирается, `opt.minPt, maxPt, unitLine, fit` |
+| Кто в лидерах? | `rankingList` | `ranking-list` | `rows [{name, value, prev?, us?}]`, `noData?`; изменение места — derived diff, без `prev` — «нет данных» |
 
 ### Текст: тезисы и смысл (`kit/textcore.js`)
 
@@ -182,7 +191,7 @@ function channels() {
 
 ## Помощники
 
-Вспомогательные (`kit/util.js`, доступны и через `K.*`): `wrap()` и `lines()` — число строк при переносе по словам, `seg()` — линия под углом, `knock()` — подложка под подпись на линии, `spread()` — раздвинуть подписи по вертикали, `sparkline(x, y, w, h, values)` для мини-тренда в строке или под KPI, `diamond()` для вех, `num()` для
+Вспомогательные (`kit/util.js`, доступны и через `K.*`): `wrap()` и `lines()` — число строк при переносе по словам, `fitPt()` — наибольший кегль, при котором строка встаёт в ширину, `known()` — значение известно (конечное число), `seg()` — линия под углом, `knock()` — подложка под подпись на линии, `spread()` — раздвинуть подписи по вертикали, `sparkline(x, y, w, h, values)` для мини-тренда в строке или под KPI, `diamond()` для вех, `num()` для
 регистрации числа с источником.
 
 ## Правила использования
@@ -197,7 +206,27 @@ function channels() {
 - **3D-объекты** ставятся только через `place3d` у якоря; `processSteps` сам сужает тело до зоны фирменных полос.
 - **Тексты в данных** проходят humanizer и SMART так же, как заголовки (`reference/01-brief-and-copy.md`).
 - **Числа графика — тоже факты.** Каждое число из данных, которое компонент превратил в форму, попадает в реестр фактов, даже без подписи (`auto`); источник — `item.src`, `data.src` или `opt.src`. `build.js` отмечает, читается ли число на слайде (`shown`).
-- **`opt.show` у любого компонента**: числа, которые бриф требует показать читаемо. `{ show: [51.4] }`, `{ show: ['2024'] }` или `{ show: [{ match: '2024', label: 'Коэффициент выплат за 2024 год' }], unit: '%' }`. Если компонент сам не подписал число, под графиком появляется строка «подпись: значение» (бокс компонента уменьшается на 0,4″). Подробно: `reference/17-check-report.md`.
+- **`opt.show` у любого компонента**: числа, которые бриф требует показать читаемо. `{ show: [51.4] }`, `{ show: ['2024'] }` или `{ show: [{ match: '2024', label: 'Коэффициент выплат за 2024 год' }], unit: '%' }`. Точная ссылка на точку ряда: `{ show: [{ ref: 'series[0].values[5]' }] }` или `{ series: 'КАСКО', period: '2024' }`; вложенные периоды (`kpiHero.series.periods`) находятся. Видимым факт считается только по связанной подписи с периодом и единицей, а не по совпадению числа где-то на слайде. Если компонент сам не подписал число, под графиком появляется строка «подпись: значение» (бокс компонента уменьшается на 0,4″). Подробно: `reference/17-check-report.md`.
+
+## Неполные данные и подбор кегля
+
+- **Нет данных — допустимое состояние.** Значение известно, только если это конечное число. `null`, `undefined` и `'unknown'` —
+  «нет данных», строка вместо числа — причина, её и видно («вне топ-10», «по запросу», «не опрашивали»). Такое значение
+  не рисуется формой, не участвует в расчётах и не попадает в реестр фактов: никаких нулей и выдуманных прошлых мест.
+  - `rankingList`: `prev` необязателен. В колонке «нет данных» (`data.noData`) или причина, без стрелки и сдвига. Ни одного
+    прошлого места — колонка скрыта, полосы шире (`opt.change: true` — показать).
+  - `journeyMap`: `mood` необязателен. Нет ни у одного этапа — без шкалы и кривой, этапы на линии пути со стрелкой, боли под ними.
+    Есть у части — шкала остаётся, кривая рвётся на пропусках: пустая точка на середине и «нет данных» (или причина из `mood`).
+  - `pricingTiers`: `price` необязателен. Цены нет у части тарифов — на её месте `noPrice` или строка из `price`; нет ни у одного —
+    режим покрытия: название крупнее, условия (`note`) полнее, состав выше. `'unknown'` в возможности — пустой кружок «нет данных».
+- **`bigCompare` подбирает кегль до раскладки.** Число с единицей ищет наибольший кегль от `opt.maxPt` (120) до `opt.minPt` (56)
+  в ширину колонки; если одной строкой выходит на 15% мельче, единица встаёт отдельной строкой под числом (`opt.unitLine`:
+  `'auto'`, `true`, `false`; «%» всегда при числе). Единица не пропадает и не сокращается, обе колонки одного кегля, полосы и
+  подписи опускаются под блок. Кратность или разница в середине — от 48 до 28 pt. Ниже порога сборка падает с советом:
+  меньше `digits`, единица в подпись, уже `opt.midW` или другой компонент (`kpiHero`, `dumbbell`, `barsTrend`);
+  `opt.fit: 'warn'` — только предупреждение. Итог подбора — `els.fit = { pt, unitPt, unitLine, midPt }`. Отрицательное значение —
+  с типографским минусом, полоса по модулю; кратность только для положительных значений (иначе `mode: 'diff'`).
+  Число остаётся редактируемым текстом. Примеры: `components/gallery-numbers.js`.
 
 ## Как пополнять библиотеку
 

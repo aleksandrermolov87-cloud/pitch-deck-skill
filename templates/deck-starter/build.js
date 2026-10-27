@@ -59,13 +59,16 @@ pres.title = META.title;
 pres.author = META.author || '';
 const fill = e => e.fill ? { color: e.fill, transparency: e.alpha != null ? Math.round((1 - e.alpha) * 100) : 0 } : { type: 'none' };
 const line = e => e.line ? { color: e.line, width: e.lw || 1, dashType: e.dash ? 'dash' : 'solid' } : { type: 'none' };
+const CHARTS = [];   // нативные диаграммы (kit/charts.js) в порядке addChart: их встроенные таблицы заменяются при записи
 pptSlides.forEach((sl, i) => {
   const s = pres.addSlide();
   if (sl.hidden || (META.hidden || []).includes(i + 1)) s.hidden = true;
   if (sl.bg && fs.existsSync(IMG(sl.bg))) s.background = { path: IMG(sl.bg) };
   else s.background = { color: C.bg };
   sl.els.forEach(e => {
-    if (e.t === 'rect') s.addShape(e.r ? pres.shapes.ROUNDED_RECTANGLE : pres.shapes.RECTANGLE, { x: e.x, y: e.y, w: e.w, h: e.h, rectRadius: e.r || 0, fill: fill(e), line: line(e) });
+    if (e.twin) return;   // фигуры HTML-двойника нативной диаграммы: в PPTX её рисует сам chart
+    if (e.t === 'chart') { s.addChart(e.type, e.data, { x: e.x, y: e.y, w: e.w, h: e.h, ...e.opts }); CHARTS.push(e); }
+    else if (e.t === 'rect') s.addShape(e.r ? pres.shapes.ROUNDED_RECTANGLE : pres.shapes.RECTANGLE, { x: e.x, y: e.y, w: e.w, h: e.h, rectRadius: e.r || 0, fill: fill(e), line: line(e) });
     else if (e.t === 'diamond') s.addShape(pres.shapes.DIAMOND, { x: e.x, y: e.y, w: e.w, h: e.h, fill: fill(e), line: line(e) });
     else if (e.t === 'oval') s.addShape(pres.shapes.OVAL, { x: e.x, y: e.y, w: e.w, h: e.h, fill: fill(e), line: line(e) });
     else if (e.t === 'line') s.addShape(pres.shapes.LINE, { x: e.x, y: e.y, w: e.w, h: e.h, flipV: !!e.flipV, line: { color: e.color || C.line, width: e.lw || 1, dashType: e.dash ? 'dash' : 'solid', endArrowType: e.arrow ? 'triangle' : undefined } });
@@ -135,6 +138,7 @@ function toHtml(sl, i) {
         ? `<div class="e ln" style="left:${pct(e.x, W)};top:${pct(e.y, H)};width:${pct(e.w, W)};border-top:${st}">${ar}</div>`
         : `<div class="e" style="left:${pct(e.x, W)};top:${pct(e.y, H)};height:${pct(e.h, H)};border-left:${st}"></div>`;
     }
+    if (e.t === 'chart') return '';   // нативную диаграмму в HTML рисуют её фигуры-двойники (twin), идущие следом
     if (e.t === 'image') { const f = fitBox(e); return `<img class="e" alt="" style="left:${pct(f.x, W)};top:${pct(f.y, H)};width:${pct(f.w, W)};height:${pct(f.h, H)};object-fit:cover" src="${b64(e.file)}">`; }
     return textHtml(e);
   });
@@ -160,16 +164,26 @@ body{background:var(--bg);color:var(--ink);font-family:'${FONT}',system-ui,sans-
 ${slides.map(toHtml).join('\n')}
 </body></html>`;
 fs.writeFileSync(path.join(OUT, 'deck.html'), html);
-// shown: число читается в тексте своего слайда (подпись, заголовок, легенда). auto-факты без shown только рисуют график:
-// facts_check.py и brief_coverage.py различают «влияет на график» и «можно прочитать».
+// shown: число читается на своём слайде в подписи, связанной с фактом (подпись, заголовок, легенда). auto-факты без shown
+// только рисуют график: facts_check.py и brief_coverage.py различают «влияет на график» и «можно прочитать».
 const flat = s => s.replace(/[\s\u00a0\u202f]/g, '').replace('−', '-');
 // тысячи в fmt() разделены неразрывным пробелом; обычный пробел и границы элементов разделяют разные числа
 const tokens = sl => new Set((sl.els.filter(e => e.t === 'text').map(e => e.runs.map(r => r.t).join('')).join('\n')
   .match(/\d[\d\u00a0\u202f]*(?:[.,]\d+)?/g) || []).map(flat));
-const TOK = slides.map(tokens);
+// Связанная подпись (components.js → linkShown): у числа компонента — тексты того же вызова, у fact() из slides.js —
+// любой текст слайда; один токен подтверждает один факт, равное число из другой подписи не засчитывается.
+// shown_as: label — число с периодом и единицей в одной подписи, value — только число, graph — только нарисовано, none.
+// components.js проекта старше 1.8 без linkShown: прежняя проверка по любому токену слайда.
+const { linkShown } = require('./components.js');
+slides.forEach((sl, i) => {
+  const own = FACTS.filter(f => f.slide === i + 1), t = linkShown ? null : tokens(sl);
+  const st = linkShown ? linkShown(own, sl.els)
+    : new Map(own.map(f => [f, [f.digits || 0, 0, 1, 2].some(d => t.has(flat(L.fmt(Math.abs(f.value), d)))) ? 'value' : f.lib ? 'graph' : 'none']));
+  own.forEach(f => { f.shown_as = st.get(f); f.shown = f.shown_as === 'label' || f.shown_as === 'value'; });
+});
 FACTS.forEach(f => {
-  const t = TOK[f.slide - 1] || new Set(), a = Math.abs(f.value);
-  f.shown = [f.digits || 0, 0, 1, 2].some(d => t.has(flat(L.fmt(a, d))));
+  if (!f.id) f.id = `s${f.slide}/${f.label}`;
+  if (f.shown == null) { f.shown = false; f.shown_as = f.lib ? 'graph' : 'none'; }
 });
 fs.writeFileSync(path.join(__dirname, 'out', 'facts.json'), JSON.stringify(FACTS, null, 1));
 // манифест для этапа 7: номер, функция, архетип и заголовок каждого слайда
@@ -187,4 +201,5 @@ fs.writeFileSync(path.join(__dirname, 'out', 'slides.json'), JSON.stringify(slid
 const name = `${META.name}${process.env.BOTH_THEMES ? (THEME === 'light' ? '_светлая' : '_темная') : (THEME === 'light' ? '_светлая' : '')}`;
 if (process.env.OUTFILE && !/\.pptx$/i.test(process.env.OUTFILE)) throw new Error('OUTFILE: только .pptx');
 const file = process.env.OUTFILE || (ONLY ? path.join(OUT, `check_s${ONLY}.pptx`) : path.join(__dirname, '..', `${name}.pptx`));
-pres.writeFile({ fileName: file }).then(f => console.log('ok', f, `${slides.length} слайдов, ${FACTS.length} фактов`));
+// с нативными диаграммами книга данных пишется своя (формат, единицы, происхождение); без них — прежняя запись
+(CHARTS.length ? require('./kit/charts.js').writePptx(pres, file, CHARTS) : pres.writeFile({ fileName: file })).then(f => console.log('ok', f, `${slides.length} слайдов, ${FACTS.length} фактов`));

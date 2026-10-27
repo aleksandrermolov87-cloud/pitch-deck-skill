@@ -2,11 +2,12 @@
   "mode": "full",
   "magic_mcp": true,
   "magicpatterns": true,
+  "image_provider": "auto",
   "figma": "chrome",
   "brand": "alfa",
   "font_fallback": "Arial",
   "figma_refs": [],
-  "notes": "mode: full — 21st Magic MCP (платный ключ) для подбора компонентов; lite — без него, компоненты из встроенного каталога. magicpatterns: генерация 3D-объектов (платный план Magic Patterns). figma: chrome | computer-use | none. Файл config.json создаёт setup.sh, правьте его, а не этот шаблон.",
+  "notes": "mode: full — 21st Magic MCP (платный ключ) для подбора компонентов; lite — без него, компоненты из встроенного каталога. magicpatterns: генерация 3D-объектов (платный план Magic Patterns). image_provider: auto | magicpatterns | codex-imagegen | none — кто рисует 3D; auto: в Claude — MagicPatterns, в Codex — встроенный image_gen; генерация начинается только после выбора пользователя. figma: chrome | computer-use | none. Файл config.json создаёт setup.sh, правьте его, а не этот шаблон.",
   "font_source": "",
   "update_check_days": 7
 }

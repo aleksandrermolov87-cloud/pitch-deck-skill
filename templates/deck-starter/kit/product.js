@@ -5,7 +5,7 @@ const fs = require('fs'), path = require('path');
 const L = require('../lib.js');
 const U = require('./util.js');
 const { C, rect, oval, hline, vline, text, tw } = L;
-const { num, minus, unitOf, lines, lh, onBar, seg, knock, spread } = U;
+const { num, minus, unitOf, lines, known, naText, lh, onBar, seg, knock, spread } = U;
 
 const rnd = (v, d = 0) => Math.round(v * 10 ** d) / 10 ** d;
 const signed = (v, s) => (v > 0 ? '+' : '') + minus(s);                  // «+12» или «−12»
@@ -27,33 +27,41 @@ function imgDims(file) {
 
 // Карта пути клиента: этапы колонками, под ними кривая настроения, точки боли акцентом с короткой подписью.
 // Вопрос: «где клиенту плохо на пути?»
-// data: { stages: [{ name, note?, mood: −2…2, pain?: { t, value?, unit?, digits?, label?, src? } }], moods?: [верх, середина, низ], src? }
+// data: { stages: [{ name, note?, mood?: −2…2, pain?: { t, value?, unit?, digits?, label?, src? } }], moods?: [верх, середина, низ], src? }
 // Шкала настроения подписана словами, без чисел. Подпись боли под точкой: число боли крупно, пояснение под ним.
+// mood необязателен. Нет ни у одного этапа — без шкалы и кривой: этапы на линии пути со стрелкой, боли под ними.
+// Есть у части — шкала остаётся, кривая рвётся на этапах без данных: там пустая точка на середине и «нет данных»
+// (строка в mood — причина, она и показывается). Настроение — не факт: в реестр не попадает.
 function journeyMap(box, data, opt = {}) {
-  const { x, y, w, h } = box, LW = opt.labelW || 1.6, st = data.stages, n = st.length, els = [];
+  const { x, y, w, h } = box, st = data.stages, n = st.length, els = [];
+  const has = st.map(s => known(s.mood)), any = has.some(Boolean), LW = any ? opt.labelW || 1.6 : 0;
   const gx = x + LW, cw = (w - LW) / n, cx = i => gx + cw * (i + 0.5), tw0 = cw - 0.2;
   const moods = data.moods || ['Доволен', 'Нейтрально', 'Раздражён'];
   const nameH = s => lh(13) * lines(s.name, 13, tw0, true);
   const headH = Math.max(...st.map(s => nameH(s) + (s.note ? 0.04 + lh(10) * lines(s.note, 10, tw0) : 0))) + 0.16;
   const top = y + headH + 0.42, bot = y + h - (opt.painH || 0.95), py = m => top + (2 - m) / 4 * (bot - top);
+  const my = i => (has[i] ? py(st[i].mood) : any ? py(0) : top + (bot - top) * 0.4);   // без настроения — линия пути чуть выше середины: под ней подписи болей
   st.forEach((s, i) => {
     els.push(text(cx(i) - tw0 / 2, y, tw0, nameH(s) + 0.02, s.name, { size: 13, bold: true, align: 'center', ls: 1.1 }));
     if (s.note) els.push(text(cx(i) - tw0 / 2, y + nameH(s) + 0.04, tw0, lh(10) * lines(s.note, 10, tw0) + 0.02, s.note, { size: 10, color: C.muted, align: 'center', ls: 1.1 }));
     if (i) els.push(vline(gx + i * cw, y, y + h, { color: C.rule, lw: 0.5 }));
   });
   els.push(hline(x, x + w, y + headH, { color: C.axis, lw: 0.75 }));
-  const grid = [[2, moods[0]], [0, moods[1]], [-2, moods[2]]];
+  const grid = any ? [[2, moods[0]], [0, moods[1]], [-2, moods[2]]] : [];
   grid.forEach(([m, t]) => {
     els.push(hline(gx, x + w, py(m), { color: m ? C.rule : C.axis, lw: 0.5, dash: !m }));
     els.push(text(x, py(m) - 0.13, LW - 0.2, 0.26, t, { size: 10, color: C.muted, valign: 'middle' }));
   });
-  for (let i = 1; i < n; i++) els.push(seg(cx(i - 1), py(st[i - 1].mood), cx(i), py(st[i].mood), { color: C.ink2, lw: 2 }));
+  if (!any) els.push(hline(cx(0), x + w - 0.05, my(0), { color: C.ink2, lw: 2, arrow: true }));
+  for (let i = 1; i < n; i++) if (has[i - 1] && has[i]) els.push(seg(cx(i - 1), py(st[i - 1].mood), cx(i), py(st[i].mood), { color: C.ink2, lw: 2 }));
   st.forEach((s, i) => els.push(s.pain
-    ? oval(cx(i), py(s.mood), 0.26, { fill: C.accent })
-    : oval(cx(i), py(s.mood), 0.16, { fill: C.bg, line: C.ink2, lw: 1.5 })));
+    ? oval(cx(i), my(i), 0.26, { fill: C.accent })
+    : oval(cx(i), my(i), 0.16, { fill: C.bg, line: has[i] || !any ? C.ink2 : C.muted, lw: 1.5 })));
+  // этап без данных о настроении при шкале: подпись над точкой
+  st.forEach((s, i) => { if (any && !has[i]) els.push(text(cx(i) - tw0 / 2, my(i) - 0.44, tw0, 0.26, naText(s.mood), { size: 10, color: C.muted, align: 'center', valign: 'middle' })); });
   st.forEach((s, i) => {
     if (!s.pain) return;
-    const p = s.pain, ly = py(s.mood) + 0.22, vh = p.value != null ? lh(15) : 0, tl = lines(p.t, 10.5, tw0), H = vh + lh(10.5) * tl + 0.04;
+    const p = s.pain, ly = my(i) + 0.22, vh = known(p.value) ? lh(15) : 0, tl = lines(p.t, 10.5, tw0), H = vh + lh(10.5) * tl + 0.04;
     // подложка, только если подпись пересекает линию шкалы
     if (grid.some(([m]) => py(m) > ly - 0.02 && py(m) < ly + H + 0.02)) els.push(knock(cx(i) - tw0 / 2, ly, tw0, H));
     if (vh) els.push(text(cx(i) - tw0 / 2, ly, tw0, vh, num(p.label || `${s.name}: ${p.t}`, p.value, p.src || data.src || opt.src, p.digits || 0) + unitOf(p.unit), { size: 15, bold: true, color: C.accentInk, align: 'center', valign: 'middle' }));

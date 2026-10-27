@@ -1,0 +1,38 @@
+{
+ "about": "A: прогон без содержания в манифесте (нет content и формата)",
+ "A": {
+  "engine": "old",
+  "inputs": {
+   "build.js": "build-old",
+   "components.js": "components-old"
+  },
+  "content": null,
+  "content_manifest": null
+ },
+ "B": {},
+ "expect": {
+  "comparable": false,
+  "reason": "A: в манифесте нет содержания слайдов",
+  "kind": "контрольное сравнение версий навыка",
+  "checks": {
+   "pixels": "passed",
+   "control": "passed",
+   "pptx-content": "passed",
+   "content": "not_run"
+  },
+  "no_changes": true,
+  "md_has": [
+   "## Изменения содержания (редакционные)",
+   "Содержание не удалось сравнить",
+   "редакционных правок между прогонами не было",
+   "не сравнивалось"
+  ],
+  "md_not": [
+   "- **Слайд",
+   "текст: убрано",
+   "заметки изменены",
+   "компоненты: ",
+   "## Компоненты по слайдам"
+  ]
+ }
+}

@@ -1,6 +1,8 @@
-# Промпты 3D-объектов для MagicPatterns generate_image из брифа контекста (reference/09-3d-objects.md).
-# Запуск: $SKILL/.venv/bin/python -I prompt3d.py data/objects3d.json --theme theme.json [--variants 2] [--out payload.json]
-# Печатает {"images": [...]} пачками по 5 (лимит одного вызова generate_image) и таблицу трассировки; код 1, если бриф не прошёл проверку.
+# Промпты 3D-объектов из брифа контекста (reference/09-3d-objects.md) для двух провайдеров:
+#   magicpatterns  — MagicPatterns generate_image (Claude): {"batches": [{"images": [...]}]} пачками по 5 (лимит одного вызова)
+#   codex-imagegen — встроенный image_gen в Codex (скилл imagegen): {"calls": [{name, size, prompt}]}, один вызов на картинку
+# Запуск: $SKILL/.venv/bin/python -I prompt3d.py data/objects3d.json --theme theme.json [--provider codex-imagegen] [--variants 2] [--out payload.json]
+# Печатает промпты и таблицу трассировки; код 1, если бриф не прошёл проверку. Стиль и палитра у провайдеров одни (theme.json → prompt3d).
 import argparse
 import json
 import re
@@ -10,6 +12,7 @@ ap = argparse.ArgumentParser()
 ap.add_argument('brief')
 ap.add_argument('--theme', required=True)
 ap.add_argument('--variants', type=int, default=2)
+ap.add_argument('--provider', choices=['magicpatterns', 'codex-imagegen'], default='magicpatterns')
 ap.add_argument('--out')
 a = ap.parse_args()
 
@@ -56,10 +59,13 @@ for o in B['objects']:
                   f"The entire background is one perfectly flat solid color (hex {BG}) with no gradient, no vignette, no floor line. "
                   f"No text, no letters, no numbers, no logos, no user interface labels.")
     else:
-        # объект вырезается и ложится на тёмный фон: падающая тень дала бы светлое пятно, поэтому без неё
+        # объект вырезается и ложится на тёмный фон: падающая тень дала бы светлое пятно, поэтому без неё.
+        # image_gen умеет прозрачный фон — cutout.py тогда только обрезает поля и считает fill
+        backdrop = ('Transparent background with a clean alpha channel' if a.provider == 'codex-imagegen'
+                    else 'Isolated on a pure flat white background')
         prompt = (f"A single 3D rendered object: {o['object']}, with {details}, symbolizing {o['meaning']}. "
                   f"{frame}. Strict color palette: {PALETTE}. {STYLE}. The object floats with no cast shadow, no floor, no reflection. "
-                  f"Isolated on a pure flat white background. "
+                  f"{backdrop}. "
                   f"No text, no letters, no numbers, no logos, no user interface labels.")
     for v in range(1, a.variants + 1):
         images.append({'name': f'{nm}_v{v}', 'aspectRatio': ratio, 'prompt': prompt})
@@ -69,11 +75,17 @@ if errors:
     for e in errors:
         print('[ERR]', e)
     sys.exit(1)
-batches = [images[i:i + 5] for i in range(0, len(images), 5)]
-payload = {'batches': [{'images': b} for b in batches]}
+if a.provider == 'codex-imagegen':
+    SIZE = {'1:1': '1024x1024', '16:9': '1536x1024'}
+    payload = {'provider': a.provider, 'calls': [{'name': i['name'], 'size': SIZE[i['aspectRatio']], 'prompt': i['prompt']} for i in images]}
+    calls = f'вызовов image_gen: {len(images)}'
+else:
+    batches = [images[i:i + 5] for i in range(0, len(images), 5)]
+    payload = {'provider': a.provider, 'batches': [{'images': b} for b in batches]}
+    calls = f'вызовов generate_image: {len(batches)}'
 if a.out:
     json.dump(payload, open(a.out, 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
 print(json.dumps(payload, ensure_ascii=False, indent=1))
-print(f'\n{len(B["objects"])} объектов × {a.variants} варианта = {len(images)} картинок, вызовов generate_image: {len(batches)}')
+print(f'\n{len(B["objects"])} объектов × {a.variants} варианта = {len(images)} картинок, {calls}')
 print('\n| Слайд | Сущность | Признаки из данных | Объект | Источник |\n|---|---|---|---|---|')
 print('\n'.join(trace))

@@ -99,6 +99,11 @@ const S = [
     parts: [{ name: 'Мобильное приложение', value: 61.3 }, { name: 'Интернет-банк', value: 21.4 }, { name: 'Партнёры', value: 2.6 }, { name: 'Офисы', value: 1.2 }],
   }, { src: SRC }), 'stacked-share'),
 
+  slide('stackedShare (rest)', 'Доли рынка пяти лидеров', 'Доли с двумя знаками одной подписью, остаток рынка неизвестен — пустая часть полосы без числа', () => K.stackedShare(B(0.5), {
+    label: 'доля рынка', unit: '%', digits: 2, shareDigits: 2, rest: { type: 'unknown', name: 'Остальные: нет данных' },
+    parts: [{ name: 'Компания А', value: 15.64 }, { name: 'Компания Б', value: 15.03 }, { name: 'Компания В', value: 12.1 }, { name: 'Компания Г', value: 9.87 }, { name: 'Компания Д', value: 7.36 }],
+  }, { src: SRC }), 'stacked-share'),
+
   slide('bulletChart', 'План и факт по продуктам', 'Полоса плана, полоса факта, отметка цели, отклонение со знаком', () => K.bulletChart(B(0.35), {
     digits: 1, unit: 'млн ₽',
     rows: [

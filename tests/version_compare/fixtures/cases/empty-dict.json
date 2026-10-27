@@ -1,0 +1,19 @@
+{
+ "about": "новый манифест с пустым словарём слайдов с обеих сторон",
+ "A": {
+  "content": "none"
+ },
+ "B": {
+  "content": "none"
+ },
+ "expect": {
+  "comparable": true,
+  "checks": {
+   "content": "passed"
+  },
+  "no_changes": true,
+  "md_not": [
+   "Содержание не удалось сравнить"
+  ]
+ }
+}

@@ -11,8 +11,9 @@ const minus = s => s.replace(/^-/, '−');                      // типогр�
 const unitOf = u => !u ? '' : u === '%' ? '%' : `${nb}${u}`;
 // Число строк при переносе по словам (калибровка по рендеру Styrene: обычное начертание на 4% шире оценки tw).
 // runs — строка или [{t, b, s}]; \n начинает новую строку.
-function wrap(runs, pt, w) {
-  let n = 1, x = 0;
+// over — колбэк ширины самой длинной строки (дюймы): слово шире w не переносится, а выходит за край.
+function wrap(runs, pt, w, over) {
+  let n = 1, x = 0, mx = 0;
   (typeof runs === 'string' ? [{ t: runs }] : runs).forEach(r => {
     const size = r.s || pt, k = r.b ? 1 : 1.04, sp = size * 0.3 / 72;
     String(r.t).split('\n').forEach((part, si) => {
@@ -22,12 +23,25 @@ function wrap(runs, pt, w) {
         if (!wd) { x += gap; return; }
         const ww = tw(wd, size, r.b) * k * 1.02;
         if (x > 0 && x + gap + ww > w) { n++; x = ww; } else x += gap + ww;
+        mx = Math.max(mx, x);
       });
     });
   });
+  if (over) over(mx);
   return n;
 }
 const lines = (s, pt, w, bold) => wrap([{ t: s, b: !!bold }], pt, w);
+// Подбор кегля: наибольший pt от hi до lo с шагом step, при котором runs(pt) встаёт в ширину w одной строкой; не встаёт — null.
+// runs(pt) → строка или [{t, b, s}] для wrap(); неразрывный пробел (nb) строку не делит.
+function fitPt(runs, w, hi, lo, step = 2) {
+  for (let pt = hi; pt >= lo; pt -= step) { let mx = 0; if (wrap(runs(pt), pt, w, v => { mx = v; }) === 1 && mx <= w) return pt; }
+  return null;
+}
+// Неполные данные: показатель известен, только если это конечное число. null, undefined, 'unknown' и строка-причина
+// («вне топ-10») — нет данных: такое значение не рисуется, не считается и не попадает в реестр фактов.
+const known = v => typeof v === 'number' && Number.isFinite(v);
+const NA = 'нет данных';
+const naText = (v, dflt = NA) => (typeof v === 'string' && v.trim() && v !== 'unknown' ? v : dflt);
 const lh = pt => pt * 1.32 / 72;                              // высота строки при интервале 1,1
 const onBar = () => (THEME === 'dark' ? C.bg : C.ink);        // текст на светлой полосе (C.bar)
 const diamond = (cx, cy, d, o = {}) => ({ t: 'diamond', x: cx - d / 2, y: cy - d / 2, w: d, h: d, ...o });
@@ -56,4 +70,4 @@ function spread(ys, gap = 0.32) {
   return o.sort((a, b) => a.i - b.i).map(e => e.v);
 }
 
-module.exports = { wrap, num, minus, unitOf, lines, lh, onBar, diamond, seg, knock, sparkline, spread };
+module.exports = { wrap, num, minus, unitOf, lines, fitPt, known, NA, naText, lh, onBar, diamond, seg, knock, sparkline, spread };

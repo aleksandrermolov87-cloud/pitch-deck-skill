@@ -1,0 +1,43 @@
+{
+ "about": "1.5.0 → 1.7.x: одинаковые входы и PNG, старый манифест A записан с пустыми полями, src/out/slides.json старого формата",
+ "A": {
+  "engine": "old",
+  "inputs": {
+   "build.js": "build-old",
+   "components.js": "components-old"
+  },
+  "content": "legacy150",
+  "content_manifest": null,
+  "src_slides_json": "old"
+ },
+ "B": {
+  "content_manifest": null,
+  "src_slides_json": "full"
+ },
+ "expect": {
+  "comparable": false,
+  "reason": "A: старый манифест: сборщик 1.5.0 не записал компоненты",
+  "kind": "контрольное сравнение версий навыка",
+  "checks": {
+   "pixels": "passed",
+   "control": "passed",
+   "pptx-content": "passed",
+   "content": "not_run"
+  },
+  "no_changes": true,
+  "md_has": [
+   "## Изменения содержания (редакционные)",
+   "Содержание не удалось сравнить",
+   "Входы и среда совпадают, все слайды совпали попиксельно.",
+   "редакционных правок между прогонами не было"
+  ],
+  "md_not": [
+   "- **Слайд",
+   "текст: убрано",
+   "заметки изменены",
+   "компоненты: ",
+   "## Компоненты по слайдам",
+   "добавлено: «"
+  ]
+ }
+}

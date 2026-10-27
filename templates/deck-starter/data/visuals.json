@@ -1,0 +1,50 @@
+{
+ "provider_choice": null,
+ "note": "демо-объекты заготовки: сгенерированы автором скилла в MagicPatterns, при генерации данные брифа не отправлялись. Замените их объектами своей деки и запишите выбор провайдера: visuals.py choose",
+ "images": [
+  {
+   "file": "img/3d/cover_platform.png",
+   "slide": 1,
+   "provider": "magicpatterns",
+   "tool": "generate_image",
+   "prompt_sha": null,
+   "source": "https://cdn.magicpatterns.com/patterns/generated-images/9c66e566-80c4-46ae-be0b-ed9cf012c811.jpg",
+   "created": null,
+   "data_sent": "none",
+   "demo": true
+  },
+  {
+   "file": "img/3d/step_catalog.png",
+   "slide": 6,
+   "provider": "magicpatterns",
+   "tool": "generate_image",
+   "prompt_sha": null,
+   "source": "https://cdn.magicpatterns.com/patterns/generated-images/1c472126-8b80-4b98-884e-b12e96f158b8.jpg",
+   "created": null,
+   "data_sent": "none",
+   "demo": true
+  },
+  {
+   "file": "img/3d/step_quote.png",
+   "slide": 6,
+   "provider": "magicpatterns",
+   "tool": "generate_image",
+   "prompt_sha": null,
+   "source": "https://cdn.magicpatterns.com/patterns/generated-images/26de3cd0-9ca5-4446-9f4b-fdc512300076.jpg",
+   "created": null,
+   "data_sent": "none",
+   "demo": true
+  },
+  {
+   "file": "img/3d/step_payment.png",
+   "slide": 6,
+   "provider": "magicpatterns",
+   "tool": "generate_image",
+   "prompt_sha": null,
+   "source": "https://cdn.magicpatterns.com/patterns/generated-images/20738dee-3ec8-41b1-8632-5eac140ccbc2.jpg",
+   "created": null,
+   "data_sent": "none",
+   "demo": true
+  }
+ ]
+}

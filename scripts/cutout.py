@@ -1,4 +1,5 @@
 # Вырезка белого фона у сгенерированного 3D-объекта: заливка от краёв по светлым пикселям, мягкая альфа по краю.
+# PNG с готовой прозрачностью (image_gen в Codex) не вырезается: только обрезка полей, fill и превью.
 # Запуск: $SKILL/.venv/bin/python -I cutout.py <img.jpg> [--out img.png] [--tol 18] [--preview]
 # --preview дополнительно пишет <img>_check.png: объект на тёмном и на светлом фоне, чтобы проверить ореол.
 import argparse
@@ -16,14 +17,20 @@ ap.add_argument('--shadow', choices=['keep', 'dark'], default='keep',
                 help='dark: светлая серая тень становится полупрозрачной чёрной. Может задеть белые части объекта: проверять --preview. Лучше генерировать без тени')
 a = ap.parse_args()
 
-img = Image.open(a.src).convert('RGB')
+src = Image.open(a.src)
+# картинка уже с прозрачным фоном (image_gen в Codex): фон не вырезаем, только обрезка полей, fill и превью
+ready = src.mode in ('RGBA', 'LA', 'PA') or 'transparency' in src.info
+if ready:
+    src = src.convert('RGBA')
+    ready = (np.asarray(src)[..., 3] < 16).mean() > 0.01
+img = src.convert('RGB')
 px = np.asarray(img, dtype=np.int16)
 h, w, _ = px.shape
 # цвет фона — медиана по рамке в 4 пикселя
 border = np.concatenate([px[:4].reshape(-1, 3), px[-4:].reshape(-1, 3), px[:, :4].reshape(-1, 3), px[:, -4:].reshape(-1, 3)])
 bgc = np.median(border, axis=0)
 dist = np.abs(px - bgc).max(axis=2)
-near = dist <= a.tol
+near = (dist <= a.tol) & (not ready)          # готовая альфа: заливки нет
 
 # заливка от краёв: фон — только связная с краем светлая область (белые блики внутри объекта не трогаем)
 bg = np.zeros((h, w), bool)
@@ -70,7 +77,7 @@ if shadow.any():                                   # тень: чёрный цв
     depth = np.clip((bgc.mean() - px.mean(axis=2)) / max(bgc.mean() - 120, 1), 0, 1)
     alpha = np.where(shadow, (depth * 150).astype(np.uint8), alpha)
     rgb = np.where(shadow[..., None], 0, rgb).astype(np.uint8)
-out = Image.fromarray(np.dstack([rgb, alpha]))
+out = src if ready else Image.fromarray(np.dstack([rgb, alpha]))
 bbox = out.getbbox()
 if bbox:
     pad = 8

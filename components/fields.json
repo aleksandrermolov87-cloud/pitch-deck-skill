@@ -1,0 +1,1297 @@
+{
+ "_": {
+  "about": "Машиночитаемый каталог компонентов для scripts/variants.py (reference/18-variants.md): смысл, формы входа, поля, лимиты. req — обязательное поле; tested — сколько знаков (или элементов) прошло в галерее в обеих темах без переполнений: это проверенная длина, а не предел; n — рассчитанный диапазон числа элементов; partial — что компонент делает без необязательных полей.",
+  "meaning": "теги смысла, первый — главный вопрос зрителя",
+  "accepts": "формы входных данных (variants.py → SHAPES), из которых variants.py собирает данные компонента"
+ },
+ "barsTrend": {
+  "group": "core",
+  "question": "Как меняется во времени?",
+  "archetype": "bars-trend",
+  "data": "`label, periods, values`; рост «×N» — derived ratio",
+  "meaning": ["trend"],
+  "accepts": ["series"],
+  "fields": {
+   "label": {"type": "text", "tested": 5, "req": false},
+   "periods": {"type": "list", "tested": 4, "of": {"type": "text", "tested": 7}, "req": true, "n": [2, 12]},
+   "values": {"type": "list", "tested": 4, "of": {"type": "number"}, "req": true, "n": [2, 12]},
+   "digits": {"type": "number", "req": false}
+  }
+ },
+ "bulletChart": {
+  "group": "core",
+  "question": "Выполнен ли план?",
+  "archetype": "plan-fact",
+  "data": "`rows [{name, plan, fact, target?}]`; отклонение — derived diff",
+  "meaning": ["plan-fact"],
+  "accepts": [],
+  "fields": {
+   "digits": {"type": "number", "req": false},
+   "unit": {"type": "text", "tested": 5, "req": false},
+   "rows": {"type": "list", "tested": 4, "of": {"name": {"type": "text", "tested": 11, "req": true}, "plan": {"type": "number", "req": true}, "fact": {"type": "number", "req": true}, "target": {"type": "number", "req": false}}, "item": "obj", "req": true}
+  }
+ },
+ "comparison": {
+  "group": "core",
+  "question": "Что выбрать из вариантов?",
+  "archetype": "comparison",
+  "data": "`options [{name, note, recommended}]`, `rows [{name, values: true/false/текст}]`",
+  "meaning": ["compare-options", "decision"],
+  "accepts": ["matrix"],
+  "fields": {
+   "options": {"type": "list", "tested": 3, "of": {"name": {"type": "text", "tested": 21, "req": true}, "note": {"type": "text", "tested": 9, "req": false}, "recommended": {"type": "bool", "req": false}}, "item": "obj", "req": true, "n": [2, 4]},
+   "rows": {"type": "list", "tested": 5, "of": {"name": {"type": "text", "tested": 30, "req": true}, "values": {"type": "list", "tested": 3, "of": {"type": "bool|text", "tested": 7}, "req": true}}, "item": "obj", "req": true, "n": [2, 8]}
+  }
+ },
+ "funnel": {
+  "group": "core",
+  "question": "Где теряем клиентов?",
+  "archetype": "funnel",
+  "data": "`stages [{name, value}]`; конверсия — derived ratio, %",
+  "meaning": ["funnel", "process"],
+  "accepts": [],
+  "fields": {
+   "label": {"type": "text", "tested": 8, "req": false},
+   "stages": {"type": "list", "tested": 4, "of": {"name": {"type": "text", "tested": 19, "req": true}, "value": {"type": "number", "req": true}}, "item": "obj", "req": true}
+  }
+ },
+ "ganttLanes": {
+  "group": "core",
+  "question": "Кто что делает параллельно?",
+  "archetype": "gantt-lanes",
+  "data": "`periods`, `today`, `groups [{name, lanes [{name, bars [{from, to, label, tone}], milestones}]}]`",
+  "meaning": ["parallel-work", "roadmap", "timeline"],
+  "accepts": [],
+  "fields": {
+   "periods": {"type": "list", "tested": 4, "of": {"type": "text", "tested": 7}, "req": true},
+   "today": {"type": "number", "req": false},
+   "groups": {"type": "list", "tested": 2, "of": {"name": {"type": "text", "tested": 8, "req": true}, "lanes": {"type": "list", "tested": 2, "of": {"name": {"type": "text", "tested": 23, "req": true}, "bars": {"type": "list", "tested": 3, "of": {"from": {"type": "number", "req": true}, "to": {"type": "number", "req": true}, "label": {"type": "text", "tested": 10, "req": false}, "tone": {"type": "text", "tested": 6, "req": false}}, "item": "obj", "req": true}, "milestones": {"type": "list", "tested": 1, "of": {"at": {"type": "number", "req": true}, "label": {"type": "text", "tested": 6, "req": false}}, "item": "obj", "req": false}}, "item": "obj", "req": true}}, "item": "obj", "req": true}
+  }
+ },
+ "heatmap": {
+  "group": "core",
+  "question": "Сколько в каждой ячейке продукт × канал?",
+  "archetype": "heatmap-matrix",
+  "data": "`rows`, `cols`, `values [[…]]`, итоги считаются как derived sum",
+  "meaning": ["matrix", "load"],
+  "accepts": ["matrix"],
+  "fields": {
+   "label": {"type": "text", "tested": 13, "req": false},
+   "digits": {"type": "number", "req": false},
+   "rows": {"type": "list", "tested": 4, "of": {"type": "text", "tested": 11}, "req": true, "n": [2, 6]},
+   "cols": {"type": "list", "tested": 4, "of": {"type": "text", "tested": 13}, "req": true, "n": [2, 6]},
+   "values": {"type": "list", "tested": 4, "of": {"type": "list", "tested": 4, "of": {"type": "number"}}, "req": true}
+  }
+ },
+ "hubDiagram": {
+  "group": "core",
+  "question": "Кто за что отвечает?",
+  "archetype": "hub-diagram",
+  "data": "`center`, `nodes [{name, items, link, edge}]` до 4",
+  "meaning": ["roles", "structure"],
+  "accepts": ["hub", "layers"],
+  "fields": {
+   "center": {"type": "obj", "of": {"name": {"type": "text", "tested": 19, "req": true}, "note": {"type": "text", "tested": 23, "req": false}}, "req": true},
+   "nodes": {"type": "list", "tested": 4, "of": {"name": {"type": "text", "tested": 18, "req": true}, "items": {"type": "list", "tested": 2, "of": {"type": "text", "tested": 21}, "req": true}, "edge": {"type": "text", "tested": 12, "req": false}, "link": {"type": "text", "tested": 6, "req": false}}, "item": "obj", "req": true, "n": [2, 4]}
+  }
+ },
+ "kpiHero": {
+  "group": "core",
+  "question": "Какое одно главное число?",
+  "archetype": "kpi-hero",
+  "data": "`value, unit, label, caption, series?`",
+  "meaning": ["headline-number", "trend"],
+  "accepts": ["series", "kpis"],
+  "fields": {
+   "value": {"type": "number", "req": true},
+   "digits": {"type": "number", "req": false},
+   "unit": {"type": "text", "tested": 5, "req": false},
+   "label": {"type": "text", "tested": 12, "req": false},
+   "caption": {"type": "text", "tested": 29, "req": true},
+   "series": {"type": "obj", "of": {"periods": {"type": "list", "tested": 4, "of": {"type": "text", "tested": 7}, "req": true}, "values": {"type": "list", "tested": 4, "of": {"type": "number"}, "req": true}}, "req": false}
+  }
+ },
+ "kpiList": {
+  "group": "core",
+  "question": "Какие ещё числа рядом с главным?",
+  "archetype": "kpi-hero",
+  "data": "`items [{value, unit, label, caption}]`",
+  "meaning": ["kpis", "headline-number"],
+  "accepts": ["ranked", "kpis"],
+  "fields": {
+   "items": {"type": "list", "tested": 3, "of": {"value": {"type": "number", "req": true}, "unit": {"type": "text", "tested": 1, "req": false}, "label": {"type": "text", "tested": 22, "req": false}, "caption": {"type": "text", "tested": 37, "req": true}}, "item": "obj", "req": true, "n": [2, 4]}
+  }
+ },
+ "matrix2x2": {
+  "group": "core",
+  "question": "Где мы среди игроков?",
+  "archetype": "competition-2x2",
+  "data": "оси `x`, `y`, `points [{name, x, y, us}]`, `quadrants`",
+  "meaning": ["position", "compare-players"],
+  "accepts": [],
+  "fields": {
+   "x": {"type": "obj", "of": {"label": {"type": "text", "tested": 19, "req": true}, "lo": {"type": "text", "tested": 3, "req": true}, "hi": {"type": "text", "tested": 6, "req": true}}, "req": true},
+   "y": {"type": "obj", "of": {"label": {"type": "text", "tested": 4, "req": true}, "lo": {"type": "text", "tested": 6, "req": false}, "hi": {"type": "text", "tested": 7, "req": true}}, "req": true},
+   "quadrants": {"type": "list", "tested": 4, "of": {"type": "text", "tested": 16}, "req": false},
+   "points": {"type": "list", "tested": 4, "of": {"name": {"type": "text", "tested": 7, "req": true}, "x": {"type": "number", "req": true}, "y": {"type": "number", "req": true}, "us": {"type": "bool", "req": false}}, "item": "obj", "req": true}
+  }
+ },
+ "nativeChart": {
+  "group": "charts",
+  "question": "Как меняется во времени? Кто больше? (диаграмма PowerPoint с таблицей данных)",
+  "archetype": null,
+  "data": "`type: col/line/bar`, `periods` или `cats`, `values` или `series [{name, values}]`, `label`, `unit?`",
+  "meaning": ["trend", "ranking", "compare-players"],
+  "accepts": ["ranked", "series"],
+  "fields": {
+   "type": {"type": "text", "tested": 4, "req": false},
+   "label": {"type": "text", "tested": 17, "req": false},
+   "unit": {"type": "text", "tested": 6, "req": false},
+   "digits": {"type": "number", "req": false},
+   "periods": {"type": "list", "tested": 7, "of": {"type": "text", "tested": 12}, "req": false},
+   "values": {"type": "list", "tested": 6, "of": {"type": "number"}, "req": false},
+   "source": {"type": "text", "tested": 31, "req": false},
+   "series": {"type": "list", "tested": 2, "of": {"name": {"type": "text", "tested": 6, "req": true}, "values": {"type": "list", "tested": 7, "of": {"type": "number"}, "req": true}}, "item": "obj", "req": false},
+   "cats": {"type": "list", "tested": 6, "of": {"type": "text", "tested": 12}, "req": false}
+  }
+ },
+ "nowNextLater": {
+  "group": "core",
+  "question": "Что сейчас, что следом, что потом?",
+  "archetype": "now-next-later",
+  "data": "`cols [{head, items [{t, d?}]}] ×3`",
+  "meaning": ["roadmap", "priority"],
+  "accepts": ["layers"],
+  "fields": {
+   "cols": {"type": "list", "tested": 3, "of": {"head": {"type": "text", "tested": 6, "req": true}, "items": {"type": "list", "tested": 3, "of": {"t": {"type": "text", "tested": 24, "req": true}, "d": {"type": "text", "tested": 36, "req": false}}, "item": "obj", "req": true}}, "item": "obj", "req": true, "n": [3, 3]}
+  }
+ },
+ "pictoGrid": {
+  "group": "core",
+  "question": "Насколько велика одна доля?",
+  "archetype": "picto-grid",
+  "data": "`value` из 100, `caption`",
+  "meaning": ["share", "headline-number"],
+  "accepts": ["parts"],
+  "fields": {
+   "value": {"type": "number", "req": true},
+   "label": {"type": "text", "tested": 28, "req": false},
+   "caption": {"type": "text", "tested": 78, "req": true}
+  }
+ },
+ "processSteps": {
+  "group": "core",
+  "question": "Как проходит процесс?",
+  "archetype": "process-steps",
+  "data": "`steps [{head, body, object?}]`: с 3D — `place3d`, без — узлы на линии",
+  "meaning": ["process", "journey"],
+  "accepts": ["steps"],
+  "fields": {
+   "steps": {"type": "list", "tested": 3, "of": {"head": {"type": "text", "tested": 14, "req": true}, "body": {"type": "text", "tested": 53, "req": true}, "object": {"type": "text", "tested": 16, "req": false, "about": "3D-объект шага в img/3d/; нет — узлы на линии"}}, "item": "obj", "req": true, "n": [3, 5]}
+  },
+  "partial": "без 3D-объектов — узлы на линии"
+ },
+ "quarterHorizon": {
+  "group": "core",
+  "question": "Куда идём за 2–3 года?",
+  "archetype": "roadmap-quarters",
+  "data": "`years [{name, quarters}]`, `rows [{name, marks, open?, accent?}]`",
+  "meaning": ["roadmap", "timeline"],
+  "accepts": [],
+  "fields": {
+   "years": {"type": "list", "tested": 2, "of": {"name": {"type": "text", "tested": 4, "req": true}, "quarters": {"type": "number", "req": true}}, "item": "obj", "req": true},
+   "rows": {"type": "list", "tested": 5, "of": {"name": {"type": "text", "tested": 21, "req": true}, "marks": {"type": "list", "tested": 3, "of": {"type": "number"}, "req": true}, "accent": {"type": "bool", "req": false}, "open": {"type": "bool", "req": false}}, "item": "obj", "req": true}
+  }
+ },
+ "slope": {
+  "group": "core",
+  "question": "Что изменилось между двумя датами?",
+  "archetype": "slope",
+  "data": "`left, right, items [{name, a, b}]`",
+  "meaning": ["change", "compare-players"],
+  "accepts": ["series", "pair"],
+  "fields": {
+   "left": {"type": "text", "tested": 4, "req": true},
+   "right": {"type": "text", "tested": 4, "req": true},
+   "label": {"type": "text", "tested": 12, "req": false},
+   "items": {"type": "list", "tested": 4, "of": {"name": {"type": "text", "tested": 13, "req": true}, "a": {"type": "number", "req": true}, "b": {"type": "number", "req": true}}, "item": "obj", "req": true, "n": [2, 6]}
+  }
+ },
+ "stackedShare": {
+  "group": "core",
+  "question": "Из чего складывается целое?",
+  "archetype": "stacked-share",
+  "data": "`label, parts [{name, value}]`; доли — derived ratio",
+  "meaning": ["share"],
+  "accepts": ["ranked", "parts"],
+  "fields": {
+   "label": {"type": "text", "tested": 10, "req": false},
+   "digits": {"type": "number", "req": false},
+   "unit": {"type": "text", "tested": 5, "req": false},
+   "parts": {"type": "list", "tested": 5, "of": {"name": {"type": "text", "tested": 20, "req": true}, "value": {"type": "number", "req": true}}, "item": "obj", "req": true, "n": [2, 6]},
+   "shareDigits": {"type": "number", "req": false},
+   "rest": {"type": "obj", "of": {"type": {"type": "text", "tested": 7, "req": true}, "name": {"type": "text", "tested": 21, "req": false}}, "req": false}
+  }
+ },
+ "tableEditorial": {
+  "group": "core",
+  "question": "Кто лучше по многим показателям? Как идут каналы?",
+  "archetype": "table-editorial",
+  "data": "`cols [{key, label, w, type: text/num/bar/trend}]`, `rows`, `total`, `highlight`",
+  "meaning": ["table", "ranking", "compare-players", "compare-options", "kpis"],
+  "accepts": ["matrix", "ranked", "pair"],
+  "fields": {
+   "highlight": {"type": "text", "tested": 2, "req": false},
+   "cols": {"type": "list", "tested": 5, "of": {"key": {"type": "text", "tested": 5, "req": true}, "label": {"type": "text", "tested": 11, "req": true}, "w": {"type": "number", "req": true}, "unit": {"type": "text", "tested": 5, "req": false}, "type": {"type": "text", "tested": 5, "req": false}, "digits": {"type": "number", "req": false}}, "item": "obj", "req": true, "n": [2, 6]},
+   "rows": {"type": "list", "tested": 3, "of": {"name": {"type": "text", "tested": 20, "req": true}, "note": {"type": "text", "tested": 19, "req": false}, "lead": {"type": "bool", "req": false}}, "item": "obj", "req": true, "about": "остальные ключи строки — cols[].key; пустая ячейка допустима", "n": [2, 8]},
+   "total": {"type": "obj", "of": {"name": {"type": "text", "tested": 5, "req": false}, "kd": {"type": "number", "req": false}, "units": {"type": "number", "req": false}}, "req": false}
+  },
+  "partial": "пустая ячейка допустима; столбцы задаются данными"
+ },
+ "timelineAxis": {
+  "group": "core",
+  "question": "Что и когда выходит?",
+  "archetype": "timeline-axis",
+  "data": "`ticks`, `now {at, note}`, `items [{at, name, value?, unit?, note, src}]`",
+  "meaning": ["timeline", "roadmap", "milestones"],
+  "accepts": [],
+  "fields": {
+   "ticks": {"type": "list", "tested": 12, "of": {"type": "text", "tested": 3}, "req": true},
+   "now": {"type": "obj", "of": {"at": {"type": "number", "req": false}, "note": {"type": "text", "tested": 26, "req": false}}, "req": false},
+   "items": {"type": "list", "tested": 5, "of": {"at": {"type": "number", "req": true}, "name": {"type": "text", "tested": 24, "req": true}, "value": {"type": "number", "req": false}, "unit": {"type": "text", "tested": 18, "req": false}, "note": {"type": "text", "tested": 25, "req": false}}, "item": "obj", "req": true}
+  }
+ },
+ "waterfall": {
+  "group": "core",
+  "question": "Что дало прирост и что съело?",
+  "archetype": "waterfall",
+  "data": "`start`, `steps [{name, value ±}]`, `end`; итог — derived sum",
+  "meaning": ["bridge", "drivers"],
+  "accepts": [],
+  "fields": {
+   "label": {"type": "text", "tested": 14, "req": false},
+   "digits": {"type": "number", "req": false},
+   "unit": {"type": "text", "tested": 5, "req": false},
+   "start": {"type": "obj", "of": {"name": {"type": "text", "tested": 10, "req": true}, "value": {"type": "number", "req": true}}, "req": true},
+   "steps": {"type": "list", "tested": 5, "of": {"name": {"type": "text", "tested": 15, "req": true}, "value": {"type": "number", "req": true}}, "item": "obj", "req": true},
+   "end": {"type": "obj", "of": {"name": {"type": "text", "tested": 10, "req": true}}, "req": true}
+  }
+ },
+ "breakEven": {
+  "group": "market",
+  "question": "Когда выйдем в плюс?",
+  "archetype": "break-even",
+  "data": "`values` — накопленный результат по месяцам, `every`; месяц безубыточности — derived count",
+  "meaning": ["break-even", "forecast"],
+  "accepts": [],
+  "fields": {
+   "label": {"type": "text", "tested": 21, "req": false},
+   "unit": {"type": "text", "tested": 5, "req": false},
+   "digits": {"type": "number", "req": false},
+   "every": {"type": "number", "req": false},
+   "values": {"type": "list", "tested": 24, "of": {"type": "number"}, "req": true}
+  }
+ },
+ "cohortGrid": {
+  "group": "market",
+  "question": "Как держатся клиенты по когортам?",
+  "archetype": "cohort-retention",
+  "data": "`cohorts [{name, size}]`, `values [[…]]` треугольником; среднее — derived",
+  "meaning": ["cohorts"],
+  "accepts": [],
+  "fields": {
+   "cohorts": {"type": "list", "tested": 6, "of": {"name": {"type": "text", "tested": 7, "req": true}, "size": {"type": "number", "req": true}}, "item": "obj", "req": true},
+   "values": {"type": "list", "tested": 6, "of": {"type": "list", "tested": 6, "of": {"type": "number"}}, "req": true}
+  }
+ },
+ "driversDiverging": {
+  "group": "market",
+  "question": "Что двигает рост, что тянет вниз?",
+  "archetype": "drivers-diverging",
+  "data": "`label, unit, items [{name, value ±}]`, `total`; итог — derived sum",
+  "meaning": ["drivers", "bridge"],
+  "accepts": [],
+  "fields": {
+   "label": {"type": "text", "tested": 20, "req": false},
+   "unit": {"type": "text", "tested": 5, "req": false},
+   "digits": {"type": "number", "req": false},
+   "total": {"type": "text", "tested": 19, "req": false},
+   "items": {"type": "list", "tested": 7, "of": {"name": {"type": "text", "tested": 26, "req": true}, "value": {"type": "number", "req": true}}, "item": "obj", "req": true}
+  }
+ },
+ "lineChart": {
+  "group": "market",
+  "question": "Как меняются несколько рядов?",
+  "archetype": "line-chart",
+  "data": "`periods`, `series [{name, values, main?}]` 2–4, подписи на концах",
+  "meaning": ["trend", "compare-players"],
+  "accepts": ["series"],
+  "fields": {
+   "label": {"type": "text", "tested": 30, "req": false},
+   "unit": {"type": "text", "tested": 1, "req": false},
+   "periods": {"type": "list", "tested": 12, "of": {"type": "text", "tested": 3}, "req": true, "n": [3, 12]},
+   "series": {"type": "list", "tested": 4, "of": {"name": {"type": "text", "tested": 13, "req": true}, "main": {"type": "bool", "req": false}, "values": {"type": "list", "tested": 12, "of": {"type": "number"}, "req": true}}, "item": "obj", "req": true, "n": [2, 4]}
+  }
+ },
+ "marketTam": {
+  "group": "market",
+  "question": "Насколько большой рынок?",
+  "archetype": "market-tam",
+  "data": "`unit`, `levels [{key, name, value, calc [{value, unit, note}]}] ×3`",
+  "meaning": ["market-size"],
+  "accepts": [],
+  "fields": {
+   "unit": {"type": "text", "tested": 6, "req": false},
+   "levels": {"type": "list", "tested": 3, "of": {"key": {"type": "text", "tested": 3, "req": true}, "name": {"type": "text", "tested": 34, "req": true}, "value": {"type": "number", "req": true}, "calc": {"type": "list", "tested": 3, "of": {"value": {"type": "number", "req": true}, "unit": {"type": "text", "tested": 3, "req": false}, "note": {"type": "text", "tested": 24, "req": true}, "digits": {"type": "number", "req": false}}, "item": "obj", "req": false}, "digits": {"type": "number", "req": false}}, "item": "obj", "req": true, "n": [3, 3]}
+  }
+ },
+ "pricingTiers": {
+  "group": "market",
+  "question": "Сколько стоит и что входит?",
+  "archetype": "pricing-tiers",
+  "data": "`unit`, `tiers [{name, price, note, recommended}]`, `features [{name, values}]`",
+  "meaning": ["pricing", "compare-options"],
+  "accepts": ["matrix"],
+  "fields": {
+   "unit": {"type": "text", "tested": 9, "req": false},
+   "tiers": {"type": "list", "tested": 3, "of": {"name": {"type": "text", "tested": 11, "req": true}, "price": {"type": "number|text", "tested": 10, "req": false, "about": "цена тарифа; null или нет — колонка без цены, акцент на покрытие и условия", "null": true, "key": true}, "note": {"type": "text", "tested": 54, "req": false}, "recommended": {"type": "bool", "req": false}}, "item": "obj", "req": true, "n": [2, 4]},
+   "features": {"type": "list", "tested": 6, "of": {"name": {"type": "text", "tested": 30, "req": true}, "values": {"type": "list", "tested": 3, "of": {"type": "bool|number|text", "tested": 12}, "req": true}, "prefix": {"type": "text", "tested": 3, "req": false}, "unit": {"type": "text", "tested": 5, "req": false}}, "item": "obj", "req": true, "n": [2, 7]},
+   "noPrice": {"type": "text", "tested": 28, "req": false}
+  },
+  "partial": "без цены: тарифы сравниваются по покрытию и условиям, цена «по запросу»"
+ },
+ "revenueFormula": {
+  "group": "market",
+  "question": "Из чего складывается выручка?",
+  "archetype": "revenue-formula",
+  "data": "`factors [{name, value, unit, from}] 3–4`, `result` — факт с источником",
+  "meaning": ["formula", "market-size"],
+  "accepts": [],
+  "fields": {
+   "factors": {"type": "list", "tested": 3, "of": {"name": {"type": "text", "tested": 30, "req": true}, "value": {"type": "number", "req": true}, "digits": {"type": "number", "req": false}, "unit": {"type": "text", "tested": 3, "req": false}, "from": {"type": "text", "tested": 47, "req": false}}, "item": "obj", "req": true, "n": [3, 4]},
+   "result": {"type": "obj", "of": {"name": {"type": "text", "tested": 14, "req": true}, "value": {"type": "number", "req": true}, "digits": {"type": "number", "req": false}, "unit": {"type": "text", "tested": 6, "req": false}, "from": {"type": "text", "tested": 43, "req": false}}, "req": true}
+  }
+ },
+ "scenarioRange": {
+  "group": "market",
+  "question": "Какой прогноз и насколько он уверен?",
+  "archetype": "scenario-range",
+  "data": "`periods`, `rows [{lo?, base, hi?}]`, `names?`",
+  "meaning": ["forecast", "trend"],
+  "accepts": [],
+  "fields": {
+   "label": {"type": "text", "tested": 7, "req": false},
+   "unit": {"type": "text", "tested": 6, "req": false},
+   "digits": {"type": "number", "req": false},
+   "periods": {"type": "list", "tested": 5, "of": {"type": "text", "tested": 4}, "req": true},
+   "rows": {"type": "list", "tested": 5, "of": {"base": {"type": "number", "req": true}, "lo": {"type": "number", "req": false}, "hi": {"type": "number", "req": false}}, "item": "obj", "req": true}
+  }
+ },
+ "stackedColumns": {
+  "group": "market",
+  "question": "Как меняется состав во времени?",
+  "archetype": "stacked-columns",
+  "data": "`periods`, `parts [{name, values}]` 2–4; итог — derived sum",
+  "meaning": ["share", "trend"],
+  "accepts": [],
+  "fields": {
+   "label": {"type": "text", "tested": 6, "req": false},
+   "unit": {"type": "text", "tested": 5, "req": false},
+   "digits": {"type": "number", "req": false},
+   "periods": {"type": "list", "tested": 6, "of": {"type": "text", "tested": 12}, "req": true},
+   "parts": {"type": "list", "tested": 4, "of": {"name": {"type": "text", "tested": 11, "req": true}, "values": {"type": "list", "tested": 6, "of": {"type": "number"}, "req": true}}, "item": "obj", "req": true, "n": [2, 4]}
+  }
+ },
+ "unitEconomics": {
+  "group": "market",
+  "question": "Окупается ли клиент?",
+  "archetype": "unit-economics",
+  "data": "`cac, ltv, margin, months {value, note}`, `extra?`; LTV/CAC и окупаемость — derived",
+  "meaning": ["unit-economics"],
+  "accepts": [],
+  "fields": {
+   "unit": {"type": "text", "tested": 1, "req": false},
+   "cac": {"type": "obj", "of": {"value": {"type": "number", "req": true}, "note": {"type": "text", "tested": 33, "req": true}}, "req": true},
+   "ltv": {"type": "obj", "of": {"value": {"type": "number", "req": true}, "note": {"type": "text", "tested": 24, "req": true}}, "req": true},
+   "margin": {"type": "obj", "of": {"value": {"type": "number", "req": true}, "note": {"type": "text", "tested": 23, "req": true}}, "req": true},
+   "months": {"type": "obj", "of": {"value": {"type": "number", "req": true}, "note": {"type": "text", "tested": 26, "req": true}}, "req": true},
+   "extra": {"type": "list", "tested": 1, "of": {"label": {"type": "text", "tested": 13, "req": false}, "value": {"type": "number", "req": true}, "digits": {"type": "number", "req": false}, "unit": {"type": "text", "tested": 1, "req": false}, "note": {"type": "text", "tested": 29, "req": true}}, "item": "obj", "req": false}
+  }
+ },
+ "beforeAfter": {
+  "group": "product",
+  "question": "Что изменилось после запуска?",
+  "archetype": "before-after",
+  "data": "`before/after {head, note}`, `metrics [{name, a, b, unit?, better}]`; разница — derived diff",
+  "meaning": ["change"],
+  "accepts": ["pair"],
+  "fields": {
+   "before": {"type": "obj", "of": {"head": {"type": "text", "tested": 4, "req": true}, "note": {"type": "text", "tested": 33, "req": false}}, "req": true},
+   "after": {"type": "obj", "of": {"head": {"type": "text", "tested": 5, "req": true}, "note": {"type": "text", "tested": 35, "req": false}}, "req": true},
+   "metrics": {"type": "list", "tested": 4, "of": {"name": {"type": "text", "tested": 25, "req": true}, "a": {"type": "number", "req": true}, "b": {"type": "number", "req": true}, "unit": {"type": "text", "tested": 3, "req": false}, "better": {"type": "text", "tested": 4, "req": false}, "digits": {"type": "number", "req": false}}, "item": "obj", "req": true, "n": [1, 4]}
+  }
+ },
+ "caseStudy": {
+  "group": "product",
+  "question": "Какой результат у клиента?",
+  "archetype": "case-study",
+  "data": "`task/solution {head, body, items?}`, `result {metrics [1–2]}`",
+  "meaning": ["case", "change"],
+  "accepts": [],
+  "fields": {
+   "task": {"type": "obj", "of": {"head": {"type": "text", "tested": 30, "req": false}, "body": {"type": "text", "tested": 78, "req": false}, "metrics": {"type": "list", "tested": 1, "of": {"value": {"type": "number", "req": true}, "unit": {"type": "text", "tested": 1, "req": false}, "label": {"type": "text", "tested": 35, "req": false}, "caption": {"type": "text", "tested": 45, "req": true}}, "item": "obj", "req": false}}, "req": true},
+   "solution": {"type": "obj", "of": {"head": {"type": "text", "tested": 32, "req": false}, "body": {"type": "text", "tested": 58, "req": false}, "items": {"type": "list", "tested": 2, "of": {"type": "text", "tested": 33}, "req": false}}, "req": true},
+   "result": {"type": "obj", "of": {"metrics": {"type": "list", "tested": 2, "of": {"value": {"type": "number", "req": true}, "unit": {"type": "text", "tested": 5, "req": false}, "label": {"type": "text", "tested": 32, "req": false}, "caption": {"type": "text", "tested": 47, "req": true}, "prefix": {"type": "text", "tested": 1, "req": false}, "digits": {"type": "number", "req": false}}, "item": "obj", "req": false}}, "req": true}
+  }
+ },
+ "featureDots": {
+  "group": "product",
+  "question": "Что важно какому сегменту?",
+  "archetype": "feature-dots",
+  "data": "`segments`, `features [{name, note?, values [0…3]}]`, `levels?`",
+  "meaning": ["segments", "compare-options"],
+  "accepts": ["matrix"],
+  "fields": {
+   "segments": {"type": "list", "tested": 4, "of": {"name": {"type": "text", "tested": 15, "req": true}, "note": {"type": "text", "tested": 16, "req": false}}, "item": "obj", "req": true, "n": [2, 5]},
+   "features": {"type": "list", "tested": 6, "of": {"name": {"type": "text", "tested": 21, "req": true}, "note": {"type": "text", "tested": 23, "req": false}, "values": {"type": "list", "tested": 4, "of": {"type": "number"}, "req": true}}, "item": "obj", "req": true, "n": [3, 7]}
+  }
+ },
+ "journeyMap": {
+  "group": "product",
+  "question": "Где клиенту плохо на пути?",
+  "archetype": "journey-map",
+  "data": "`stages [{name, note?, mood −2…2, pain?: {t, value?, unit?}}]`",
+  "meaning": ["journey", "process", "problem"],
+  "accepts": ["steps"],
+  "fields": {
+   "stages": {"type": "list", "tested": 7, "of": {"name": {"type": "text", "tested": 15, "req": true}, "note": {"type": "text", "tested": 22, "req": false}, "mood": {"type": "number|text", "tested": 13, "req": false, "about": "настроение −2…2 из исследования; нет — этапы без кривой, выдумывать нельзя", "null": true, "key": true}, "pain": {"type": "obj", "of": {"value": {"type": "number", "req": false}, "unit": {"type": "text", "tested": 7, "req": false}, "t": {"type": "text", "tested": 26, "req": true}, "label": {"type": "text", "tested": 40, "req": false}}, "req": false, "about": "боль этапа {t, value?, unit?}", "key": true}}, "item": "obj", "req": true, "n": [4, 7]}
+  },
+  "partial": "без mood: этапы и боли без кривой настроения; без mood и pain компонент не отвечает «где плохо» — только этапы"
+ },
+ "npsBar": {
+  "group": "product",
+  "question": "Насколько клиенты нас рекомендуют?",
+  "archetype": "nps-bar",
+  "data": "`detractors, passives, promoters`, `prev?`, `n?`; NPS — derived diff",
+  "meaning": ["nps"],
+  "accepts": [],
+  "fields": {
+   "detractors": {"type": "number", "req": true},
+   "passives": {"type": "number", "req": true},
+   "promoters": {"type": "number", "req": true},
+   "prev": {"type": "obj", "of": {"value": {"type": "number", "req": true}, "name": {"type": "text", "tested": 12, "req": true}, "change": {"type": "text", "tested": 10, "req": false}}, "req": false},
+   "n": {"type": "obj", "of": {"value": {"type": "number", "req": true}, "label": {"type": "text", "tested": 20, "req": false}, "caption": {"type": "text", "tested": 16, "req": false}}, "req": false}
+  }
+ },
+ "personaCard": {
+  "group": "product",
+  "question": "Для кого продукт?",
+  "archetype": "persona-card",
+  "data": "`name, role, context`, `stat {…}`, `cols [{head, items}] ×3`",
+  "meaning": ["persona", "segments"],
+  "accepts": [],
+  "fields": {
+   "name": {"type": "text", "tested": 4, "req": true},
+   "role": {"type": "text", "tested": 25, "req": false},
+   "context": {"type": "text", "tested": 113, "req": false},
+   "stat": {"type": "obj", "of": {"value": {"type": "number", "req": true}, "unit": {"type": "text", "tested": 1, "req": false}, "label": {"type": "text", "tested": 20, "req": false}, "caption": {"type": "text", "tested": 41, "req": true}, "bar": {"type": "bool", "req": false}}, "req": true},
+   "cols": {"type": "list", "tested": 3, "of": {"head": {"type": "text", "tested": 9, "req": true}, "items": {"type": "list", "tested": 3, "of": {"type": "text", "tested": 37}, "req": true}}, "item": "obj", "req": true, "n": [3, 3]}
+  }
+ },
+ "problemSolution": {
+  "group": "product",
+  "question": "Какую проблему решаем?",
+  "archetype": "problem-solution",
+  "data": "`problem/solution {value, unit, label, caption, head, body}`; эффект — derived diff",
+  "meaning": ["problem", "change"],
+  "accepts": [],
+  "fields": {
+   "problem": {"type": "obj", "of": {"value": {"type": "number", "req": true}, "unit": {"type": "text", "tested": 1, "req": false}, "label": {"type": "text", "tested": 25, "req": false}, "caption": {"type": "text", "tested": 56, "req": true}, "head": {"type": "text", "tested": 26, "req": true}, "body": {"type": "text", "tested": 66, "req": false}, "share": {"type": "bool", "req": false}}, "req": true},
+   "solution": {"type": "obj", "of": {"value": {"type": "number", "req": true}, "unit": {"type": "text", "tested": 1, "req": false}, "label": {"type": "text", "tested": 27, "req": false}, "caption": {"type": "text", "tested": 53, "req": true}, "head": {"type": "text", "tested": 24, "req": true}, "body": {"type": "text", "tested": 70, "req": false}, "share": {"type": "bool", "req": false}}, "req": true},
+   "link": {"type": "text", "tested": 14, "req": false}
+  }
+ },
+ "quoteHero": {
+  "group": "product",
+  "question": "Что говорит клиент?",
+  "archetype": "quote-hero",
+  "data": "`quote, author, role?`, `metric? {value, unit, label, caption}`",
+  "meaning": ["quote"],
+  "accepts": [],
+  "fields": {
+   "quote": {"type": "text", "tested": 85, "req": true},
+   "author": {"type": "text", "tested": 10, "req": true},
+   "role": {"type": "text", "tested": 32, "req": false},
+   "metric": {"type": "obj", "of": {"value": {"type": "number", "req": true}, "unit": {"type": "text", "tested": 4, "req": false}, "label": {"type": "text", "tested": 32, "req": false}, "caption": {"type": "text", "tested": 68, "req": true}, "was": {"type": "number", "req": false}, "wasLabel": {"type": "text", "tested": 29, "req": false}, "names": {"type": "list", "tested": 2, "of": {"type": "text", "tested": 13}, "req": false}}, "req": false}
+  }
+ },
+ "screenCallouts": {
+  "group": "product",
+  "question": "Как это выглядит в продукте?",
+  "archetype": "screen-callouts",
+  "data": "`file?` (экран в img/, иначе схема телефона), `callouts [{at [fx, fy], head, body?, value?}]`",
+  "meaning": ["product-screen"],
+  "accepts": [],
+  "fields": {
+   "callouts": {"type": "list", "tested": 4, "of": {"at": {"type": "list", "tested": 2, "of": {"type": "number"}, "req": true}, "head": {"type": "text", "tested": 21, "req": true}, "body": {"type": "text", "tested": 41, "req": false}, "value": {"type": "number", "req": false}, "unit": {"type": "text", "tested": 6, "req": false}, "label": {"type": "text", "tested": 21, "req": false}, "side": {"type": "text", "tested": 5, "req": false}}, "item": "obj", "req": true}
+  }
+ },
+ "usageRanking": {
+  "group": "product",
+  "question": "Чем пользуются чаще всего?",
+  "archetype": "usage-ranking",
+  "data": "`label`, `items [{name, value 0…100}]`, `highlight?`; среднее — derived",
+  "meaning": ["usage", "ranking", "share"],
+  "accepts": ["ranked"],
+  "fields": {
+   "label": {"type": "text", "tested": 22, "req": false},
+   "head": {"type": "text", "tested": 18, "req": false},
+   "highlight": {"type": "list", "tested": 2, "of": {"type": "text", "tested": 23}, "req": false},
+   "items": {"type": "list", "tested": 8, "of": {"name": {"type": "text", "tested": 23, "req": true}, "value": {"type": "number", "req": true}}, "item": "obj", "req": true, "n": [3, 10]}
+  }
+ },
+ "bubble2x2": {
+  "group": "strategy",
+  "question": "Что делать первым?",
+  "archetype": "priority-bubbles",
+  "data": "`x, y {label, lo, hi}`, `items [{name, x, y, value}]`, `quadrants?`",
+  "meaning": ["priority", "position"],
+  "accepts": [],
+  "fields": {
+   "x": {"type": "obj", "of": {"label": {"type": "text", "tested": 6, "req": true}, "lo": {"type": "text", "tested": 6, "req": true}, "hi": {"type": "text", "tested": 8, "req": true}}, "req": true},
+   "y": {"type": "obj", "of": {"label": {"type": "text", "tested": 6, "req": true}, "hi": {"type": "text", "tested": 13, "req": true}}, "req": true},
+   "unit": {"type": "text", "tested": 5, "req": false},
+   "digits": {"type": "number", "req": false},
+   "items": {"type": "list", "tested": 7, "of": {"name": {"type": "text", "tested": 22, "req": true}, "x": {"type": "number", "req": true}, "y": {"type": "number", "req": true}, "value": {"type": "number", "req": true}}, "item": "obj", "req": true}
+  }
+ },
+ "decisionOptions": {
+  "group": "strategy",
+  "question": "Какой вариант утвердить?",
+  "archetype": "decision-options",
+  "data": "`options [{name, cost, time, pros, cons, recommended?}]`, `ask`",
+  "meaning": ["decision", "compare-options"],
+  "accepts": ["matrix"],
+  "fields": {
+   "costLabel": {"type": "text", "tested": 9, "req": false},
+   "costUnit": {"type": "text", "tested": 5, "req": false},
+   "costDigits": {"type": "number", "req": false},
+   "timeLabel": {"type": "text", "tested": 12, "req": false},
+   "timeUnit": {"type": "text", "tested": 4, "req": false},
+   "options": {"type": "list", "tested": 3, "of": {"name": {"type": "text", "tested": 21, "req": true}, "note": {"type": "text", "tested": 28, "req": false}, "cost": {"type": "number", "req": true}, "time": {"type": "number", "req": true}, "pros": {"type": "list", "tested": 2, "of": {"type": "text", "tested": 29}, "req": false}, "cons": {"type": "list", "tested": 2, "of": {"type": "text", "tested": 29}, "req": false}, "recommended": {"type": "bool", "req": false}}, "item": "obj", "req": true, "n": [2, 3]},
+   "ask": {"type": "text", "tested": 60, "req": false}
+  }
+ },
+ "okrTree": {
+  "group": "strategy",
+  "question": "Как цель раскладывается на результаты?",
+  "archetype": "okr-tree",
+  "data": "`objective {t, d?}`, `pace?`, `krs [{name, value, target, unit?}]`",
+  "meaning": ["okr", "plan-fact"],
+  "accepts": [],
+  "fields": {
+   "objective": {"type": "obj", "of": {"label": {"type": "text", "tested": 16, "req": false}, "t": {"type": "text", "tested": 49, "req": true}, "d": {"type": "text", "tested": 56, "req": false}}, "req": true},
+   "pace": {"type": "number", "req": false},
+   "krs": {"type": "list", "tested": 4, "of": {"name": {"type": "text", "tested": 27, "req": true}, "value": {"type": "number", "req": true}, "target": {"type": "number", "req": true}, "unit": {"type": "text", "tested": 4, "req": false}, "digits": {"type": "number", "req": false}}, "item": "obj", "req": true}
+  }
+ },
+ "orgChart": {
+  "group": "strategy",
+  "question": "Кто за что отвечает в команде?",
+  "archetype": "org-chart",
+  "data": "`root {name, role}`, `units [{name, role, size?, team [{name, role, open?}]}]`",
+  "meaning": ["team", "structure", "roles"],
+  "accepts": [],
+  "fields": {
+   "root": {"type": "obj", "of": {"name": {"type": "text", "tested": 13, "req": true}, "role": {"type": "text", "tested": 30, "req": true}}, "req": true},
+   "units": {"type": "list", "tested": 4, "of": {"name": {"type": "text", "tested": 14, "req": true}, "role": {"type": "text", "tested": 32, "req": true}, "size": {"type": "number", "req": false}, "team": {"type": "list", "tested": 3, "of": {"name": {"type": "text", "tested": 15, "req": false}, "role": {"type": "text", "tested": 24, "req": true}, "open": {"type": "bool", "req": false}}, "item": "obj", "req": false}}, "item": "obj", "req": true}
+  }
+ },
+ "raciMatrix": {
+  "group": "strategy",
+  "question": "Кто что делает в проекте?",
+  "archetype": "raci-matrix",
+  "data": "`roles`, `tasks [{name, group?, cells ['R'/'A'/'C'/'I'/'']}]`",
+  "meaning": ["raci", "roles"],
+  "accepts": [],
+  "fields": {
+   "roles": {"type": "list", "tested": 5, "of": {"type": "text", "tested": 18}, "req": true},
+   "tasks": {"type": "list", "tested": 6, "of": {"group": {"type": "text", "tested": 10, "req": false}, "name": {"type": "text", "tested": 27, "req": true}, "cells": {"type": "list", "tested": 5, "of": {"type": "text", "tested": 1}, "req": true}}, "item": "obj", "req": true}
+  }
+ },
+ "riskMatrix": {
+  "group": "strategy",
+  "question": "Какие риски главные?",
+  "archetype": "risk-matrix",
+  "data": "`risks [{name, p 1–3, i 1–3, measure, owner?}]`",
+  "meaning": ["risks"],
+  "accepts": [],
+  "fields": {
+   "unit": {"type": "text", "tested": 5, "req": false},
+   "risks": {"type": "list", "tested": 5, "of": {"name": {"type": "text", "tested": 32, "req": true}, "p": {"type": "number", "req": true}, "i": {"type": "number", "req": true}, "value": {"type": "number", "req": false}, "measure": {"type": "text", "tested": 53, "req": true}, "owner": {"type": "text", "tested": 10, "req": false}}, "item": "obj", "req": true}
+  }
+ },
+ "strategyPillars": {
+  "group": "strategy",
+  "question": "На чём держится стратегия?",
+  "archetype": "strategy-pillars",
+  "data": "`goal {t}`, `pillars [{name, body, value, unit?, label}]`, `base {label, t}`",
+  "meaning": ["strategy", "structure"],
+  "accepts": [],
+  "fields": {
+   "goal": {"type": "obj", "of": {"label": {"type": "text", "tested": 16, "req": false}, "t": {"type": "text", "tested": 69, "req": true}}, "req": true},
+   "pillars": {"type": "list", "tested": 3, "of": {"name": {"type": "text", "tested": 23, "req": true}, "body": {"type": "text", "tested": 59, "req": true}, "value": {"type": "number", "req": true}, "unit": {"type": "text", "tested": 4, "req": false}, "label": {"type": "text", "tested": 30, "req": true}, "accent": {"type": "bool", "req": false}}, "item": "obj", "req": true},
+   "base": {"type": "obj", "of": {"label": {"type": "text", "tested": 9, "req": true}, "t": {"type": "text", "tested": 47, "req": true}}, "req": false}
+  }
+ },
+ "swot": {
+  "group": "strategy",
+  "question": "Какие сильные и слабые стороны?",
+  "archetype": "swot",
+  "data": "`s, w, o, t: [строка или {t, d?, value?}]`, `heads?`, `axes?`",
+  "meaning": ["swot", "strategy"],
+  "accepts": [],
+  "fields": {
+   "s": {"type": "list", "tested": 3, "of": {"t": {"type": "text", "tested": 18, "req": true}, "value": {"type": "number", "req": false}, "digits": {"type": "number", "req": false}, "unit": {"type": "text", "tested": 3, "req": false}, "d": {"type": "text", "tested": 45, "req": false}, "weight": {"type": "number", "req": false}}, "item": "obj", "req": false},
+   "w": {"type": "list", "tested": 3, "of": {"t": {"type": "text", "tested": 24, "req": true}, "d": {"type": "text", "tested": 37, "req": false}, "weight": {"type": "number", "req": false}}, "item": "obj", "req": false},
+   "o": {"type": "list", "tested": 3, "of": {"t": {"type": "text", "tested": 31, "req": true}, "d": {"type": "text", "tested": 38, "req": false}, "weight": {"type": "number", "req": false}}, "item": "obj", "req": false},
+   "t": {"type": "list", "tested": 3, "of": {"t": {"type": "text", "tested": 27, "req": true}, "d": {"type": "text", "tested": 30, "req": false}, "weight": {"type": "number", "req": false}}, "item": "obj", "req": false}
+  }
+ },
+ "systemsLayers": {
+  "group": "strategy",
+  "question": "Как устроена архитектура?",
+  "archetype": "systems-layers",
+  "data": "`layers [{name, systems [{name, isNew?, col?}]}]`, `links [{from, to, dashed?}]`",
+  "meaning": ["architecture", "structure"],
+  "accepts": ["layers"],
+  "fields": {
+   "cols": {"type": "number", "req": false},
+   "layers": {"type": "list", "tested": 4, "of": {"name": {"type": "text", "tested": 11, "req": true}, "note": {"type": "text", "tested": 19, "req": false}, "systems": {"type": "list", "tested": 4, "of": {"name": {"type": "text", "tested": 20, "req": true}, "isNew": {"type": "bool", "req": false}, "note": {"type": "text", "tested": 19, "req": false}, "col": {"type": "number", "req": false}}, "item": "obj", "req": true}}, "item": "obj", "req": true, "n": [2, 5]},
+   "links": {"type": "list", "tested": 10, "of": {"from": {"type": "text", "tested": 20, "req": true}, "to": {"type": "text", "tested": 18, "req": true}}, "item": "obj", "req": false}
+  }
+ },
+ "valueChain": {
+  "group": "strategy",
+  "question": "Где создаётся ценность?",
+  "archetype": "value-chain",
+  "data": "`label, unit`, `links [{name, note?, value}]`; доли — derived ratio",
+  "meaning": ["value-chain", "process", "share"],
+  "accepts": [],
+  "fields": {
+   "label": {"type": "text", "tested": 5, "req": false},
+   "unit": {"type": "text", "tested": 5, "req": false},
+   "digits": {"type": "number", "req": false},
+   "links": {"type": "list", "tested": 5, "of": {"name": {"type": "text", "tested": 14, "req": true}, "note": {"type": "text", "tested": 25, "req": false}, "value": {"type": "number", "req": true}}, "item": "obj", "req": true},
+   "caption": {"type": "text", "tested": 44, "req": false}
+  }
+ },
+ "burndown": {
+  "group": "progress",
+  "question": "Успеваем ли к сроку?",
+  "archetype": "burndown",
+  "data": "`scope, days, perTick, ticks, fact [остаток], deadline`; отставание — derived",
+  "meaning": ["burndown", "plan-fact"],
+  "accepts": [],
+  "fields": {
+   "label": {"type": "text", "tested": 14, "req": false},
+   "unit": {"type": "text", "tested": 5, "req": false},
+   "scope": {"type": "number", "req": true},
+   "days": {"type": "number", "req": true},
+   "perTick": {"type": "number", "req": true},
+   "deadline": {"type": "text", "tested": 15, "req": true},
+   "ticks": {"type": "list", "tested": 9, "of": {"type": "text", "tested": 6}, "req": true},
+   "fact": {"type": "list", "tested": 6, "of": {"type": "number"}, "req": true}
+  }
+ },
+ "calendarHeat": {
+  "group": "progress",
+  "question": "Когда пиковая нагрузка?",
+  "archetype": "calendar-heat",
+  "data": "`rows`, `cols`, `groups [{name, from}]`, `values [[…]]`, `unit`",
+  "meaning": ["load"],
+  "accepts": [],
+  "fields": {
+   "label": {"type": "text", "tested": 9, "req": false},
+   "unit": {"type": "text", "tested": 9, "req": false},
+   "rows": {"type": "list", "tested": 7, "of": {"type": "text", "tested": 2}, "req": true},
+   "rowNames": {"type": "list", "tested": 7, "of": {"type": "text", "tested": 11}, "req": false},
+   "cols": {"type": "list", "tested": 17, "of": {"type": "text", "tested": 12}, "req": true},
+   "groups": {"type": "list", "tested": 4, "of": {"name": {"type": "text", "tested": 7, "req": true}, "from": {"type": "number", "req": true}}, "item": "obj", "req": false},
+   "values": {"type": "list", "tested": 7, "of": {"type": "list", "tested": 17, "of": {"type": "number"}}, "req": true}
+  }
+ },
+ "deadlineStrip": {
+  "group": "progress",
+  "question": "Сколько осталось до запуска?",
+  "archetype": "deadline-countdown",
+  "data": "`weeks`, `today`, `launch {day, label, date}`, `points [{day, label, date}]`",
+  "meaning": ["deadline", "timeline"],
+  "accepts": [],
+  "fields": {
+   "weeks": {"type": "list", "tested": 15, "of": {"type": "text", "tested": 6}, "req": true},
+   "today": {"type": "number", "req": true},
+   "todayDate": {"type": "text", "tested": 10, "req": false},
+   "launch": {"type": "obj", "of": {"day": {"type": "number", "req": true}, "label": {"type": "text", "tested": 13, "req": true}, "date": {"type": "text", "tested": 10, "req": true}}, "req": true},
+   "points": {"type": "list", "tested": 4, "of": {"day": {"type": "number", "req": true}, "label": {"type": "text", "tested": 19, "req": true}, "date": {"type": "text", "tested": 11, "req": false}}, "item": "obj", "req": true}
+  }
+ },
+ "kanbanFlow": {
+  "group": "progress",
+  "question": "Где копится работа?",
+  "archetype": "kanban-flow",
+  "data": "`cols [{name, count, wip?, days?}]`; превышение лимита — derived diff",
+  "meaning": ["flow", "process"],
+  "accepts": [],
+  "fields": {
+   "label": {"type": "text", "tested": 6, "req": false},
+   "cols": {"type": "list", "tested": 5, "of": {"name": {"type": "text", "tested": 8, "req": true}, "count": {"type": "number", "req": true}, "days": {"type": "number", "req": false}, "wip": {"type": "number", "req": false}, "note": {"type": "text", "tested": 9, "req": false}}, "item": "obj", "req": true}
+  }
+ },
+ "milestonesVertical": {
+  "group": "progress",
+  "question": "Как шёл проект?",
+  "archetype": "milestones-vertical",
+  "data": "`current`, `items [{date, title, note?, value?, unit?}]`",
+  "meaning": ["milestones", "timeline", "process"],
+  "accepts": ["steps"],
+  "fields": {
+   "current": {"type": "number", "req": false},
+   "items": {"type": "list", "tested": 6, "of": {"date": {"type": "text", "tested": 6, "req": true}, "title": {"type": "text", "tested": 34, "req": true}, "note": {"type": "text", "tested": 53, "req": false}, "value": {"type": "number", "req": false}, "caption": {"type": "text", "tested": 21, "req": false}, "unit": {"type": "text", "tested": 1, "req": false}}, "item": "obj", "req": true, "n": [3, 6]}
+  }
+ },
+ "pairedColumns": {
+  "group": "progress",
+  "question": "Как этот год против прошлого?",
+  "archetype": "paired-columns",
+  "data": "`periods`, `prev {name, values}`, `cur {name, values}`; итоги — derived sum",
+  "meaning": ["trend", "change"],
+  "accepts": ["series"],
+  "fields": {
+   "label": {"type": "text", "tested": 5, "req": false},
+   "unit": {"type": "text", "tested": 5, "req": false},
+   "digits": {"type": "number", "req": false},
+   "periods": {"type": "list", "tested": 12, "of": {"type": "text", "tested": 3}, "req": true, "n": [2, 12]},
+   "prev": {"type": "obj", "of": {"name": {"type": "text", "tested": 4, "req": true}, "values": {"type": "list", "tested": 12, "of": {"type": "number"}, "req": true}}, "req": true},
+   "cur": {"type": "obj", "of": {"name": {"type": "text", "tested": 4, "req": true}, "values": {"type": "list", "tested": 10, "of": {"type": "number"}, "req": true}}, "req": true}
+  }
+ },
+ "phaseGate": {
+  "group": "progress",
+  "question": "Какие этапы и критерии перехода?",
+  "archetype": "phase-gate",
+  "data": "`current`, `phases [{name ≤14 знаков}]`, `gates [{name, date?, criteria [{t, value?}]}]`",
+  "meaning": ["gates", "process", "roadmap"],
+  "accepts": ["steps"],
+  "fields": {
+   "current": {"type": "number", "req": false},
+   "phases": {"type": "list", "tested": 4, "of": {"name": {"type": "text", "tested": 12, "req": true}, "period": {"type": "text", "tested": 16, "req": false}, "note": {"type": "text", "tested": 39, "req": false}}, "item": "obj", "req": true, "n": [3, 5]},
+   "gates": {"type": "list", "tested": 3, "of": {"name": {"type": "text", "tested": 17, "req": true}, "date": {"type": "text", "tested": 19, "req": false}, "criteria": {"type": "list", "tested": 3, "of": {"t": {"type": "text", "tested": 32, "req": true}, "value": {"type": "number", "req": false}, "after": {"type": "text", "tested": 20, "req": false}, "unit": {"type": "text", "tested": 1, "req": false}}, "item": "obj", "req": false}}, "item": "obj", "req": true}
+  }
+ },
+ "progressBars": {
+  "group": "progress",
+  "question": "Насколько выполнены цели?",
+  "archetype": "progress-bars",
+  "data": "`rows [{name, fact, plan, unit?}]`; «% из плана» — derived ratio",
+  "meaning": ["plan-fact", "status"],
+  "accepts": [],
+  "fields": {
+   "rows": {"type": "list", "tested": 5, "of": {"name": {"type": "text", "tested": 20, "req": true}, "note": {"type": "text", "tested": 15, "req": false}, "fact": {"type": "number", "req": true}, "plan": {"type": "number", "req": true}, "digits": {"type": "number", "req": false}, "unit": {"type": "text", "tested": 5, "req": false}}, "item": "obj", "req": true}
+  }
+ },
+ "statusBoard": {
+  "group": "progress",
+  "question": "Что с каждым направлением?",
+  "archetype": "status-board",
+  "data": "`rows [{name, status: done/work/risk, owner, due, note?, onTime?}]`; «N из M в срок» — derived count",
+  "meaning": ["status"],
+  "accepts": [],
+  "fields": {
+   "label": {"type": "text", "tested": 11, "req": false},
+   "rows": {"type": "list", "tested": 6, "of": {"name": {"type": "text", "tested": 21, "req": true}, "status": {"type": "text", "tested": 4, "req": true}, "owner": {"type": "text", "tested": 12, "req": true}, "due": {"type": "text", "tested": 10, "req": true}, "note": {"type": "text", "tested": 39, "req": false}}, "item": "obj", "req": true}
+  }
+ },
+ "weeklyHighlights": {
+  "group": "progress",
+  "question": "Что главное за неделю?",
+  "archetype": "weekly-highlights",
+  "data": "`items [{name, note, value, prev, unit?, series}]` 3–4",
+  "meaning": ["weekly", "kpis"],
+  "accepts": [],
+  "fields": {
+   "items": {"type": "list", "tested": 4, "of": {"name": {"type": "text", "tested": 27, "req": true}, "note": {"type": "text", "tested": 58, "req": true}, "value": {"type": "number", "req": true}, "prev": {"type": "number", "req": true}, "series": {"type": "list", "tested": 8, "of": {"type": "number"}, "req": true}, "unit": {"type": "text", "tested": 3, "req": false}, "goodDown": {"type": "bool", "req": false}}, "item": "obj", "req": true, "n": [3, 4]}
+  }
+ },
+ "askFunds": {
+  "group": "numbers",
+  "question": "Сколько просим и на что?",
+  "archetype": "ask-funds",
+  "data": "`amount, unit, uses [{name, value}]`, `milestones ×3`; доли — derived ratio",
+  "meaning": ["ask"],
+  "accepts": [],
+  "fields": {
+   "label": {"type": "text", "tested": 18, "req": false},
+   "amount": {"type": "number", "req": true},
+   "unit": {"type": "text", "tested": 5, "req": false},
+   "caption": {"type": "text", "tested": 90, "req": false},
+   "uses": {"type": "list", "tested": 4, "of": {"name": {"type": "text", "tested": 23, "req": true}, "value": {"type": "number", "req": true}}, "item": "obj", "req": true},
+   "milestones": {"type": "list", "tested": 3, "of": {"when": {"type": "text", "tested": 11, "req": true}, "value": {"type": "number", "req": false}, "unit": {"type": "text", "tested": 6, "req": false}, "name": {"type": "text", "tested": 20, "req": true}, "digits": {"type": "number", "req": false}}, "item": "obj", "req": true, "n": [3, 3]}
+  }
+ },
+ "bigCompare": {
+  "group": "numbers",
+  "question": "Насколько стало лучше?",
+  "archetype": "big-compare",
+  "data": "`before/after {when, value, unit, caption}`, `mode: ratio/diff`",
+  "meaning": ["change", "headline-number"],
+  "accepts": ["pair"],
+  "fields": {
+   "label": {"type": "text", "tested": 27, "req": false},
+   "mode": {"type": "text", "tested": 5, "req": false},
+   "better": {"type": "text", "tested": 4, "req": false},
+   "note": {"type": "text", "tested": 7, "req": false},
+   "before": {"type": "obj", "of": {"when": {"type": "text", "tested": 4, "req": true}, "value": {"type": "number", "req": true}, "unit": {"type": "text", "tested": 41, "req": false}, "caption": {"type": "text", "tested": 70, "req": false}}, "req": true},
+   "after": {"type": "obj", "of": {"when": {"type": "text", "tested": 4, "req": true}, "value": {"type": "number", "req": true}, "unit": {"type": "text", "tested": 41, "req": false}, "caption": {"type": "text", "tested": 66, "req": false}}, "req": true},
+   "digits": {"type": "number", "req": false},
+   "diffUnit": {"type": "text", "tested": 6, "req": false}
+  },
+  "partial": "число и единица подбираются под ширину (адаптивная посадка); при нечитаемом размере — совет взять другой компонент",
+  "fit": "adaptive"
+ },
+ "dotPlot": {
+  "group": "numbers",
+  "question": "Где мы относительно рынка?",
+  "archetype": "dot-plot",
+  "data": "`rows [{name, us, avg, others [v…]}]`, `axis`",
+  "meaning": ["position", "compare-players"],
+  "accepts": ["ranked"],
+  "fields": {
+   "label": {"type": "text", "tested": 16, "req": false},
+   "unit": {"type": "text", "tested": 1, "req": false},
+   "digits": {"type": "number", "req": false},
+   "us": {"type": "text", "tested": 8, "req": false},
+   "avgHead": {"type": "text", "tested": 5, "req": false},
+   "others": {"type": "text", "tested": 22, "req": false},
+   "avg": {"type": "text", "tested": 16, "req": false},
+   "axis": {"type": "text", "tested": 17, "req": false},
+   "rows": {"type": "list", "tested": 5, "of": {"name": {"type": "text", "tested": 9, "req": true}, "us": {"type": "number", "req": true}, "avg": {"type": "number", "req": true}, "others": {"type": "list", "tested": 7, "of": {"type": "number"}, "req": true}}, "item": "obj", "req": true, "n": [3, 6]}
+  }
+ },
+ "dumbbell": {
+  "group": "numbers",
+  "question": "Насколько сдвинулось по каждой категории?",
+  "archetype": "dumbbell",
+  "data": "`label, from, to, unit, rows [{name, a, b}]`; сдвиг — derived diff",
+  "meaning": ["change", "compare-players"],
+  "accepts": ["series", "pair"],
+  "fields": {
+   "label": {"type": "text", "tested": 18, "req": false},
+   "from": {"type": "text", "tested": 4, "req": true},
+   "to": {"type": "text", "tested": 4, "req": true},
+   "unit": {"type": "text", "tested": 1, "req": false},
+   "rows": {"type": "list", "tested": 6, "of": {"name": {"type": "text", "tested": 11, "req": true}, "a": {"type": "number", "req": true}, "b": {"type": "number", "req": true}}, "item": "obj", "req": true, "n": [2, 8]}
+  }
+ },
+ "histogram": {
+  "group": "numbers",
+  "question": "Как распределены значения?",
+  "archetype": "histogram",
+  "data": "`bins [{from, to, count}]`, `median`; итог — derived sum",
+  "meaning": ["distribution"],
+  "accepts": [],
+  "fields": {
+   "label": {"type": "text", "tested": 22, "req": false},
+   "countLabel": {"type": "text", "tested": 7, "req": false},
+   "unit": {"type": "text", "tested": 6, "req": false},
+   "digits": {"type": "number", "req": false},
+   "median": {"type": "number", "req": true},
+   "axis": {"type": "text", "tested": 21, "req": false},
+   "bins": {"type": "list", "tested": 10, "of": {"from": {"type": "number", "req": true}, "to": {"type": "number", "req": true}, "count": {"type": "number", "req": true}}, "item": "obj", "req": true}
+  }
+ },
+ "kpiGrid": {
+  "group": "numbers",
+  "question": "Как идут ключевые метрики?",
+  "archetype": "kpi-grid",
+  "data": "`vs, items [{label, value, prev, unit, better, series}]` ×4–6",
+  "meaning": ["kpis", "change"],
+  "accepts": ["pair", "kpis"],
+  "fields": {
+   "vs": {"type": "text", "tested": 9, "req": false},
+   "items": {"type": "list", "tested": 6, "of": {"label": {"type": "text", "tested": 19, "req": true}, "value": {"type": "number", "req": true}, "prev": {"type": "number", "req": true}, "digits": {"type": "number", "req": false}, "series": {"type": "list", "tested": 8, "of": {"type": "number"}, "req": false, "about": "мини-тренд; нет — без спарклайна", "key": true}, "unit": {"type": "text", "tested": 1, "req": false}, "better": {"type": "text", "tested": 4, "req": false}}, "item": "obj", "req": true, "n": [4, 6]}
+  },
+  "partial": "без series — без спарклайнов"
+ },
+ "marimekko": {
+  "group": "numbers",
+  "question": "Какие сегменты больше и чья в них доля?",
+  "archetype": "marimekko",
+  "data": "`players [до 4]`, `us`, `segments [{name, values}]`",
+  "meaning": ["share", "compare-players", "market-size"],
+  "accepts": [],
+  "fields": {
+   "label": {"type": "text", "tested": 6, "req": false},
+   "unit": {"type": "text", "tested": 6, "req": false},
+   "digits": {"type": "number", "req": false},
+   "players": {"type": "list", "tested": 4, "of": {"type": "text", "tested": 10}, "req": true, "n": [2, 4]},
+   "us": {"type": "number", "req": false},
+   "segments": {"type": "list", "tested": 4, "of": {"name": {"type": "text", "tested": 9, "req": true}, "values": {"type": "list", "tested": 4, "of": {"type": "number"}, "req": true}}, "item": "obj", "req": true}
+  }
+ },
+ "rankingList": {
+  "group": "numbers",
+  "question": "Кто в лидерах?",
+  "archetype": "ranking-list",
+  "data": "`rows [{name, value, prev, us?}]`; изменение места — derived diff",
+  "meaning": ["ranking", "compare-players", "share"],
+  "accepts": ["ranked"],
+  "fields": {
+   "label": {"type": "text", "tested": 16, "req": false},
+   "unit": {"type": "text", "tested": 6, "req": false},
+   "digits": {"type": "number", "req": false},
+   "nameHead": {"type": "text", "tested": 18, "req": false},
+   "valueHead": {"type": "text", "tested": 14, "req": false},
+   "changeHead": {"type": "text", "tested": 6, "req": false},
+   "rows": {"type": "list", "tested": 8, "of": {"name": {"type": "text", "tested": 10, "req": true}, "value": {"type": "number", "req": true}, "prev": {"type": "number|text", "tested": 10, "req": false, "about": "место в прошлом периоде; нет — «нет данных», без стрелки и без расчёта (частичные данные)", "null": true, "key": true}, "us": {"type": "bool", "req": false}}, "item": "obj", "req": true, "n": [3, 8]}
+  },
+  "partial": "без prev: место раньше «нет данных», стрелка и изменение не считаются (нужна версия с частичными данными)"
+ },
+ "scatterLabeled": {
+  "group": "numbers",
+  "question": "Есть ли связь между показателями?",
+  "archetype": "scatter-labeled",
+  "data": "`x, y {label, unit}`, `trend`, `points [{x, y, name?, note?, us?}]`",
+  "meaning": ["correlation"],
+  "accepts": [],
+  "fields": {
+   "x": {"type": "obj", "of": {"label": {"type": "text", "tested": 12, "req": true}, "short": {"type": "text", "tested": 4, "req": false}, "unit": {"type": "text", "tested": 4, "req": false}, "digits": {"type": "number", "req": false}}, "req": true},
+   "y": {"type": "obj", "of": {"label": {"type": "text", "tested": 13, "req": true}, "short": {"type": "text", "tested": 3, "req": false}, "digits": {"type": "number", "req": false}}, "req": true},
+   "trend": {"type": "bool", "req": false},
+   "points": {"type": "list", "tested": 22, "of": {"x": {"type": "number", "req": true}, "y": {"type": "number", "req": true}, "name": {"type": "text", "tested": 10, "req": false}, "note": {"type": "bool", "req": false}, "us": {"type": "bool", "req": false}}, "item": "obj", "req": true}
+  }
+ },
+ "treemap": {
+  "group": "numbers",
+  "question": "Как делится целое на много частей?",
+  "archetype": "treemap",
+  "data": "`items [{name, value}]`, `opt.maxItems, minShare`; «Прочие» — derived sum",
+  "meaning": ["share"],
+  "accepts": ["ranked", "parts"],
+  "fields": {
+   "label": {"type": "text", "tested": 15, "req": false},
+   "unit": {"type": "text", "tested": 6, "req": false},
+   "digits": {"type": "number", "req": false},
+   "accent": {"type": "text", "tested": 9, "req": false},
+   "items": {"type": "list", "tested": 10, "of": {"name": {"type": "text", "tested": 17, "req": true}, "value": {"type": "number", "req": true}}, "item": "obj", "req": true, "n": [3, 12]}
+  }
+ },
+ "agendaTimed": {
+  "group": "textcore",
+  "question": "О чём встреча и сколько займёт?",
+  "archetype": "text-agenda",
+  "data": "`total?`, `items [{time, dur?, name, goal, current?}]` 4–6",
+  "meaning": ["agenda"],
+  "accepts": [],
+  "fields": {
+   "total": {"type": "text", "tested": 14, "req": false},
+   "items": {"type": "list", "tested": 5, "of": {"time": {"type": "text", "tested": 5, "req": true}, "dur": {"type": "text", "tested": 8, "req": false}, "name": {"type": "text", "tested": 17, "req": true}, "goal": {"type": "text", "tested": 37, "req": true}, "current": {"type": "bool", "req": false}}, "item": "obj", "req": true, "n": [4, 6]}
+  }
+ },
+ "executiveSummary": {
+  "group": "textcore",
+  "question": "Что главное в деке?",
+  "archetype": "text-executive-summary",
+  "data": "`items [{value?, unit?, head, d}]` 3–5",
+  "meaning": ["summary", "kpis", "takeaways"],
+  "accepts": ["steps", "kpis", "points"],
+  "fields": {
+   "items": {"type": "list", "tested": 4, "of": {"value": {"type": "number", "req": false, "about": "число пункта; нет — пункт без числа"}, "unit": {"type": "text", "tested": 8, "req": false}, "label": {"type": "text", "tested": 31, "req": false}, "head": {"type": "text", "tested": 23, "req": true}, "d": {"type": "text", "tested": 50, "req": true}, "sign": {"type": "bool", "req": false}, "digits": {"type": "number", "req": false}}, "item": "obj", "req": true, "n": [3, 5]}
+  },
+  "partial": "пункты без value — без крупного числа"
+ },
+ "faqPairs": {
+  "group": "textcore",
+  "question": "Какие вопросы зададут?",
+  "archetype": "text-faq",
+  "data": "`items [{q, a}]` 3–4",
+  "meaning": ["faq"],
+  "accepts": ["qa"],
+  "fields": {
+   "items": {"type": "list", "tested": 4, "of": {"q": {"type": "text", "tested": 28, "req": true}, "a": {"type": "text", "tested": 77, "req": true}, "value": {"type": "number", "req": false}, "unit": {"type": "text", "tested": 1, "req": false}, "label": {"type": "text", "tested": 17, "req": false}}, "item": "obj", "req": true, "n": [3, 4]}
+  }
+ },
+ "glossary": {
+  "group": "textcore",
+  "question": "Что значат термины?",
+  "archetype": "text-glossary",
+  "data": "`items [{term, d, accent?}]` 5–8",
+  "meaning": ["definitions"],
+  "accepts": ["terms"],
+  "fields": {
+   "items": {"type": "list", "tested": 7, "of": {"term": {"type": "text", "tested": 27, "req": true}, "d": {"type": "text", "tested": 63, "req": true}, "accent": {"type": "bool", "req": false}}, "item": "obj", "req": true, "n": [5, 8]}
+  }
+ },
+ "keyTakeaways": {
+  "group": "textcore",
+  "question": "Что унести с встречи?",
+  "archetype": "text-takeaways",
+  "data": "`lead?`, `accent?`, `items [{head, d}] ×3`",
+  "meaning": ["takeaways", "summary"],
+  "accepts": ["points"],
+  "fields": {
+   "lead": {"type": "text", "tested": 69, "req": false},
+   "accent": {"type": "text", "tested": 15, "req": false},
+   "items": {"type": "list", "tested": 3, "of": {"head": {"type": "text", "tested": 18, "req": true}, "d": {"type": "text", "tested": 71, "req": true}, "value": {"type": "number", "req": false}, "digits": {"type": "number", "req": false}, "label": {"type": "text", "tested": 28, "req": false}}, "item": "obj", "req": true, "n": [3, 4]}
+  }
+ },
+ "principles": {
+  "group": "textcore",
+  "question": "По каким правилам работаем?",
+  "archetype": "text-principles",
+  "data": "`items [{name, d, accent?}]` 4–6, `opt.cols`",
+  "meaning": ["principles", "takeaways"],
+  "accepts": ["steps", "terms", "points", "hub"],
+  "fields": {
+   "items": {"type": "list", "tested": 6, "of": {"name": {"type": "text", "tested": 17, "req": true}, "d": {"type": "text", "tested": 50, "req": true}, "accent": {"type": "bool", "req": false}}, "item": "obj", "req": true, "n": [4, 6]}
+  }
+ },
+ "prosCons": {
+  "group": "textcore",
+  "question": "Какие аргументы за и против?",
+  "archetype": "text-pros-cons",
+  "data": "`pros`, `cons [{t, d?}]`, `verdict {t}`",
+  "meaning": ["pros-cons", "decision"],
+  "accepts": [],
+  "fields": {
+   "pros": {"type": "list", "tested": 3, "of": {"t": {"type": "text", "tested": 19, "req": true}, "d": {"type": "text", "tested": 30, "req": false}, "value": {"type": "number", "req": false}, "unit": {"type": "text", "tested": 1, "req": false}, "label": {"type": "text", "tested": 21, "req": false}}, "item": "obj", "req": true},
+   "cons": {"type": "list", "tested": 3, "of": {"t": {"type": "text", "tested": 18, "req": true}, "d": {"type": "text", "tested": 34, "req": false}}, "item": "obj", "req": true},
+   "verdict": {"type": "obj", "of": {"t": {"type": "text", "tested": 55, "req": true}}, "req": true}
+  }
+ },
+ "quoteWall": {
+  "group": "textcore",
+  "question": "Что говорят клиенты и эксперты?",
+  "archetype": "text-quotes",
+  "data": "`items [{q, who, role?, main?}]` 2–3",
+  "meaning": ["quote"],
+  "accepts": [],
+  "fields": {
+   "accent": {"type": "text", "tested": 15, "req": false},
+   "items": {"type": "list", "tested": 3, "of": {"q": {"type": "text", "tested": 92, "req": true}, "who": {"type": "text", "tested": 20, "req": true}, "role": {"type": "text", "tested": 25, "req": false}, "main": {"type": "bool", "req": false}}, "item": "obj", "req": true, "n": [2, 3]}
+  }
+ },
+ "sectionDivider": {
+  "group": "textcore",
+  "question": "Что в этом разделе?",
+  "archetype": "text-section",
+  "data": "`sections?`, `current?`, `title`, `inside`, `questions [3–4]`",
+  "meaning": ["section"],
+  "accepts": [],
+  "fields": {
+   "sections": {"type": "list", "tested": 5, "of": {"type": "text", "tested": 7}, "req": false},
+   "current": {"type": "number", "req": false},
+   "title": {"type": "text", "tested": 13, "req": true},
+   "inside": {"type": "text", "tested": 69, "req": true},
+   "questions": {"type": "list", "tested": 4, "of": {"type": "text", "tested": 50}, "req": true, "n": [3, 4]}
+  }
+ },
+ "statementHero": {
+  "group": "textcore",
+  "question": "Какой главный вывод?",
+  "archetype": "text-statement",
+  "data": "`kicker?`, `thesis`, `accent?`, `proof {value, unit, label, text, source?}`",
+  "meaning": ["thesis", "headline-number"],
+  "accepts": [],
+  "fields": {
+   "kicker": {"type": "text", "tested": 22, "req": false},
+   "thesis": {"type": "text", "tested": 52, "req": true},
+   "accent": {"type": "text", "tested": 18, "req": false},
+   "proof": {"type": "obj", "of": {"value": {"type": "number", "req": true}, "unit": {"type": "text", "tested": 1, "req": false}, "label": {"type": "text", "tested": 23, "req": false}, "text": {"type": "text", "tested": 42, "req": true}, "source": {"type": "text", "tested": 44, "req": false}}, "req": false}
+  }
+ },
+ "askStatement": {
+  "group": "textops",
+  "question": "Что вы просите утвердить?",
+  "archetype": "text-ask",
+  "data": "`lead?`, `decision`, `terms [{label, value? или t, unit?}]` 2–3, `ifNot`",
+  "meaning": ["ask", "decision"],
+  "accepts": [],
+  "fields": {
+   "decision": {"type": "text", "tested": 78, "req": false},
+   "terms": {"type": "list", "tested": 3, "of": {"label": {"type": "text", "tested": 20, "req": true}, "value": {"type": "number", "req": false}, "digits": {"type": "number", "req": false}, "unit": {"type": "text", "tested": 5, "req": false}, "note": {"type": "text", "tested": 32, "req": false}, "vlabel": {"type": "text", "tested": 16, "req": false}, "t": {"type": "text", "tested": 20, "req": false}}, "item": "obj", "req": true, "n": [2, 3]},
+   "ifNot": {"type": "text", "tested": 82, "req": false}
+  }
+ },
+ "assumptionsList": {
+  "group": "textops",
+  "question": "На каких допущениях держится расчёт?",
+  "archetype": "text-assumptions",
+  "data": "`items [{name, value, unit?, source, key?}]` 4–6",
+  "meaning": ["assumptions", "method"],
+  "accepts": [],
+  "fields": {
+   "items": {"type": "list", "tested": 5, "of": {"name": {"type": "text", "tested": 36, "req": true}, "value": {"type": "number", "req": true}, "unit": {"type": "text", "tested": 1, "req": false}, "source": {"type": "text", "tested": 25, "req": true}, "key": {"type": "bool", "req": false}}, "item": "obj", "req": true, "n": [4, 6]}
+  }
+ },
+ "dosDonts": {
+  "group": "textops",
+  "question": "Что делаем и чего не делаем?",
+  "archetype": "text-dos-donts",
+  "data": "`dos`, `donts [{t, d?}]` по 3–5",
+  "meaning": ["dos-donts", "principles"],
+  "accepts": [],
+  "fields": {
+   "dos": {"type": "list", "tested": 4, "of": {"t": {"type": "text", "tested": 38, "req": false}, "d": {"type": "text", "tested": 22, "req": false}}, "item": "obj", "req": true, "n": [3, 5]},
+   "donts": {"type": "list", "tested": 4, "of": {"t": {"type": "text", "tested": 25, "req": false}, "d": {"type": "text", "tested": 27, "req": false}}, "item": "obj", "req": true, "n": [3, 5]}
+  }
+ },
+ "lessonsLearned": {
+  "group": "textops",
+  "question": "Чему научил пилот?",
+  "archetype": "text-lessons",
+  "data": "`worked`, `failed`, `change [{t, d?}]` по 2–3",
+  "meaning": ["lessons"],
+  "accepts": [],
+  "fields": {
+   "worked": {"type": "list", "tested": 3, "of": {"t": {"type": "text", "tested": 17, "req": false}, "d": {"type": "text", "tested": 31, "req": false}, "nums": {"type": "obj", "of": {"conv": {"type": "obj", "of": {"value": {"type": "number", "req": true}, "unit": {"type": "text", "tested": 1, "req": false}, "label": {"type": "text", "tested": 25, "req": false}}, "req": true}}, "req": false}}, "item": "obj", "req": false},
+   "failed": {"type": "list", "tested": 3, "of": {"t": {"type": "text", "tested": 22, "req": false}, "d": {"type": "text", "tested": 24, "req": false}}, "item": "obj", "req": false},
+   "change": {"type": "list", "tested": 3, "of": {"t": {"type": "text", "tested": 23, "req": false}, "d": {"type": "text", "tested": 25, "req": false}}, "item": "obj", "req": false}
+  }
+ },
+ "methodNotes": {
+  "group": "textops",
+  "question": "Как считали и откуда данные?",
+  "archetype": "text-method",
+  "data": "`method [{t, d?, key?}]` 3–5, `sources [{name, date}]`",
+  "meaning": ["method"],
+  "accepts": [],
+  "fields": {
+   "method": {"type": "list", "tested": 4, "of": {"t": {"type": "text", "tested": 47, "req": false}, "d": {"type": "text", "tested": 39, "req": false}, "key": {"type": "bool", "req": false}}, "item": "obj", "req": true, "n": [3, 5]},
+   "sources": {"type": "list", "tested": 5, "of": {"name": {"type": "text", "tested": 28, "req": true}, "date": {"type": "text", "tested": 13, "req": true}}, "item": "obj", "req": true}
+  }
+ },
+ "nextStepsText": {
+  "group": "textops",
+  "question": "Что делаем дальше?",
+  "archetype": "text-next-steps",
+  "data": "`steps [{action, note?, due, owner, role?, now?}]` 3–4",
+  "meaning": ["next-steps"],
+  "accepts": ["steps"],
+  "fields": {
+   "steps": {"type": "list", "tested": 4, "of": {"action": {"type": "text", "tested": 41, "req": false}, "note": {"type": "text", "tested": 39, "req": false}, "due": {"type": "text", "tested": 10, "req": true}, "owner": {"type": "text", "tested": 12, "req": true}, "role": {"type": "text", "tested": 10, "req": false}}, "item": "obj", "req": true, "n": [3, 4]}
+  }
+ },
+ "risksText": {
+  "group": "textops",
+  "question": "Что может пойти не так?",
+  "archetype": "text-risks",
+  "data": "`items [{risk, note?, level: high/mid/low, measure, owner}]` 3–4",
+  "meaning": ["risks"],
+  "accepts": [],
+  "fields": {
+   "items": {"type": "list", "tested": 4, "of": {"risk": {"type": "text", "tested": 25, "req": false}, "note": {"type": "text", "tested": 31, "req": false}, "level": {"type": "text", "tested": 4, "req": true}, "measure": {"type": "text", "tested": 52, "req": false}, "owner": {"type": "text", "tested": 12, "req": true}, "nums": {"type": "obj", "of": {"remind": {"type": "obj", "of": {"value": {"type": "number", "req": true}, "unit": {"type": "text", "tested": 4, "req": false}, "label": {"type": "text", "tested": 24, "req": false}}, "req": true}}, "req": false}}, "item": "obj", "req": true, "n": [3, 4]}
+  }
+ },
+ "storyArc": {
+  "group": "textops",
+  "question": "Почему это важно сейчас?",
+  "archetype": "text-story-arc",
+  "data": "`steps [{head?, lead, t}] ×3` (ситуация → осложнение → решение)",
+  "meaning": ["story", "problem"],
+  "accepts": ["steps", "points"],
+  "fields": {
+   "steps": {"type": "list", "tested": 3, "of": {"lead": {"type": "text", "tested": 35, "req": false}, "t": {"type": "text", "tested": 93, "req": false}}, "item": "obj", "req": true, "n": [3, 3]},
+   "now": {"type": "text", "tested": 56, "req": false}
+  }
+ },
+ "teamContacts": {
+  "group": "textops",
+  "question": "Кто в команде проекта?",
+  "archetype": "text-team",
+  "data": "`groups [{name, people [{name, role, area, lead?}]}]` или `people` 4–8",
+  "meaning": ["team"],
+  "accepts": [],
+  "fields": {
+   "groups": {"type": "list", "tested": 2, "of": {"name": {"type": "text", "tested": 18, "req": false}, "people": {"type": "list", "tested": 4, "of": {"name": {"type": "text", "tested": 12, "req": true}, "role": {"type": "text", "tested": 14, "req": true}, "area": {"type": "text", "tested": 16, "req": true}, "contact": {"type": "text", "tested": 23, "req": false}, "lead": {"type": "bool", "req": false}}, "item": "obj", "req": true}}, "item": "obj", "req": true}
+  }
+ },
+ "visionStatement": {
+  "group": "textops",
+  "question": "Куда мы идём?",
+  "archetype": "text-vision",
+  "data": "`text` до 25 слов, `accent?`, `pillars [{name, note}] ×3`",
+  "meaning": ["vision", "strategy"],
+  "accepts": [],
+  "fields": {
+   "kicker": {"type": "text", "tested": 30, "req": false},
+   "text": {"type": "text", "tested": 105, "req": false},
+   "accent": {"type": "text", "tested": 13, "req": false},
+   "pillars": {"type": "list", "tested": 3, "of": {"name": {"type": "text", "tested": 9, "req": true}, "note": {"type": "text", "tested": 53, "req": false}}, "item": "obj", "req": true, "n": [3, 3]}
+  }
+ },
+ "desktopShowcase": {
+  "group": "screens",
+  "question": "Что видит менеджер или клиент в вебе?",
+  "archetype": "desktop-showcase",
+  "data": "`screen`, `what`, `url?`, `callouts [{at [fx, fy], head, body?, value?}]` 3–4",
+  "meaning": ["product-screen"],
+  "accepts": [],
+  "fields": {
+   "screen": {"type": "text", "tested": 23, "req": false},
+   "what": {"type": "text", "tested": 37, "req": false},
+   "url": {"type": "text", "tested": 21, "req": false},
+   "callouts": {"type": "list", "tested": 4, "of": {"at": {"type": "list", "tested": 2, "of": {"type": "number"}, "req": true}, "head": {"type": "text", "tested": 28, "req": true}, "body": {"type": "text", "tested": 49, "req": false}, "value": {"type": "number", "req": false}, "unit": {"type": "text", "tested": 3, "req": false}, "sign": {"type": "bool", "req": false}, "label": {"type": "text", "tested": 39, "req": false}}, "item": "obj", "req": true, "n": [3, 4]}
+  }
+ },
+ "multiDevice": {
+  "group": "screens",
+  "question": "Как работает во всех каналах?",
+  "archetype": "multi-device",
+  "data": "`web {screen, url?}`, `phone {screen}`, `points [{value?, unit, label, head, body}]` 2–3",
+  "meaning": ["product-screen"],
+  "accepts": [],
+  "fields": {
+   "web": {"type": "obj", "of": {"screen": {"type": "text", "tested": 23, "req": false}, "what": {"type": "text", "tested": 30, "req": false}, "url": {"type": "text", "tested": 21, "req": false}}, "req": true},
+   "phone": {"type": "obj", "of": {"screen": {"type": "text", "tested": 22, "req": false}, "what": {"type": "text", "tested": 30, "req": false}}, "req": true},
+   "points": {"type": "list", "tested": 3, "of": {"value": {"type": "number", "req": false}, "unit": {"type": "text", "tested": 6, "req": false}, "label": {"type": "text", "tested": 32, "req": false}, "head": {"type": "text", "tested": 23, "req": true}, "body": {"type": "text", "tested": 55, "req": false}, "sign": {"type": "bool", "req": false}}, "item": "obj", "req": true, "n": [2, 3]}
+  }
+ },
+ "phoneFlow": {
+  "group": "screens",
+  "question": "Как клиент проходит сценарий?",
+  "archetype": "phone-flow",
+  "data": "`steps [{screen, what?, head, body}]` 3–4",
+  "meaning": ["product-screen", "process", "journey"],
+  "accepts": ["steps"],
+  "fields": {
+   "steps": {"type": "list", "tested": 4, "of": {"screen": {"type": "text", "tested": 22, "req": false}, "head": {"type": "text", "tested": 14, "req": true}, "body": {"type": "text", "tested": 35, "req": false}}, "item": "obj", "req": true, "n": [3, 4]}
+  }
+ },
+ "phoneHero": {
+  "group": "screens",
+  "question": "Как это выглядит у клиента?",
+  "archetype": "phone-hero",
+  "data": "`screen`, `what`, `side?`, `points [{value, unit, label, head, body}]` 2–3",
+  "meaning": ["product-screen"],
+  "accepts": [],
+  "fields": {
+   "screen": {"type": "text", "tested": 20, "req": false},
+   "what": {"type": "text", "tested": 37, "req": false},
+   "points": {"type": "list", "tested": 3, "of": {"value": {"type": "number", "req": false}, "unit": {"type": "text", "tested": 4, "req": false}, "sign": {"type": "bool", "req": false}, "label": {"type": "text", "tested": 39, "req": false}, "head": {"type": "text", "tested": 24, "req": true}, "body": {"type": "text", "tested": 68, "req": false}, "prefix": {"type": "text", "tested": 1, "req": false}, "digits": {"type": "number", "req": false}}, "item": "obj", "req": true, "n": [2, 3]}
+  }
+ },
+ "screensBeforeAfter": {
+  "group": "screens",
+  "question": "Что изменилось в интерфейсе?",
+  "archetype": "screens-before-after",
+  "data": "`before/after {screen, head}`, `changes [{name, a, b, unit?, better}]`; разница — derived diff",
+  "meaning": ["product-screen", "change"],
+  "accepts": [],
+  "fields": {
+   "before": {"type": "obj", "of": {"screen": {"type": "text", "tested": 24, "req": false}, "what": {"type": "text", "tested": 35, "req": false}, "head": {"type": "text", "tested": 4, "req": true}, "note": {"type": "text", "tested": 23, "req": false}}, "req": true},
+   "after": {"type": "obj", "of": {"screen": {"type": "text", "tested": 21, "req": false}, "what": {"type": "text", "tested": 28, "req": false}, "head": {"type": "text", "tested": 5, "req": true}, "note": {"type": "text", "tested": 21, "req": false}}, "req": true},
+   "changes": {"type": "list", "tested": 3, "of": {"name": {"type": "text", "tested": 17, "req": true}, "a": {"type": "number", "req": true}, "b": {"type": "number", "req": true}, "unit": {"type": "text", "tested": 3, "req": false}, "better": {"type": "text", "tested": 4, "req": false}}, "item": "obj", "req": true}
+  }
+ }
+}

@@ -1,0 +1,39 @@
+{
+ "about": "то же без src/out/slides.json: старый формат узнаётся по полностью пустым текстам",
+ "A": {
+  "engine": "old",
+  "inputs": {
+   "build.js": "build-old",
+   "components.js": "components-old"
+  },
+  "content": "legacy150",
+  "content_manifest": null
+ },
+ "B": {
+  "content_manifest": null
+ },
+ "expect": {
+  "comparable": false,
+  "reason": "A: старый манифест",
+  "kind": "контрольное сравнение версий навыка",
+  "checks": {
+   "pixels": "passed",
+   "control": "passed",
+   "pptx-content": "passed",
+   "content": "not_run"
+  },
+  "no_changes": true,
+  "md_has": [
+   "## Изменения содержания (редакционные)",
+   "Содержание не удалось сравнить"
+  ],
+  "md_not": [
+   "- **Слайд",
+   "текст: убрано",
+   "заметки изменены",
+   "компоненты: ",
+   "## Компоненты по слайдам",
+   "добавлено: «"
+  ]
+ }
+}

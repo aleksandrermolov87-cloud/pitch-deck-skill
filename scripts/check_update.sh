@@ -40,6 +40,6 @@ else
   echo $NOW > "$STAMP"
   newer "$NEW" "$CUR" || exit 0
   echo "ОБНОВЛЕНИЕ: доступна версия $NEW (у вас $CUR)"
-  echo "Скилл стоит не из git: переустановите по README (https://github.com/$REPO), настройки и уроки сохранятся"
+  echo "Скилл стоит не из git (архивом): zsh $SKILL/scripts/update.sh покажет изменения, затем zsh $SKILL/scripts/update.sh --yes v$NEW — подпись проверится, настройки и уроки сохранятся, прежняя версия останется резервной копией"
 fi
 exit 0
