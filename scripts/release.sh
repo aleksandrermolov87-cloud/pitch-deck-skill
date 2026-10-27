@@ -18,7 +18,12 @@ KEY=$(git config user.signingkey || true)
 grep -qF "$(cut -d' ' -f2 "${KEY/#\~/$HOME}")" .github/allowed_signers || { echo "ключ подписи не записан в .github/allowed_signers — коллеги не смогут проверить релиз"; exit 1; }
 
 echo "› проверка на утечки"; zsh scripts/leakcheck.sh
-if [ "$2" != --quick ]; then echo "› самопроверка"; zsh scripts/setup.sh --selftest | grep -E "Демо.pptx|фактов|Галерея_"; fi
+if [ "$2" != --quick ]; then
+  echo "› самопроверка"; zsh scripts/setup.sh --selftest | grep -E "Демо.pptx|фактов|Галерея_"
+  echo "› приёмочный тест (tests/kasko)"
+  ACC=$(zsh tests/kasko/run.sh 2>&1) || { echo "$ACC" | tail -30; echo "приёмочный тест не пройден — релиз не выпускается"; exit 1; }
+  echo "$ACC" | tail -1
+fi
 
 DIST=$(mktemp -d); trap 'rm -rf "$DIST"' EXIT
 echo "› установочные md"

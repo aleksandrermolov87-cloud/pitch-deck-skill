@@ -260,6 +260,20 @@ def cmd_run(a):
         rc, o = sh([PY, '-I', os.path.join(SKILL, 'scripts', 'library_check.py'), '.'], cwd=work)
         C.append(check('library', 'passed' if rc == 0 else 'failed', f'library_check.py, {CHECKS_FROM}', 'содержательные слайды',
                        (o.strip().splitlines() or [''])[-1][:300] + ('' if rc == 0 else '. Сборщик до 1.6.0 не помечает компоненты, у старых версий эта проверка не проходит по определению')))
+    # содержание по слайдам: компоненты, тексты, заметки — чтобы сравнение отделило правки от сборщика
+    mp = os.path.join(work, 'out', 'slides.json')
+    if os.path.isfile(mp):
+        man['content'] = {str(x['n']): {'archetype': x.get('archetype'), 'lib': x.get('lib') or [], 'custom': x.get('custom'),
+                                        'title': x.get('title', ''), 'texts': [''.join(t['runs']) for t in x.get('texts', [])],
+                                        'notes': x.get('notes', '')} for x in json.load(open(mp, encoding='utf-8'))}
+    if os.path.isfile(os.path.join(work, 'requirements.json')) and man['outputs']:
+        cmap = os.path.join(src, 'out', 'coverage.json')
+        pp = os.path.join(run, man['outputs'][sorted(man['outputs'])[0]]['file'])
+        cmd = [PY, '-I', os.path.join(SKILL, 'scripts', 'brief_coverage.py'), 'check', '.', '--pptx', pp] + (['--map', cmap] if os.path.isfile(cmap) else [])
+        rc, o = sh(cmd, cwd=work)
+        C.append(check('coverage', 'passed' if rc == 0 else 'failed', f'brief_coverage.py, {CHECKS_FROM}',
+                       'требования брифа (requirements.json) на слайдах и в заметках', (o.strip().splitlines() or [''])[-1].split(' — ')[0][:300]
+                       + ('' if os.path.isfile(cmap) else '; карты покрытия проекта нет (out/coverage.json)')))
     C.append(check('powerpoint', 'not_run', 'Microsoft PowerPoint', 'вся презентация', 'в этом прогоне PPTX в PowerPoint не открывался'))
     json.dump(man, open(os.path.join(run, 'manifest.json'), 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
     bad = [c['id'] for c in C if c['status'] == 'failed']
@@ -373,6 +387,28 @@ def cmd_compare(a):
                 status = 'identical'                   # PNG-файлы различаются метаданными, пиксели те же
             rows.append({'theme': th, 'slide': int(k[1:]), 'status': status, 'pair': f'pairs/{stem}.png',
                          'diff': f'diff/{stem}.png' if os.path.isfile(os.path.join(out, 'diff', f'{stem}.png')) else None, **res})
+    # содержание слайдов: что поменяли правкой (компоненты, тексты, заметки), а не сборщиком
+    CA, CB = MA.get('content') or {}, MB.get('content') or {}
+    content = {}
+    for k in sorted(set(CA) | set(CB), key=int):
+        x, y = CA.get(k), CB.get(k)
+        ch = []
+        if not x or not y:
+            ch.append('слайд добавлен' if not x else 'слайд удалён')
+        else:
+            if x['lib'] != y['lib'] or x.get('custom') != y.get('custom'):
+                ch.append(f"компоненты: {'+'.join(x['lib']) or x.get('custom') or '—'} → {'+'.join(y['lib']) or y.get('custom') or '—'}")
+            if x.get('archetype') != y.get('archetype'):
+                ch.append(f"архетип: {x.get('archetype')} → {y.get('archetype')}")
+            gone, new = [t for t in x['texts'] if t not in y['texts']], [t for t in y['texts'] if t not in x['texts']]
+            if gone or new:
+                ch.append(f'текст: убрано {len(gone)}, добавлено {len(new)}')
+            if x.get('notes') != y.get('notes'):
+                ch.append('заметки изменены')
+        content[k] = {'changes': ch, 'gone': [t for t in (x or {}).get('texts', []) if t not in (y or {}).get('texts', [])][:8],
+                      'new': [t for t in (y or {}).get('texts', []) if t not in (x or {}).get('texts', [])][:8]}
+    for r_ in rows:
+        r_['content'] = content.get(str(r_['slide']), {}).get('changes', []) if content else None
     cnt = {s: sum(1 for r in rows if r['status'] == s) for s in ('identical', 'changed', 'missing_in_A', 'missing_in_B')}
     # проверки: из обоих прогонов и проверки самого сравнения
     checks = [dict(c, run='A') for c in MA['checks']] + [dict(c, run='B') for c in MB['checks']]
@@ -398,7 +434,9 @@ def cmd_compare(a):
                                  (a.ppt_notes + '. ' if a.ppt_notes else '') + 'Просмотрены только перечисленные слайды; это не проверка всей презентации.'), run='B'))
     rep = {'created': dt.datetime.now().isoformat(timespec='seconds'), 'A': {k: MA[k] for k in ('id', 'label', 'engine')}, 'B': {k: MB[k] for k in ('id', 'label', 'engine')},
            'kind': kind, 'controlled': controlled, 'engine_changed': engine_changed, 'reasons_not_controlled': input_reasons + env_reasons,
-           'changed_inputs': changed_inputs, 'environment_changes': env_changes, 'counts': cnt, 'slides': rows, 'checks': checks, 'disclaimer': DISCLAIMER}
+           'changed_inputs': changed_inputs, 'environment_changes': env_changes, 'counts': cnt, 'slides': rows, 'checks': checks, 'disclaimer': DISCLAIMER,
+           'content': content, 'components': {'A': {k: v['lib'] or ([f"custom: {v['custom']}"] if v.get('custom') else []) for k, v in CA.items()},
+                                              'B': {k: v['lib'] or ([f"custom: {v['custom']}"] if v.get('custom') else []) for k, v in CB.items()}}}
     json.dump(rep, open(os.path.join(out, 'report.json'), 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
     open(os.path.join(out, 'report.md'), 'w', encoding='utf-8').write(report_md(rep, ra, rb))
     print(f'сравнение: {out}\n  {kind}; пар {len(rows)}: совпали {cnt["identical"]}, изменились {cnt["changed"]}, '
@@ -429,12 +467,31 @@ def report_md(r, ra, rb):
         L += [f'- {x}' for x in r['reasons_not_controlled']]
     L += ['', '## Слайды', '', f"Пар: {len(r['slides'])}. Совпали попиксельно: {c['identical']}. Изменились: {c['changed']}. "
           f"Нет в A: {c['missing_in_A']}. Нет в B: {c['missing_in_B']}.", '',
-          '| Тема | Слайд | Статус | Изменено пикселей | Пара | Разница |', '|---|---|---|---|---|---|']
+          '| Тема | Слайд | Статус | Изменено пикселей | Содержание (правка, не сборщик) | Пара | Разница |', '|---|---|---|---|---|---|---|']
     sname = {'identical': 'совпадает', 'changed': '**изменился**', 'missing_in_A': '**нет в A**', 'missing_in_B': '**нет в B**'}
     for s in r['slides']:
         px = f"{s['changed_pixels']} ({s['changed_share'] * 100:.3f}%)" if 'changed_pixels' in s else ('размер разный' if s.get('size_mismatch') else '—')
         dl = f"[разница]({s['diff']})" if s.get('diff') else '—'
-        L.append(f"| {s['theme']} | {s['slide']} | {sname[s['status']]} | {px} | [пара]({s['pair']}) | {dl} |")
+        cc = '—' if s.get('content') is None else '; '.join(s['content']) or 'не менялось'
+        L.append(f"| {s['theme']} | {s['slide']} | {sname[s['status']]} | {px} | {cc} | [пара]({s['pair']}) | {dl} |")
+    edited = sorted({s['slide'] for s in r['slides'] if s.get('content')})
+    engine_only = sorted({s['slide'] for s in r['slides'] if s['status'] == 'changed' and s.get('content') == []})
+    if r.get('content'):
+        L += ['', f"Слайды с правкой содержания (тексты, компоненты, заметки): {', '.join(map(str, edited)) or 'нет'}. "
+              f"Их различия — следствие правки, а не версии навыка. Изменились без правки содержания: {', '.join(map(str, engine_only)) or 'нет'}"
+              + ('' if r['controlled'] else ' (сравнение неконтрольное: причиной может быть и тема, изображения или среда)') + '.']
+    comp = r.get('components') or {}
+    if comp.get('B'):
+        L += ['', '## Компоненты по слайдам', '', '| Слайд | A | B |', '|---|---|---|']
+        for k in sorted(set(comp.get('A', {})) | set(comp['B']), key=int):
+            a_, b_ = '+'.join(comp.get('A', {}).get(k, [])) or '—', '+'.join(comp['B'].get(k, [])) or '—'
+            L.append(f"| {k} | {a_} | {b_ if b_ == a_ else '**' + b_ + '**'} |")
+    ed = {k: v for k, v in (r.get('content') or {}).items() if v['changes']}
+    if ed:
+        L += ['', '## Изменения содержания (редакционные)', '']
+        for k, v in ed.items():
+            L.append(f"- **Слайд {k}:** {'; '.join(v['changes'])}")
+            L += [f"  - убрано: «{t[:90]}»" for t in v['gone']] + [f"  - добавлено: «{t[:90]}»" for t in v['new']]
     L += ['', '## Что изменилось во входах', '']
     L += [f"- {CATS[x['category']]}: `{x['file']}` — {x['change']}" for x in r['changed_inputs']] or ['Ничего: все входы и сборщик совпадают по контрольным суммам.']
     L += ['', '## Что изменилось в среде', '']

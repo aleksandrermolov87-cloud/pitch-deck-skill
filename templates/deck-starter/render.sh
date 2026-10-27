@@ -26,6 +26,7 @@ done
 # Замер: текст, вылезший за свой бокс, и наличие шрифта
 sed "s#</body>#<script>document.fonts.ready.then(()=>{const bad=[];document.querySelectorAll('.t').forEach(t=>{const p=t.querySelector('p').getBoundingClientRect(),b=t.getBoundingClientRect();if(p.height>b.height+1||p.width>b.width+1)bad.push((t.dataset.id||t.textContent.slice(0,30))+' h:'+p.height.toFixed(0)+'/'+b.height.toFixed(0)+' w:'+p.width.toFixed(0)+'/'+b.width.toFixed(0));});const o=document.createElement('pre');o.id='M';o.textContent=JSON.stringify({slides:$N,font:document.fonts.check('12px \"$FONT\"'),overflow:bad});document.body.appendChild(o);});</script></body>#" "$HTML" > $OUT/_m.html
 perl -e 'alarm 45; exec @ARGV' "$CHROME" --headless=new --disable-gpu --use-mock-keychain --password-store=basic --no-first-run --user-data-dir="$PROFILE" --window-size=1920,1080 \
-  --virtual-time-budget=3000 --dump-dom "file://$PWD/$OUT/_m.html" 2>/dev/null | grep -o '<pre id="M">.*</pre>' | sed 's#<[^>]*>##g'
+  --virtual-time-budget=3000 --dump-dom "file://$PWD/$OUT/_m.html" 2>/dev/null | grep -o '<pre id="M">.*</pre>' | sed 's#<[^>]*>##g' | tee "$OUT/render.json"
+# render.json — тот же итог файлом (слайды, шрифт, переполнения): его читает scripts/check_report.py
 rm -f $OUT/_one.html $OUT/_m.html
 echo "PNG: $PWD/$DIR"

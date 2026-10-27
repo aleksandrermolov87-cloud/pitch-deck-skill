@@ -31,7 +31,7 @@ function kpis() {
   const els = chrome({ title: D.kpi_title.map(r => ({ t: r.t, c: r.accent ? C.accent : undefined })), sub: D.kpi_sub, source: 'Источник: бриф, разделы «Итоги» и «Динамика».', panel: false });
   els.push(...K.kpiHero({ x: M + 0.2, y: T.canvas.bodyTop + 0.3, w: 5.6, h: 4.4 },
     { value: main.value, digits: main.digits, unit: main.unit, label: main.label, caption: main.caption, src: q(main.quote),
-      series: { periods: s.periods, values: s.values } }));
+      series: { periods: s.periods, values: s.values, src: q(s.quote) } }));   // спарклайн рисует числа ряда: у них свой источник
   els.push(...K.kpiList({ x: 6.9, y: T.canvas.bodyTop + 0.4, w: W - M - 7.1, h: 4.2 },
     { items: rest.map(k => ({ value: k.value, digits: k.digits, unit: k.unit, label: k.label, caption: k.caption, src: q(k.quote) })) }));
   return { bg: 'bg_s2.jpg', archetype: 'kpi-hero', els };

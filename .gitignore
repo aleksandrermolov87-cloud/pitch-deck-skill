@@ -21,3 +21,4 @@ templates/deck-starter/img/bg*.jpg
 .update-check
 learnings/copy_edits.jsonl
 learnings/bg_edits.jsonl
+.acceptance/

@@ -1,0 +1,13 @@
+{
+ "by": "Демо: так карту заполняет независимый сабагент на этапе 6 (brief_coverage.py init → out/coverage.json)",
+ "items": [
+  {"id": "R1", "status": "ok", "slide": 1, "element": "s1-sub", "evidence": "Что разработано за 2026 год и что это даст клиентам и менеджерам", "paraphrase": "период назван в подзаголовке обложки"},
+  {"id": "R2", "status": "ok", "slide": 2, "element": "lib:kpiHero", "evidence": "84,6 млн ₽ — главное число слайда"},
+  {"id": "R3", "status": "ok", "slide": 2, "element": "lib:kpiList", "evidence": "76% — КД приходится на второе полугодие"},
+  {"id": "R4", "status": "ok", "slide": 3, "element": "s3-title", "evidence": "КД растёт каждый квартал: с 5,2 до 38,7 млн ₽"},
+  {"id": "R5", "status": "ok", "slide": 4, "element": "lib:timelineAxis", "evidence": "5 релизов на оси месяцев, у каждого месяц старта: продажи с января, пилот с февраля…", "paraphrase": "месяц старта показан положением на оси и подписью «с января»"},
+  {"id": "R6", "status": "ok", "slide": 5, "element": "s5-title", "evidence": "Приложение даёт 72% КД 2027 года", "paraphrase": "«основной КД» передан долей 72% в заголовке"},
+  {"id": "R7", "status": "ok", "slide": 6, "element": "s6-title", "evidence": "Оформление в приложении за три шага"},
+  {"id": "R8", "status": "excluded", "reason": "в брифе нет данных о конкурентах; требование необязательное, вынесено вопросом в REPORT.md"}
+ ]
+}

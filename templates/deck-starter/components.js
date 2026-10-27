@@ -353,11 +353,12 @@ function stackedShare(box, data, opt = {}) {
     const pw = p.value / total * w, fill = tones[i % tones.length];
     const v = num(`${lab}: ${p.name}`, p.value, p.src || opt.src, d) + unitOf(data.unit);
     const share = num(`доля ${p.name}`, Math.round(p.value / total * 100), { type: 'derived', from: [`${lab}: ${p.name}`, totLabel], op: 'ratio', scale: 0.01 });
+    const same = data.unit === '%' && Math.round(p.value / total * 100) === p.value;   // данные уже в процентах: второй раз не пишем
     els.push(rect(xx, by, Math.max(0.03, pw - 0.03), bh, { fill }));
-    if (pw >= 0.7) {
+    if (pw >= Math.max(0.7, tw(p.name, 13, true) + 0.25)) {   // подпись в сегменте, только если имя в него влезает
       els.push(text(xx, y, pw - 0.1, 0.62, `${share}%`, { size: i === 0 ? 36 : 24, bold: true, color: i === 0 ? C.accentInk : C.ink, valign: 'bottom' }));
-      els.push(text(xx, by + bh + 0.12, pw - 0.1, 0.62, [{ t: p.name, b: true, c: C.ink }, { t: `\n${v}` }], { size: 13, color: C.muted, ls: 1.1 }));
-    } else legend.push({ fill, t: `${p.name}: ${share}%, ${v}` });
+      els.push(text(xx, by + bh + 0.12, pw - 0.1, 0.62, same ? p.name : [{ t: p.name, b: true, c: C.ink }, { t: `\n${v}` }], { size: 13, color: same ? C.ink : C.muted, bold: same, ls: 1.1 }));
+    } else legend.push({ fill, t: same ? `${p.name}: ${share}%` : `${p.name}: ${share}%, ${v}` });
     xx += pw;
   });
   legend.forEach((l, i) => {
@@ -572,11 +573,69 @@ Object.assign(module.exports, { seg: U.seg, knock: U.knock, spread: U.spread, li
 // Метка библиотеки: элементы, которые вернул компонент, помечаются его именем (e.lib). build.js пишет имена
 // в out/slides.json, scripts/library_check.py по ним проверяет приоритет библиотеки (SKILL.md, этап 2).
 const HELPERS = new Set(['sparkline', 'diamond', 'num', 'seg', 'knock', 'spread', 'lines', 'lh', 'unitOf', 'minus', 'onBar', 'wrap']);
+
+// Числа, которые рисуют график, но компонент их не подписал (высота столбца, точка линии, ячейка тепловой карты),
+// тоже идут в реестр фактов с пометкой auto: источник берётся из item.src, data.src или opt.src. Без источника
+// facts_check.py выдаст ошибку. build.js потом отмечает у каждого факта shown: можно ли прочитать число на слайде.
+// В обход идут только поля данных (DATA_KEYS), служебные числа раскладки (digits, at, w, from/to-индексы) не трогаются.
+const DATA_KEYS = new Set(['value', 'values', 'series', 'plan', 'fact', 'target', 'a', 'b', 'us', 'avg', 'others', 'count',
+  'units', 'share', 'kd', 'cac', 'ltv', 'margin', 'lo', 'base', 'hi', 'price', 'amount', 'scope', 'detractors', 'passives',
+  'promoters', 'start', 'end', 'total', 'x', 'y', 'prev', 'cur', 'size', 'cost', 'median']);
+const NOT_DATA = { matrix2x2: ['x', 'y'], pictoGrid: ['value'] };   // позиции на схеме, а не измерения
+function plotted(name, data, opt, before) {
+  if (!data || typeof data !== 'object') return;
+  const got = L.FACTS.slice(before).map(f => f.value), skip = new Set(NOT_DATA[name] || []);
+  const periods = data.periods || data.cols || data.ticks;
+  const walk = (o, path, src, key, owner) => {
+    if (Array.isArray(o)) return o.forEach((v, i) => walk(v, `${path}[${i}]`, src, key, owner));
+    if (o && typeof o === 'object') {
+      const s = o.src || src, own = o.name || o.label || owner;
+      return Object.entries(o).forEach(([k, v]) => { if (k !== 'src') walk(v, path ? `${path}.${k}` : k, s, k, own); });
+    }
+    if (typeof o !== 'number' || !Number.isFinite(o) || !DATA_KEYS.has(key) || skip.has(key)) return;
+    if (got.some(g => Math.abs(g - o) < 1e-9)) return;
+    const i = +((path.match(/\[(\d+)\]$/) || [])[1] ?? -1), when = Array.isArray(periods) && i >= 0 && periods[i] != null ? ` ${periods[i]}` : '';
+    const digits = (String(o).split('.')[1] || '').length;
+    L.FACTS.push({ slide: L.PAGE.n, label: `${name}: ${owner ? owner + ', ' : ''}${key}${when} [${path}]`, value: o, digits,
+      ...(src || { type: 'none' }), scale: (src && src.scale) || 1, auto: true, owner: owner || null, when: when.trim() || null });
+    got.push(o);
+  };
+  walk(data, '', (opt && opt.src) || data.src, null, null);
+}
+
+// opt.show: числа, которые бриф требует показать читаемо (coverage.json → show). Элемент — число, строка (часть подписи
+// факта: период, имя ряда) или { value | match, label?, unit? }. Если компонент сам не подписал такое число, обёртка
+// забирает 0,4″ снизу у бокса компонента и подписывает его строкой под графиком: «2024: 51,4%».
+function showStrip(name, box, els, opt, before) {
+  const facts = L.FACTS.slice(before), txt = els.filter(e => e && e.t === 'text').map(e => e.runs.map(r => r.t).join('')).join('\n');
+  const flat = s => s.replace(/[\s\u00a0\u202f]/g, '');
+  const seen = new Set((txt.match(/\d[\d\u00a0\u202f]*(?:[.,]\d+)?/g) || []).map(flat));
+  const runs = [], missing = [];
+  for (const w of opt.show) {
+    const spec = typeof w === 'object' ? w : typeof w === 'number' ? { value: w } : { match: w };
+    const f = facts.find(x => spec.value != null ? Math.abs(x.value - spec.value) < 1e-9 : String(x.label).includes(spec.match));
+    if (!f) { missing.push(spec.value ?? spec.match); continue; }
+    const v = fmt(f.value, f.digits || 0);
+    if (seen.has(flat(v))) continue;                       // компонент уже подписал число сам
+    const label = spec.label || (f.auto ? [f.owner, f.when].filter(Boolean).join(', ') : f.label.replace(/^.*?:\s*/, '')) || f.label;
+    if (runs.length) runs.push({ t: '    ' });
+    runs.push({ t: `${label}: ` }, { t: `${v}${unitOf(spec.unit ?? opt.unit ?? '')}`, b: true, c: C.ink });
+  }
+  if (missing.length) throw new Error(`${name}: opt.show — нет такого числа среди данных компонента: ${missing.join(', ')}`);
+  if (runs.length) els.push(text(box.x, box.y + box.h - 0.32, box.w, 0.3, runs, { size: 12, color: C.ink2, valign: 'middle', id: `${name}-show` }));
+}
+
 for (const k of Object.keys(module.exports)) {
   const f = module.exports[k];
   if (HELPERS.has(k) || typeof f !== 'function') continue;
   module.exports[k] = function (...args) {
+    const before = L.FACTS.length, opt = args[2], box = args[0];
+    const show = opt && Array.isArray(opt.show) && opt.show.length && box && box.h;
+    if (show) args[0] = { ...box, h: box.h - 0.4 };
     const els = f.apply(this, args);
+    plotted(k, args[1], args[2], before);
+    L.FACTS.slice(before).forEach(f => { if (!f.lib) f.lib = k; });   // факт пришёл из компонента: число нарисовано им
+    if (show && Array.isArray(els)) showStrip(k, box, els, opt, before);
     if (Array.isArray(els)) els.forEach(e => { if (e && typeof e === 'object' && !e.lib) e.lib = k; });
     return els;
   };

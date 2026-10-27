@@ -160,6 +160,17 @@ body{background:var(--bg);color:var(--ink);font-family:'${FONT}',system-ui,sans-
 ${slides.map(toHtml).join('\n')}
 </body></html>`;
 fs.writeFileSync(path.join(OUT, 'deck.html'), html);
+// shown: число читается в тексте своего слайда (подпись, заголовок, легенда). auto-факты без shown только рисуют график:
+// facts_check.py и coverage_check.py различают «влияет на график» и «можно прочитать».
+const flat = s => s.replace(/[\s\u00a0\u202f]/g, '').replace('−', '-');
+// тысячи в fmt() разделены неразрывным пробелом; обычный пробел и границы элементов разделяют разные числа
+const tokens = sl => new Set((sl.els.filter(e => e.t === 'text').map(e => e.runs.map(r => r.t).join('')).join('\n')
+  .match(/\d[\d\u00a0\u202f]*(?:[.,]\d+)?/g) || []).map(flat));
+const TOK = slides.map(tokens);
+FACTS.forEach(f => {
+  const t = TOK[f.slide - 1] || new Set(), a = Math.abs(f.value);
+  f.shown = [f.digits || 0, 0, 1, 2].some(d => t.has(flat(L.fmt(a, d))));
+});
 fs.writeFileSync(path.join(__dirname, 'out', 'facts.json'), JSON.stringify(FACTS, null, 1));
 // манифест для этапа 7: номер, функция, архетип и заголовок каждого слайда
 const titleOf = sl => (sl.els.find(e => e.t === 'text' && /-title$/.test(e.id || '')) || { runs: [] }).runs.map(r => r.t).join('');
@@ -169,6 +180,8 @@ fs.writeFileSync(path.join(__dirname, 'out', 'slides.json'), JSON.stringify(slid
   lib: [...new Set(sl.els.map(e => e.lib).filter(Boolean))], custom: sl.custom || null,
   // тексты слайда по частям (runs) для быстрой правки формулировок (scripts/copy_edit.py)
   texts: sl.els.filter(e => e.t === 'text').map(e => ({ id: e.id || null, lib: e.lib || null, runs: e.runs.map(r => r.t) })),
+  // заметки докладчика: coverage_check.py отличает «на слайде» от «только в заметках»
+  notes: sl.notes || '',
 })), null, 1));
 
 const name = `${META.name}${process.env.BOTH_THEMES ? (THEME === 'light' ? '_светлая' : '_темная') : (THEME === 'light' ? '_светлая' : '')}`;

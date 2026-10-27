@@ -2,6 +2,9 @@
 # Запуск: $SKILL/.venv/bin/python -I facts_check.py out/facts.json [--root .] [--xlsx model.xlsx] [--json out/facts_report.json]
 # Типы источников: xlsx (ячейки, агрегаты value/sum/ratio/share_of), text (цитата в файле), user (сообщение пользователя),
 # derived (из других фактов). Код выхода 1 при любом расхождении.
+# Факт с auto: true — число, которое компонент нарисовал (высота столбца, точка линии), но не подписал. Он проверяется
+# по источнику так же, как подписанный. shown (пишет build.js) — читается ли число на слайде: отчёт различает
+# «влияет на график» и «можно прочитать». Что из брифа обязано читаться, проверяет brief_coverage.py, а не этот скрипт.
 import argparse
 import json
 import os
@@ -86,6 +89,8 @@ for f in F:
         elif kind == 'user':
             notes.append(f"{where}: из сообщения пользователя {f.get('date', '')}: «{f.get('quote', '')[:60]}» (проверено вручную)")
             ok += 1
+        elif kind == 'none':
+            errors.append(f'{where}: число рисует график, но у него нет источника — добавьте src в данные компонента (item.src, data.src или opt.src)')
         elif kind == 'derived':
             src = [by_label.get(l) for l in f['from']]
             if None in src:
@@ -105,7 +110,8 @@ for f in F:
 # одно и то же число под одной подписью на разных слайдах с разными значениями
 seen = defaultdict(set)
 for f in F:
-    seen[f['label']].add((f['slide'], f['value']))
+    if not f.get('auto'):                      # подписи auto-фактов — путь в данных компонента, на разных слайдах они совпадают законно
+        seen[f['label']].add((f['slide'], f['value']))
 for label, s in seen.items():
     if len({v for _, v in s}) > 1:
         errors.append(f"«{label}»: разные значения на слайдах {sorted(s)}")
@@ -145,9 +151,23 @@ for e in errors:
     print('[ERR]', e)
 for u in unregistered:
     print('[WARN]', u)
+# числа, которые только рисуют график: по слайдам, чтобы было видно, что зритель их не прочтёт
+graph_only = [f for f in F if f.get('shown') is False and (f.get('lib') or f.get('auto'))]
+idle = [f for f in F if f.get('shown') is False and not (f.get('lib') or f.get('auto')) and f.get('type') != 'derived']
+for f in idle:
+    notes.append(f"слайд {f['slide']}: «{f['label']}» = {f['value']} зарегистрирован, но на слайде не читается и компонентом не нарисован (заметки или лишний fact())")
+if graph_only:
+    per = defaultdict(list)
+    for f in graph_only:
+        per[f['slide']].append(f"{f['label'].split(' [')[0]} = {f['value']}")
+    for n_, xs in sorted(per.items()):
+        notes.append(f"слайд {n_}: только в графике, без подписи ({len(xs)}): " + '; '.join(xs[:6]) + (' …' if len(xs) > 6 else ''))
 for n in notes:
     print('[INFO]', n)
-print(f'\nфактов {len(F)}, сошлось {ok}, расхождений {len(errors)}, чисел без источника {len(unregistered)}')
+shown_n = sum(1 for f in F if f.get('shown'))
+print(f'\nфактов {len(F)}, сошлось {ok}, расхождений {len(errors)}, чисел без источника {len(unregistered)}'
+      + (f'; читаются на слайде {shown_n}, только в графике {len(graph_only)}' if any('shown' in f for f in F) else ''))
 if a.json:
-    json.dump({'total': len(F), 'ok': ok, 'errors': errors, 'unregistered': unregistered, 'notes': notes}, open(a.json, 'w'), ensure_ascii=False, indent=1)
+    json.dump({'total': len(F), 'ok': ok, 'errors': errors, 'unregistered': unregistered, 'notes': notes,
+               'shown': shown_n, 'graph_only': len(graph_only)}, open(a.json, 'w'), ensure_ascii=False, indent=1)
 sys.exit(1 if errors or unregistered else 0)

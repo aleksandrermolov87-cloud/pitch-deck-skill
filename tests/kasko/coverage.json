@@ -1,0 +1,15 @@
+{
+ "by": "Тестовая карта (tests/kasko): так её заполнил бы сабагент по исправленной деке. Для варианта lossy run.sh подкладывает ту же карту — как будто сабагент ошибся и отметил всё выполненным: механика brief_coverage.py должна поймать потери сама.",
+ "items": [
+  {"id": "R1", "status": "ok", "slide": 1, "element": "s1-sub", "evidence": "Устройство продукта и рынок: 2019–2024 и I полугодие 2025", "paraphrase": "оба периода названы в подзаголовке обложки"},
+  {"id": "R2", "status": "ok", "slide": 5, "element": "s5-title", "evidence": "Выплаты выросли на 31,6% за год"},
+  {"id": "R3", "status": "ok", "slide": 6, "element": "lineChart-show", "evidence": "Коэффициент выплат за 2024 год: 51,4%"},
+  {"id": "R4", "status": "ok", "slide": 2, "element": "lib:executiveSummary", "evidence": "Выплаты растут быстрее сборов"},
+  {"id": "R5", "status": "ok", "slide": 9, "element": "s9-title", "evidence": "Средний чек ремонта растёт из-за запчастей"},
+  {"id": "R6", "status": "ok", "slide": 8, "element": "s8-title", "evidence": "Доля угонов в выплатах снижается"},
+  {"id": "R7", "status": "ok", "slide": 10, "element": "s10-title", "evidence": "Ремонт на СТО партнёров дешевле дилерского"},
+  {"id": "R8", "status": "ok", "slide": 3, "element": "lib:processSteps", "evidence": "три шага: риски (ущерб и угон), франшиза, возмещение", "paraphrase": "устройство полиса разложено на три решения клиента"},
+  {"id": "R9", "status": "ok", "slide": 4, "element": "s4-title", "evidence": "Сборы выросли с 182,0 до 299,6 млрд ₽"},
+  {"id": "R10", "status": "ok", "slide": 11, "element": "lib:kpiList", "evidence": "162,0 млрд ₽ сборы и 88,0 млрд ₽ выплаты за I полугодие 2025", "paraphrase": "сборы и выплаты — столбец чисел рядом с коэффициентом выплат"}
+ ]
+}
