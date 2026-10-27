@@ -1,18 +1,23 @@
 #!/bin/zsh
-# Новый проект деки из заготовки: bash new_deck.sh <папка> "<Название деки>" [файл-имя]
-# Пример: bash new_deck.sh src-инвесторы "Страховая платформа: раунд A" Платформа_раунд_A
+# Новый проект деки из заготовки: zsh new_deck.sh <папка> "<Название деки>" [файл-имя] ['<ответы планировщика>']
+# Пример: zsh new_deck.sh src-инвесторы "Страховая платформа: раунд A" Платформа_раунд_A '{"topic":"Раунд A платформы","slides":10,"3d":true}'
+# Ответы на обязательные вопросы этапа 0 (тема, число слайдов или "auto", нужны ли 3D) пишутся в deck.json → plan;
+# без них plan пустой, и plan_check.py не пропустит деку, пока ответы не записаны.
 set -e
 SKILL="${0:A:h:h}"
-DIR="$1"; TITLE="$2"; NAME="${3:-${TITLE// /_}}"
+DIR="$1"; TITLE="$2"; NAME="${3:-${TITLE// /_}}"; PLAN="${4:-}"
 [ -n "$DIR" ] && [ -n "$TITLE" ] || { echo "usage: new_deck.sh <папка> \"<Название>\" [имя-файла]"; exit 1; }
 # имя папки и файла: буквы, цифры, «_», «-», «.» — без кавычек, пробелов и путей наверх
 case "$DIR" in .*|*/*|*\\*|*\'*|*\"*|*\`*|*\$*|*\ *|*\;*|*\&*|*\|*) echo "папка: без пробелов, кавычек, / и спецсимволов (получено: $DIR)"; exit 1 ;; esac
 NAME="${NAME//[\/\\\'\"\`\$;&|<>]/_}"; NAME="${NAME#.}"
 [ -e "$DIR" ] && { echo "$DIR уже существует, выберите другую папку"; exit 1; }
+[ -z "$PLAN" ] || node -e 'JSON.parse(process.argv[1])' "$PLAN" 2>/dev/null || { echo "ответы планировщика — JSON вида {\"topic\":\"…\",\"slides\":10|\"auto\",\"3d\":true|false}"; exit 1; }
 cp -R "$SKILL/templates/deck-starter" "$DIR"
 mkdir -p "$DIR/img/3d" "$DIR/user-edits" "$DIR/out"
 chmod +x "$DIR/render.sh"
-node -e 'const fs=require("fs"),f=process.argv[1],d=JSON.parse(fs.readFileSync(f,"utf8"));d.title=process.argv[2];d.name=process.argv[3];fs.writeFileSync(f,JSON.stringify(d,null,2)+"\n")' "$DIR/deck.json" "$TITLE" "$NAME"
+node -e 'const fs=require("fs"),f=process.argv[1],d=JSON.parse(fs.readFileSync(f,"utf8"));d.title=process.argv[2];d.name=process.argv[3];
+let p={topic:"",slides:null,"3d":null};if(process.argv[4]){try{p=JSON.parse(process.argv[4])}catch(e){console.error("ответы планировщика — JSON вида {\"topic\":\"…\",\"slides\":10|\"auto\",\"3d\":true|false}");process.exit(1)}}
+d.plan={topic:p.topic??"",slides:p.slides??null,"3d":p["3d"]??null};fs.writeFileSync(f,JSON.stringify(d,null,2)+"\n")' "$DIR/deck.json" "$TITLE" "$NAME" "$PLAN"
 # pptxgenjs ставит setup.sh в папку скилла; проект ссылается на него
 [ -d "$SKILL/node_modules/pptxgenjs" ] || zsh "$SKILL/scripts/setup.sh" >/dev/null
 ln -s "$SKILL/node_modules" "$DIR/node_modules"
@@ -44,6 +49,7 @@ cat > "$DIR/README.md" <<EOF
 5. \`$SKILL/.venv/bin/python -I $SKILL/scripts/pptx_audit.py ../$NAME.pptx\`
 6. \`$SKILL/.venv/bin/python -I $SKILL/scripts/facts_check.py out/facts.json --root . [--xlsx <модель.xlsx>]\`
 7. \`$SKILL/.venv/bin/python -I $SKILL/scripts/library_check.py .\` — тело каждого слайда из библиотеки или причина custom
+   \`$SKILL/.venv/bin/python -I $SKILL/scripts/plan_check.py .\` — тема, число слайдов и 3D как ответил пользователь (deck.json → plan)
 
 8. \`$SKILL/.venv/bin/python -I $SKILL/scripts/brief_coverage.py check .\` — всё ли из брифа видно на слайдах (requirements.json, reference/15-brief-coverage.md)
 

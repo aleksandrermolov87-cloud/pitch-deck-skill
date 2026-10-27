@@ -175,7 +175,8 @@ if VJ is None and not files3d:
 else:
     if pc:
         VL.append(f"- Провайдер: {PROV.get(pc.get('provider'), pc.get('provider'))}" if pc.get('provider') != 'none' else '- Провайдер: внешняя генерация отключена')
-        VL.append(f"- Выбор пользователя: {'да' if pc.get('chosen_by_user') else 'нет, не подтверждён пользователем'}" + (f", {pc['when']}" if pc.get('when') else ''))
+        VL.append(f"- Выбор пользователя: {'да' if pc.get('chosen_by_user') else 'нет, не подтверждён пользователем'}"
+                  + (f", {pc['when']}" if pc.get('when') else ''))
         VL.append(f"- Квота и стоимость: {pc.get('quota') or 'неизвестны (провайдер не сообщил)'}")
     else:
         VL.append('- Провайдер: выбор не записан')

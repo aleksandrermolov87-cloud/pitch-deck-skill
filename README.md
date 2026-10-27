@@ -72,11 +72,12 @@ fi
 ```
 Если была папка `pitch-deck-skill.old`, перенеси из неё в новую `config.json`, папку `learnings/` и файлы `*.local.md` (если есть), и скажи, что старую папку можно удалить.
 
-**Шаг 5. Установи и проверь** — обычный вариант `lite`, расширенный `full`; без 3D добавь `--no-3d`:
+**Шаг 5. Установи и проверь** — обычный вариант `lite`, расширенный `full`. `--system` доставляет через Homebrew то, чего нет на компьютере (Node.js, Python 3.12, Google Chrome, poppler); спроси пользователя, прежде чем ставить программы. Без 3D добавь `--no-3d`:
 ```bash
-zsh ~/.claude/skills/pitch-deck-skill/scripts/setup.sh --mode lite --no-3d --selftest
+zsh ~/.claude/skills/pitch-deck-skill/scripts/setup.sh --mode lite --system --selftest
 ```
-Займёт 5–10 минут (рисуется проверочная презентация и галерея из 108 слайдов: 95 компонентов, у части несколько примеров с разными данными). Ожидается: «Демо.pptx … ошибок 0», «фактов 34, сошлось 34», «Галерея_компонентов … ошибок 0» для тёмной и светлой темы. Setup заодно ставит в `~/.claude/skills` два вспомогательных навыка — humanizer и taste-skill, если их там нет. Если что-то упало — разберись сам по сообщению; пользователю скажи только итог.
+Setup ставит всё остальное сам и при повторном запуске обновляет: Python-пакеты по `requirements.txt`, пакеты Node по `package-lock.json` (заново, если файл изменился после обновления скилла), вспомогательные скиллы, подключение Magic Patterns для 3D. Для проверки PPTX без PowerPoint добавь `--with-libreoffice`.
+Займёт 5–10 минут (рисуется проверочная презентация и галерея из 108 слайдов: 95 компонентов, у части несколько примеров с разными данными). Ожидается: «Демо.pptx … ошибок 0», «фактов 34, сошлось 34», «Галерея_компонентов … ошибок 0» для тёмной и светлой темы. Setup заодно ставит рядом со скиллом (в `~/.claude/skills` или `~/.codex/skills`) два вспомогательных навыка — humanizer и taste-skill, если их там нет. Если что-то упало — разберись сам по сообщению; пользователю скажи только итог.
 
 **Шаг 6. Ключ 21st** — только для расширенного варианта. Попроси пользователя:
 1. Зайти на https://21st.dev/mcp, войти и скопировать ключ.
@@ -85,7 +86,7 @@ zsh ~/.claude/skills/pitch-deck-skill/scripts/setup.sh --mode lite --no-3d --sel
    `claude mcp add --transport http 21st https://21st.dev/api/mcp --header "x-api-key: ВАШ_КЛЮЧ" --scope user`
 4. Написать тебе «готово». Ключ в чат не присылать.
 
-**Шаг 7. 3D-картинки** — только если пользователь попросил. В Claude нужен аккаунт Magic Patterns: в приложении Claude → Settings → Connectors → Magic Patterns → Connect. В Codex 3D рисует встроенный `image_gen` (системный скилл `imagegen`), ключ API не нужен. Потом `zsh ~/.claude/skills/pitch-deck-skill/scripts/setup.sh` без `--no-3d`. Провайдер выбирается в `config.json → image_provider` (`auto` по умолчанию), и перед первой генерацией скилл всё равно спрашивает пользователя.
+**Шаг 7. 3D-картинки (Magic Patterns).** Setup без `--no-3d` сам подключает сервер Magic Patterns (`https://mcp.magicpatterns.com/mcp`) в Claude Code и в Codex, если они установлены (`scripts/mcp_setup.sh`). Один раз нужен вход в аккаунт Magic Patterns, его делает пользователь сам: в Claude Code — `/mcp` → magicpatterns → Authenticate (в приложении Claude можно и через Settings → Connectors → Magic Patterns), в Codex — `codex mcp login magicpatterns` в Терминале. Если Magic Patterns нет, в Codex 3D рисует встроенный `image_gen` (ключ не нужен). Проверка: `zsh ~/.claude/skills/pitch-deck-skill/scripts/mcp_setup.sh --check`. Нужны ли 3D в конкретной деке, скилл спрашивает каждый раз.
 
 **Шаг 8. Фирменный шрифт Styrene A LC.**
 ```bash

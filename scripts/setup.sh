@@ -3,26 +3,51 @@
 #   zsh setup.sh                    — зависимости + config.json (режим full, если config.json ещё нет)
 #   zsh setup.sh --mode lite        — режим без 21st Magic MCP
 #   zsh setup.sh --mode full        — режим с 21st Magic MCP (нужен ключ, см. инструкцию)
-#   zsh setup.sh --no-3d            — Magic Patterns не подключён: 3D-объекты не генерируются
+#   zsh setup.sh --no-3d            — без 3D: Magic Patterns не подключается, 3D-объекты не генерируются
+#   zsh setup.sh --system           — доставить недостающие программы через Homebrew: Node.js, Python 3.12, Google Chrome, poppler
+#   zsh setup.sh --with-libreoffice — вместе с --system: ещё LibreOffice для проверки PPTX без PowerPoint
+#   zsh setup.sh --no-mcp           — не подключать Magic Patterns MCP в Claude Code и Codex (проверка останется)
 #   zsh setup.sh --selftest         — плюс собрать демо-деку и прогнать проверки
 #   zsh setup.sh --font <папка|zip|URL> — поставить шрифт бренда из фирменного пакета (иначе config.json → font_source)
 set -e
 SKILL="${0:A:h:h}"
-MODE=""; NO3D=0; SELFTEST=0; FONTSRC=""
+MODE=""; NO3D=0; SELFTEST=0; FONTSRC=""; SYSTEM=0; LO=0; NOMCP=0
 while [ $# -gt 0 ]; do
   case "$1" in
     --mode) MODE="$2"; shift ;;
     --no-3d) NO3D=1 ;;
     --selftest) SELFTEST=1 ;;
     --font) FONTSRC="$2"; shift ;;
+    --system) SYSTEM=1 ;;
+    --with-libreoffice) LO=1 ;;
+    --no-mcp) NOMCP=1 ;;
   esac
   shift
 done
 say() { print -P "%F{cyan}›%f $1"; }
 [ -z "$MODE" ] || [ "$MODE" = full ] || [ "$MODE" = lite ] || { echo "--mode: full или lite"; exit 1; }
 
-command -v node >/dev/null || { echo "Нужен Node.js 18+: brew install node"; exit 1; }
-PY=$(zsh "$SKILL/scripts/python.sh") || { echo "Нужен Python 3.11+ (системный python3 на macOS — 3.9): brew install python@3.12 или uv python install 3.12"; exit 1; }
+say "Программы (Node.js 18+, Python 3.11+, Google Chrome, poppler)"
+# что нужно доставить: формулы и cask-и Homebrew. Без --system только список и команда, ничего не ставится
+need=(); casks=()
+{ command -v node >/dev/null && [ "$(node -p 'process.versions.node.split(".")[0]')" -ge 18 ]; } || need+=node
+zsh "$SKILL/scripts/python.sh" >/dev/null || need+=python@3.12
+command -v pdftotext >/dev/null || need+=poppler
+zsh "$SKILL/scripts/chrome.sh" >/dev/null || casks+=google-chrome
+[ $LO = 1 ] && ! command -v soffice >/dev/null && [ ! -d /Applications/LibreOffice.app ] && casks+=libreoffice
+if [ ${#need} = 0 ] && [ ${#casks} = 0 ]; then echo "  всё на месте"
+elif [ $SYSTEM = 1 ] && command -v brew >/dev/null; then
+  [ ${#need} = 0 ] || { echo "  brew install ${need[*]}"; brew install -q ${need[@]}; }
+  [ ${#casks} = 0 ] || { echo "  brew install --cask ${casks[*]}"; brew install -q --cask ${casks[@]}; }
+  rehash
+elif [ $SYSTEM = 1 ]; then
+  echo "  нет Homebrew: поставьте его по инструкции https://brew.sh и повторите zsh $0 --system"; exit 1
+else
+  echo "  не хватает: ${need[*]} ${casks[*]}"
+  echo "  поставить: zsh $0 --system   (или вручную: brew install ${need[*]}${casks:+; brew install --cask ${casks[*]}})"
+fi
+command -v node >/dev/null || { echo "Нужен Node.js 18+: zsh $0 --system или brew install node"; exit 1; }
+PY=$(zsh "$SKILL/scripts/python.sh") || { echo "Нужен Python 3.11+ (системный python3 на macOS — 3.9): zsh $0 --system, brew install python@3.12 или uv python install 3.12"; exit 1; }
 
 say "Python-окружение скилла ($("$PY" -V))"
 # venv на старом Python (до 1.6.1 он собирался на системном 3.9) пересоздаётся: исправленный Pillow на нём не ставится
@@ -33,13 +58,18 @@ fi
 "$SKILL/.venv/bin/pip" -q install --disable-pip-version-check -r "$SKILL/requirements.txt"
 
 say "pptxgenjs (сборка PPTX)"
-# точные версии из package-lock.json, без install-скриптов пакетов
-[ -d "$SKILL/node_modules/pptxgenjs" ] || (cd "$SKILL" && npm ci --silent --ignore-scripts --no-audit --no-fund >/dev/null)
+# точные версии из package-lock.json, без install-скриптов пакетов; после обновления скилла lock меняется — пакеты ставятся заново
+LOCK=$(shasum -a 256 "$SKILL/package-lock.json" | cut -d' ' -f1)
+if [ ! -d "$SKILL/node_modules/pptxgenjs" ] || [ "$(cat "$SKILL/node_modules/.pds-lock" 2>/dev/null)" != "$LOCK" ]; then
+  (cd "$SKILL" && npm ci --silent --ignore-scripts --no-audit --no-fund >/dev/null) && echo "$LOCK" > "$SKILL/node_modules/.pds-lock" && echo "  пакеты по package-lock.json"
+else echo "  актуальны"; fi
 
-say "Скиллы-зависимости (ставятся только если их нет)"
+say "Скиллы-зависимости (ставятся рядом со скиллом, только если их нет)"
+# рядом со скиллом: ~/.claude/skills в Claude Code, ~/.codex/skills в Codex
+ROOT="${SKILL:h}"
 for s in humanizer taste-skill; do
-  if [ ! -f "$HOME/.claude/skills/$s/SKILL.md" ] && [ -d "$SKILL/vendor/$s" ]; then
-    mkdir -p "$HOME/.claude/skills/$s" && cp -R "$SKILL/vendor/$s/." "$HOME/.claude/skills/$s/"
+  if [ ! -f "$ROOT/$s/SKILL.md" ] && [ -d "$SKILL/vendor/$s" ]; then
+    mkdir -p "$ROOT/$s" && cp -R "$SKILL/vendor/$s/." "$ROOT/$s/"
     echo "  поставлен $s из vendor/"
   fi
 done
@@ -52,7 +82,12 @@ const mode = process.argv[2]; if (mode) { c.mode = mode; c.magic_mcp = mode === 
 if (process.argv[3] === "1") { c.magicpatterns = false; c.image_provider = "none"; }
 if (!c.image_provider) c.image_provider = c.magicpatterns === false ? "none" : "auto";   // config.json до 1.8.0
 fs.writeFileSync(f, JSON.stringify(c, null, 2) + "\n");
-console.log("  режим: " + c.mode + ", 21st Magic MCP: " + (c.magic_mcp ? "да" : "нет") + ", 3D Magic Patterns: " + (c.magicpatterns ? "да" : "нет") + ", провайдер 3D: " + c.image_provider);' "$SKILL/config.json" "$MODE" "$NO3D"
+console.log("  режим: " + c.mode + ", 21st Magic MCP: " + (c.magic_mcp ? "да" : "нет") + ", 3D Magic Patterns: " + (c.magicpatterns ? "да" : "нет") + ", провайдер 3D: " + c.image_provider); ' "$SKILL/config.json" "$MODE" "$NO3D"
+
+say "3D-генерация: Magic Patterns MCP (Claude Code, Codex) и image_gen (Codex)"
+if [ $NO3D = 1 ]; then echo "  выключена (--no-3d)"
+elif [ $NOMCP = 1 ]; then zsh "$SKILL/scripts/mcp_setup.sh" --check || true
+else zsh "$SKILL/scripts/mcp_setup.sh" || true; fi
 
 say "Шрифт бренда"
 [ -n "$FONTSRC" ] || FONTSRC=$(zsh "$SKILL/scripts/jget.sh" "$SKILL/config.json" font_source)
@@ -87,11 +122,12 @@ if [ $SELFTEST = 1 ]; then
   say "Самопроверка: демо-дека в $SKILL/.selftest"
   # сборка в частной папке, затем подмена .selftest: параллельные самопроверки из разных сессий не мешают друг другу
   mkdir -p "$SKILL/.build"; ST=$(mktemp -d "$SKILL/.build/selftest.XXXXXX")
-  (cd "$ST" && zsh "$SKILL/scripts/new_deck.sh" src-demo "Демо" Демо >/dev/null \
+  (cd "$ST" && zsh "$SKILL/scripts/new_deck.sh" src-demo "Демо" Демо '{"topic":"Страховая платформа в контуре банка (демо)","slides":6,"3d":true}' >/dev/null \
     && cd src-demo && ./render.sh >/dev/null \
     && "$SKILL/.venv/bin/python" -I "$SKILL/scripts/pptx_audit.py" ../Демо.pptx | tail -1 \
     && "$SKILL/.venv/bin/python" -I "$SKILL/scripts/facts_check.py" out/facts.json --root . --html out/deck.html | tail -1 \
     && "$SKILL/.venv/bin/python" -I "$SKILL/scripts/library_check.py" . | tail -1 \
+    && "$SKILL/.venv/bin/python" -I "$SKILL/scripts/plan_check.py" . | head -1 \
     && "$SKILL/.venv/bin/python" -I "$SKILL/scripts/brief_coverage.py" check . --map data/coverage.example.json | tail -1 | cut -d';' -f1 \
     && "$SKILL/.venv/bin/python" -I "$SKILL/scripts/variants.py" check | tail -1) \
     || { rm -rf "$ST"; echo "  самопроверка не пройдена"; exit 1; }

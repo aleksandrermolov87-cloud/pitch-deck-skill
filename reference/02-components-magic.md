@@ -38,7 +38,7 @@
 ## B. MagicPatterns: 3D-объекты, стикеры, иллюстрации
 
 Работа идёт в Magic OS. Это отдельная поверхность, и в редактор ничего не создаётся.
-Загрузка: `ToolSearch {query: "select:mcp__833946bb-c443-4b5a-9661-a225a8fa5192__list_os,mcp__833946bb-c443-4b5a-9661-a225a8fa5192__create_os,mcp__833946bb-c443-4b5a-9661-a225a8fa5192__generate_image"}`.
+Загрузка: `ToolSearch {query: "magic patterns generate_image create_os list_os", max_results: 5}` — имя сервера зависит от подключения (`mcp__magicpatterns__…` после `setup.sh`, `mcp__<id>__…` у коннектора claude.ai), поэтому ищи по названиям инструментов. В Codex сервер `magicpatterns` подключает тот же `setup.sh` (`scripts/mcp_setup.sh`). Если инструментов нет: `zsh $SKILL/scripts/mcp_setup.sh` и вход пользователя (`/mcp` в Claude Code, `codex mcp login magicpatterns`).
 
 1. `list_os`: если OS для этой деки уже есть, используй её.
 2. Если нет, `create_os {name: "<Дека> — графика"}` и запомни `osId`.

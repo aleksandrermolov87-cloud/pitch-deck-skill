@@ -19,7 +19,13 @@ grep -qF "$(cut -d' ' -f2 "${KEY/#\~/$HOME}")" .github/allowed_signers || { echo
 
 echo "› проверка на утечки"; zsh scripts/leakcheck.sh
 if [ "$2" != --quick ]; then
-  echo "› самопроверка"; zsh scripts/setup.sh --selftest | grep -E "Демо.pptx|фактов|Галерея_"
+  echo "› самопроверка"; zsh scripts/setup.sh --selftest --no-mcp | grep -E "Демо.pptx|фактов|Галерея_"
+  echo "› тесты скриптов (tests/*/run.sh, кроме приёмочного)"
+  for t in tests/*/run.sh; do
+    [ "$t" = tests/kasko/run.sh ] && continue
+    OUTT=$(zsh "$t" 2>&1) || { echo "$OUTT" | tail -20; echo "$t не пройден — релиз не выпускается"; exit 1; }
+    echo "  $(echo "$OUTT" | tail -1)"
+  done
   echo "› приёмочный тест (tests/kasko)"
   ACC=$(zsh tests/kasko/run.sh 2>&1) || { echo "$ACC" | tail -30; echo "приёмочный тест не пройден — релиз не выпускается"; exit 1; }
   echo "$ACC" | tail -1

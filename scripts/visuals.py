@@ -1,6 +1,6 @@
 # Генерация 3D через двух провайдеров и происхождение картинок деки (reference/09-3d-objects.md, раздел 5).
 #   visuals.py choose <src> --provider magicpatterns|codex-imagegen|none [--quota "<лимит/стоимость>"]
-#       выбор пользователя (спрашивается до первой генерации), пишется в data/visuals.json
+#       ответ пользователя на обязательный вопрос планировщика «Нужны 3D-генерации?», пишется в data/visuals.json
 #   visuals.py fetch  <src> --url <https://cdn.magicpatterns.com/…> --name <имя> --slide N [--payload prompts3d.json]
 #       MagicPatterns (Claude): скачать ответ generate_image в img/3d/<имя>.jpg и записать происхождение
 #   visuals.py import <src> --file <$CODEX_HOME/generated_images/…png> --name <имя> --slide N [--payload prompts3d.json]
