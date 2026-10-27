@@ -268,6 +268,10 @@ def cmd_run(a):
                                         'notes': x.get('notes', '')} for x in json.load(open(mp, encoding='utf-8'))}
     if os.path.isfile(os.path.join(work, 'requirements.json')) and man['outputs']:
         cmap = os.path.join(src, 'out', 'coverage.json')
+        if os.path.isfile(cmap):                       # карта покрытия лежит в out/ проекта: копия в прогоне, чтобы проверку можно было повторить
+            shutil.copy2(cmap, os.path.join(run, 'coverage-map.json'))
+            cmap = os.path.join(run, 'coverage-map.json')
+            man['coverage_map'] = {'file': 'coverage-map.json', 'sha256': sha(cmap)}
         pp = os.path.join(run, man['outputs'][sorted(man['outputs'])[0]]['file'])
         cmd = [PY, '-I', os.path.join(SKILL, 'scripts', 'brief_coverage.py'), 'check', '.', '--pptx', pp] + (['--map', cmap] if os.path.isfile(cmap) else [])
         rc, o = sh(cmd, cwd=work)
