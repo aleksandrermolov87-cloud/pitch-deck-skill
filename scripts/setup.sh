@@ -60,16 +60,19 @@ elif [ -n "$FONTSRC" ]; then zsh "$SKILL/scripts/font.sh" install "$FONTSRC" || 
 else echo "  не установлен: zsh $SKILL/scripts/font.sh install <папка или zip из фирменного пакета>; до этого деки на запасном шрифте"; fi
 
 say "Демо-объекты 3D для заготовки (публичный CDN Magic Patterns)"
-D3="$SKILL/templates/deck-starter/img/3d"; mkdir -p "$D3"
+D3="$SKILL/templates/deck-starter/img/3d"; mkdir -p "$D3" "$SKILL/.build"
+# скачивание и вырезка — в частной папке, в заготовку файлы встают переименованием: параллельный new_deck не увидит половину файла
+DL=$(mktemp -d "$SKILL/.build/3d.XXXXXX")
 # только https с CDN Magic Patterns, имя файла — буквы, цифры, «_», «-»; сверка sha256, если он указан
 node -e 'const s=JSON.parse(require("fs").readFileSync(process.argv[1],"utf8"));for(const [n,v] of Object.entries(s)){const u=typeof v==="string"?v:v.url,h=typeof v==="string"?"":(v.sha256||"");console.log(n+" "+u+" "+h)}' "$D3/sources.json" | while read n u h; do
   [[ "$n" =~ '^[A-Za-z0-9_-]+$' && "$u" == https://cdn.magicpatterns.com/* ]] || { echo "  пропущен $n: недопустимое имя или адрес"; continue; }
   if [ ! -f "$D3/$n.png" ]; then
-    if curl -sSfL --proto '=https' --max-filesize 5000000 -o "$D3/$n.jpg" "$u" && { [ -z "$h" ] || [ "$(shasum -a 256 "$D3/$n.jpg" | cut -d' ' -f1)" = "$h" ] || { echo "  $n: хэш не совпал, файл удалён"; rm -f "$D3/$n.jpg"; false; }; }; then
-      "$SKILL/.venv/bin/python" -I "$SKILL/scripts/cutout.py" "$D3/$n.jpg" >/dev/null && rm -f "$D3/$n.jpg"
+    if curl -sSfL --proto '=https' --max-filesize 5000000 -o "$DL/$n.jpg" "$u" && { [ -z "$h" ] || [ "$(shasum -a 256 "$DL/$n.jpg" | cut -d' ' -f1)" = "$h" ] || { echo "  $n: хэш не совпал, файл удалён"; rm -f "$DL/$n.jpg"; false; }; }; then
+      "$SKILL/.venv/bin/python" -I "$SKILL/scripts/cutout.py" "$DL/$n.jpg" >/dev/null && { [ ! -f "$DL/$n.json" ] || mv -f "$DL/$n.json" "$D3/$n.json"; } && mv -f "$DL/$n.png" "$D3/$n.png"
     else echo "  не скачался $n — демо-слайды соберутся без этого объекта"; fi
   fi
 done
+rm -rf "$DL"
 
 say "Уроки"
 mkdir -p "$SKILL/learnings"
@@ -81,16 +84,19 @@ chmod +x "$SKILL"/scripts/*.sh "$SKILL"/templates/deck-starter/render.sh 2>/dev/
 
 if [ $SELFTEST = 1 ]; then
   say "Самопроверка: демо-дека в $SKILL/.selftest"
-  rm -rf "$SKILL/.selftest"; mkdir -p "$SKILL/.selftest"
-  (cd "$SKILL/.selftest" && zsh "$SKILL/scripts/new_deck.sh" src-demo "Демо" Демо >/dev/null \
+  # сборка в частной папке, затем подмена .selftest: параллельные самопроверки из разных сессий не мешают друг другу
+  mkdir -p "$SKILL/.build"; ST=$(mktemp -d "$SKILL/.build/selftest.XXXXXX")
+  (cd "$ST" && zsh "$SKILL/scripts/new_deck.sh" src-demo "Демо" Демо >/dev/null \
     && cd src-demo && ./render.sh >/dev/null \
     && "$SKILL/.venv/bin/python" -I "$SKILL/scripts/pptx_audit.py" ../Демо.pptx | tail -1 \
     && "$SKILL/.venv/bin/python" -I "$SKILL/scripts/facts_check.py" out/facts.json --root . --html out/deck.html | tail -1 \
     && "$SKILL/.venv/bin/python" -I "$SKILL/scripts/library_check.py" . | tail -1 \
-    && "$SKILL/.venv/bin/python" -I "$SKILL/scripts/brief_coverage.py" check . --map data/coverage.example.json | tail -1 | cut -d';' -f1)
+    && "$SKILL/.venv/bin/python" -I "$SKILL/scripts/brief_coverage.py" check . --map data/coverage.example.json | tail -1 | cut -d';' -f1) \
+    || { rm -rf "$ST"; echo "  самопроверка не пройдена"; exit 1; }
+  zsh "$SKILL/scripts/publish_dir.sh" "$ST" "$SKILL/.selftest"
   echo "  PNG-превью: $SKILL/.selftest/src-demo/out/png"
   say "Галерея библиотеки компонентов"
-  zsh "$SKILL/scripts/gallery.sh" | tail -2
+  zsh "$SKILL/scripts/gallery.sh" | tail -3
   echo "  контакт-лист: $SKILL/components/.gallery/sheet.png"
 fi
 say "Диагностика"

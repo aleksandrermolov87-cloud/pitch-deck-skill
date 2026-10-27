@@ -11,7 +11,7 @@
 # Код 1, если хоть один критерий не выполнен.
 set -e
 SKILL="${0:A:h:h:h}"; FIX="${0:A:h}"; PY="$SKILL/.venv/bin/python"
-OUT="${1:-$SKILL/.acceptance/kasko-$(date +%Y%m%d-%H%M%S)}"
+OUT="${1:-$SKILL/.acceptance/kasko-$(date +%Y%m%d-%H%M%S)-$$}"   # $$: два запуска в одну секунду не столкнутся
 [ -e "$OUT" ] && { echo "папка уже есть, не перезаписываю: $OUT"; exit 1; }
 mkdir -p "$OUT"; cd "$OUT"
 fail=0
