@@ -161,7 +161,7 @@ ${slides.map(toHtml).join('\n')}
 </body></html>`;
 fs.writeFileSync(path.join(OUT, 'deck.html'), html);
 // shown: число читается в тексте своего слайда (подпись, заголовок, легенда). auto-факты без shown только рисуют график:
-// facts_check.py и coverage_check.py различают «влияет на график» и «можно прочитать».
+// facts_check.py и brief_coverage.py различают «влияет на график» и «можно прочитать».
 const flat = s => s.replace(/[\s\u00a0\u202f]/g, '').replace('−', '-');
 // тысячи в fmt() разделены неразрывным пробелом; обычный пробел и границы элементов разделяют разные числа
 const tokens = sl => new Set((sl.els.filter(e => e.t === 'text').map(e => e.runs.map(r => r.t).join('')).join('\n')
@@ -180,7 +180,7 @@ fs.writeFileSync(path.join(__dirname, 'out', 'slides.json'), JSON.stringify(slid
   lib: [...new Set(sl.els.map(e => e.lib).filter(Boolean))], custom: sl.custom || null,
   // тексты слайда по частям (runs) для быстрой правки формулировок (scripts/copy_edit.py)
   texts: sl.els.filter(e => e.t === 'text').map(e => ({ id: e.id || null, lib: e.lib || null, runs: e.runs.map(r => r.t) })),
-  // заметки докладчика: coverage_check.py отличает «на слайде» от «только в заметках»
+  // заметки докладчика: version_compare.py показывает их правку отдельно от сборщика
   notes: sl.notes || '',
 })), null, 1));
 
