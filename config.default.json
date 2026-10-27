@@ -7,5 +7,6 @@
   "font_fallback": "Arial",
   "figma_refs": [],
   "notes": "mode: full — 21st Magic MCP (платный ключ) для подбора компонентов; lite — без него, компоненты из встроенного каталога. magicpatterns: генерация 3D-объектов (платный план Magic Patterns). figma: chrome | computer-use | none. Файл config.json создаёт setup.sh, правьте его, а не этот шаблон.",
-  "font_source": ""
+  "font_source": "",
+  "update_check_days": 7
 }

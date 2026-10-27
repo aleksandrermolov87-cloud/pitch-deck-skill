@@ -61,7 +61,7 @@ D3="$SKILL/templates/deck-starter/img/3d"; mkdir -p "$D3"
 node -e 'const s=JSON.parse(require("fs").readFileSync(process.argv[1],"utf8"));for(const [n,v] of Object.entries(s)){const u=typeof v==="string"?v:v.url,h=typeof v==="string"?"":(v.sha256||"");console.log(n+" "+u+" "+h)}' "$D3/sources.json" | while read n u h; do
   [[ "$n" =~ '^[A-Za-z0-9_-]+$' && "$u" == https://cdn.magicpatterns.com/* ]] || { echo "  пропущен $n: недопустимое имя или адрес"; continue; }
   if [ ! -f "$D3/$n.png" ]; then
-    if curl -sSfL --proto =https --max-filesize 5000000 -o "$D3/$n.jpg" "$u" && { [ -z "$h" ] || [ "$(shasum -a 256 "$D3/$n.jpg" | cut -d' ' -f1)" = "$h" ] || { echo "  $n: хэш не совпал, файл удалён"; rm -f "$D3/$n.jpg"; false; }; }; then
+    if curl -sSfL --proto '=https' --max-filesize 5000000 -o "$D3/$n.jpg" "$u" && { [ -z "$h" ] || [ "$(shasum -a 256 "$D3/$n.jpg" | cut -d' ' -f1)" = "$h" ] || { echo "  $n: хэш не совпал, файл удалён"; rm -f "$D3/$n.jpg"; false; }; }; then
       "$SKILL/.venv/bin/python" -I "$SKILL/scripts/cutout.py" "$D3/$n.jpg" >/dev/null && rm -f "$D3/$n.jpg"
     else echo "  не скачался $n — демо-слайды соберутся без этого объекта"; fi
   fi
@@ -84,7 +84,7 @@ if [ $SELFTEST = 1 ]; then
     && "$SKILL/.venv/bin/python" -I "$SKILL/scripts/facts_check.py" out/facts.json --root . --html out/deck.html | tail -1)
   echo "  PNG-превью: $SKILL/.selftest/src-demo/out/png"
   say "Галерея библиотеки компонентов"
-  zsh "$SKILL/scripts/gallery.sh" | tail -1
+  zsh "$SKILL/scripts/gallery.sh" | tail -2
   echo "  контакт-лист: $SKILL/components/.gallery/sheet.png"
 fi
 say "Диагностика"

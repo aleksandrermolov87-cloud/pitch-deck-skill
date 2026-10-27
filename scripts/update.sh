@@ -34,7 +34,7 @@ else
   exit 1
 fi
 echo "\nЧто нового (CHANGELOG.md):"
-git show "$NEW:CHANGELOG.md" | awk 'NR>2 && /^## /{n++} n<1' | head -40
+git show "$NEW:CHANGELOG.md" | awk '/^## /{n++} n==1' | head -40
 echo "\nИзменения в исполняемых частях и инструкциях агента:"
 git diff --stat "HEAD" "$NEW" -- scripts templates SKILL.md reference components requirements.txt package.json package-lock.json | tail -25
 if [ $YES = 0 ]; then

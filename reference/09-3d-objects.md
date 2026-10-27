@@ -77,7 +77,7 @@ $SKILL/.venv/bin/python -I $SKILL/scripts/prompt3d.py src-<тема>/data/object
 
 1. `list_os` / `create_os {name: "<Дека> — графика"}` → `osId`.
 2. `generate_image {osId, images}` одной пачкой, не больше 5 картинок за вызов. Больше — несколько вызовов в одном сообщении.
-3. `curl -sSfL --proto =https --max-filesize 20000000 -o src-<тема>/img/3d/<name>.jpg <url>` для каждого URL из ответа `generate_image`, только с `https://cdn.magicpatterns.com/`.
+3. `curl -sSfL --proto '=https' --max-filesize 20000000 -o src-<тема>/img/3d/<name>.jpg <url>` для каждого URL из ответа `generate_image`, только с `https://cdn.magicpatterns.com/`.
 4. `cutout.py <jpg> --preview` для всех, кроме `bg`. Посмотри `*_check.png`: края без белого ореола на тёмном и светлом фоне.
 5. **Выбор варианта** по чек-листу:
    - смысл считывается в размере на слайде (уменьши превью до 1,2″);

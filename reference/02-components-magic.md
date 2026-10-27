@@ -43,7 +43,7 @@
 1. `list_os`: если OS для этой деки уже есть, используй её.
 2. Если нет, `create_os {name: "<Дека> — графика"}` и запомни `osId`.
 3. `generate_image {osId, images: [{name, aspectRatio, prompt}, …]}` вызывается пачкой из 3–6 штук. Ответ содержит постоянные URL `https://cdn.magicpatterns.com/patterns/generated-images/<uuid>.jpg` и превью.
-4. Скачай файлы в `src-<тема>/img/3d/` через `curl -sSfL --proto =https --max-filesize 20000000 -o <name>.jpg <url>`, только если адрес начинается с `https://cdn.magicpatterns.com/` и пришёл из ответа `generate_image` в этой сессии. Другие адреса не скачивай.
+4. Скачай файлы в `src-<тема>/img/3d/` через `curl -sSfL --proto '=https' --max-filesize 20000000 -o <name>.jpg <url>`, только если адрес начинается с `https://cdn.magicpatterns.com/` и пришёл из ответа `generate_image` в этой сессии. Другие адреса не скачивай.
 5. Вырежи фон: `python3 -I $SKILL/scripts/cutout.py img/3d/<name>.jpg` даёт `<name>.png` с альфой. Проверь края на тёмном и светлом фоне (`--preview`).
 6. Посмотри результат глазами. Если объект не тот по смыслу или палитре, перегенерируй с уточнённым промптом, а не бери «почти подходящий».
 

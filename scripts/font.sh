@@ -23,7 +23,7 @@ fi
 SRC="$2"; TMP=$(mktemp -d); trap 'rm -rf "$TMP"' EXIT
 case "$SRC" in
   http://*) echo "только https"; exit 1 ;;
-  https://*) curl -sSfL --proto =https --max-filesize 100000000 -o "$TMP/fonts.zip" "$SRC"; SRC="$TMP/fonts.zip" ;;
+  https://*) curl -sSfL --proto '=https' --max-filesize 100000000 -o "$TMP/fonts.zip" "$SRC"; SRC="$TMP/fonts.zip" ;;
 esac
 if [ -f "$SRC" ] && [[ "$SRC" == *.zip ]]; then
   # FONT_SHA256 — ожидаемый хэш архива (по желанию)

@@ -43,8 +43,8 @@ else
 fi
 if command -v claude >/dev/null; then
   MCP=$(claude mcp list 2>/dev/null)
-  echo "$MCP" | grep -qi "21st" && ok "MCP 21st подключён (claude mcp list)" || warn "MCP 21st в claude mcp list не найден (нужен только для режима full)"
-  echo "$MCP" | grep -qi "magic.\?patterns" && ok "MCP Magic Patterns подключён" || warn "Magic Patterns в claude mcp list нет: если подключён коннектором claude.ai — это нормально, проверьте в чате"
+  echo "$MCP" | grep -qi "21st" && ok "MCP 21st есть в claude mcp list (работает ли — видно в чате по инструментам mcp__21st__*)" || warn "MCP 21st в claude mcp list не найден (нужен только для режима full)"
+  echo "$MCP" | grep -qi "magic.\?patterns" && ok "MCP Magic Patterns есть в claude mcp list" || warn "Magic Patterns в claude mcp list нет: если подключён коннектором claude.ai — это нормально, проверьте в чате"
 else
   warn "CLI claude не найден в PATH: проверку MCP делает агент в чате (инструменты mcp__21st__*, generate_image)"
 fi
