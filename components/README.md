@@ -1,7 +1,7 @@
 # Библиотека компонентов
 
-125 готовых компонентов тела слайда: роадмапы, таблицы, графики, 30 сложных схем, рынок, продукт, стратегия, статус, просьба,
-20 текстовых раскладок и 5 мокапов экранов. Базовые 19 лежат в `templates/deck-starter/components.js`, ещё 106 — в модулях `templates/deck-starter/kit/*.js` (из них 30 схем); всё и копируется в каждый проект `new_deck.sh` как `src-<тема>/components.js`.
+138 готовых компонентов тела слайда: роадмапы, таблицы, графики, 43 схемы, рынок, продукт, стратегия, статус, просьба,
+20 текстовых раскладок и 5 мокапов экранов. Базовые 19 лежат в `templates/deck-starter/components.js`, ещё 119 — в модулях `templates/deck-starter/kit/*.js` (из них 43 схемы); всё и копируется в каждый проект `new_deck.sh` как `src-<тема>/components.js`.
 Библиотека — основа структуры и фирменного стиля, и её приоритет обязателен: сначала компонент из библиотеки,
 21st (если включён) и сборка агентом — только для слайда, которому в библиотеке ничего не подошло, с записанной причиной
 (`custom: '…'` в слайде). Проверяет `scripts/library_check.py`: компоненты помечают свои элементы, сборка пишет их имена
@@ -189,12 +189,12 @@ HTML-двойник рисует ту же геометрию фигурами. 
 | Что изменилось в интерфейсе? | `screensBeforeAfter` | `screens-before-after` | `before/after {screen, head}`, `changes [{name, a, b, unit?, better}]`; разница — derived diff |
 | Как работает во всех каналах? | `multiDevice` | `multi-device` | `web {screen, url?}`, `phone {screen}`, `points [{value?, unit, label, head, body}]` 2–3 |
 
-## Схемы (под-скилл «Схемы»): 30 сложных схем
+## Схемы (под-скилл «Схемы»): 43 схемы
 
 Участники и связи, процессы по дорожкам, деревья, циклы, контуры и потоки. Каталог по вопросам, правила хорошей схемы,
 детектор `scripts/viz_suggest.py` и замены блоковых слайдов — `reference/19-schemes.md`. У всех архетип `scheme-…`:
 узлы-карточки схемы соединены связями, поэтому аудит не считает их блоками. Образцы данных — `components/gallery-<группа>.js`,
-галерея: `zsh $SKILL/scripts/gallery.sh schemes radial trees lanes layered exchange`.
+галерея: `zsh $SKILL/scripts/gallery.sh schemes radial trees lanes layered exchange orgs`.
 
 ### Связи и роли (`kit/schemes.js`)
 
@@ -255,6 +255,26 @@ HTML-двойник рисует ту же геометрию фигурами. 
 | Кого соединяет платформа и что получает каждая сторона? | `platformTwoSided` | `scheme-platform-two-sided` | `left {name, items}`, `platform {name, items?}`, `right {name, items}`, `flows {left [{dir: in/out, tag?, text}], right […]}` |
 | Кто ведёт и кто участвует на пересечении направлений и функций? | `matrixOrg` | `scheme-matrix-org` | `rows [{name, note?}]`, `cols [{name, note?}]`, `cells [{r, c, mark: lead/part, note?}]` |
 | Из-за чего возникает проблема? | `causeEffect` | `scheme-cause-effect` | `effect {name, note?}`, `bones [{name, causes [строки] до 3}]` 4–6 |
+
+### Оргструктуры и связи подразделений (`kit/orgs.js`)
+
+Как выбрать — `reference/19-schemes.md`, раздел 7. Штат, вакансии и точки — факты с источником, суммы и доли — derived.
+
+| Вопрос зрителя | Компонент | Архетип | Данные |
+|----------------|-----------|---------|--------|
+| Кто кому подчиняется в департаменте и сколько людей в каждом звене? | `deptTree` | `scheme-dept-tree` | `levels?`, `root {name, lead?, size?, open?}`, `children [{name, lead?, size?, open?, vacant?, children?}]` до 3 уровней, до 8 листьев |
+| Как устроен департамент и сколько людей и вакансий в каждом звене? | `orgOutline` | `scheme-org-outline` | `cols [{key, name, unit?, bar?, accent?}]` 1–3, `root {name, lead?, <key>}`, `children [{name, lead?, <key>, children?}]` до 14 строк |
+| У кого из руководителей слишком много или мало прямых подчинённых? | `spanOfControl` | `span-of-control` | `norm [от, до]`, `unit?`, `managers [{name, unit?, span}]` 3–10 |
+| Кому подразделения подчиняются административно и кому функционально? | `dualReporting` | `scheme-dual-reporting` | `root {name, note?}`, `units [{name, lead?, func? [id]}]` 3–6, `functions [{id, name, note?}]` 2–4 |
+| Из каких подразделений состоит блок и какого они размера? | `orgNest` | `scheme-org-nest` | `unit?`, `units [{name, size, lead?, children? [{name, size}]}]` 2–6; opt.highlight — имя плитки акцентом |
+| Как команды выстроены вокруг потоков ценности и как взаимодействуют? | `teamTopology` | `scheme-team-topology` | `streams [{id, name, note?}]` 2–4, `platform {id, name, note?, items?}`, `enabling? [{id, name, note?}]`, `subsystems? [{id, name, note?}]`, `links [{from, to, mode: collab/service/facilitate}]` |
+| Как продуктовые команды и профессиональные сообщества пересекаются в agile-модели? | `tribeChapters` | `scheme-tribe-chapters` | `tribes [{name, squads [{name, note?, chapters? [номер]}]}]` 2–3, до 9 сквадов, `chapters [{name, lead?}]` 2–5, `guild? {name, squads?}` |
+| Как меняется оргструктура: что объединяем, делим, переводим и упраздняем? | `orgTransition` | `scheme-org-transition` | `before {head, units [{id, name, size?}]}`, `after {head, units [{id, name, size?, isNew?}]}`, `moves [{from, to, tag?}]` до 8 строк |
+| Как устроена сеть: центр, региональные дирекции и сколько у каждой точек? | `regionNetwork` | `scheme-region-network` | `center {name, note?}`, `unit?`, `regions [{name, note?, points?, lead?}]` 3–8 |
+| Сколько людей на каждом уровне управления? | `gradePyramid` | `grade-pyramid` | `unit?`, `levels [{name, size, note?}]` 3–6 сверху вниз; opt.highlight — номер уровня |
+| Кто с кем работает теснее всего? | `relationshipWeb` | `scheme-relationship-web` | `nodes [{id, name, note?, hub?}]` 4–9, `links [{from, to, weight? 1–3, kind?, tag?}]` |
+| Какие подразделения от каких зависят в работе и насколько плотно? | `interactionMatrix` | `scheme-interaction-matrix` | `units [{name, short}]` 4–8, `cells [{from, to, level 1–3}]`, `levels?`, `colsHead?` |
+| Где работа переходит между подразделениями и где возвращается назад? | `arcHandoffs` | `scheme-arc-handoffs` | `units [{id, name, note?}]` 4–7 по порядку процесса, `handoffs [{from, to, weight? 1–3, tag?}]` |
 
 ## Помощники
 

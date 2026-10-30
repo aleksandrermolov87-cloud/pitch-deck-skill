@@ -1700,5 +1700,180 @@
    "bones": {"type": "list", "tested": 6, "of": {"name": {"type": "text", "tested": 12, "req": true}, "causes": {"type": "list", "tested": 2, "of": {"type": "text", "tested": 26, "req": true}, "req": true, "n": [1, 3]}}, "item": "obj", "req": true, "n": [4, 6]}
   },
   "partial": "нечётное число костей — снизу на одну меньше"
+ },
+ "deptTree": {
+  "group": "orgs",
+  "question": "Кто кому подчиняется в департаменте и сколько людей в каждом звене?",
+  "archetype": "scheme-dept-tree",
+  "data": "`levels?`, `root {name, lead?, size?, open?}`, `children [{name, lead?, size?, open?, vacant?, children?}]` до 3 уровней, до 8 листьев",
+  "meaning": ["structure", "team", "roles"],
+  "accepts": [],
+  "fields": {
+   "levels": {"type": "list", "tested": 3, "of": {"type": "text", "tested": 11}, "req": false},
+   "root": {"type": "obj", "of": {"name": {"type": "text", "tested": 23, "req": true}, "lead": {"type": "text", "tested": 8, "req": false}, "size": {"type": "number", "req": false}, "open": {"type": "number", "req": false}}, "req": true},
+   "children": {"type": "list", "tested": 3, "n": [2, 5], "item": "obj", "of": {"name": {"type": "text", "tested": 20, "req": true}, "lead": {"type": "text", "tested": 9, "req": false}, "size": {"type": "number", "req": false}, "open": {"type": "number", "req": false}, "children": {"type": "list", "tested": 3, "n": [2, 5], "item": "obj", "req": false}}, "req": false}
+  },
+  "partial": "без size и open — только имена и руководители; без levels дерево на всю ширину"
+ },
+ "orgOutline": {
+  "group": "orgs",
+  "question": "Как устроен департамент и сколько людей и вакансий в каждом звене?",
+  "archetype": "scheme-org-outline",
+  "data": "`cols [{key, name, unit?, bar?, accent?}]` 1–3, `root {name, lead?, <key>}`, `children [{name, lead?, <key>, children?}]` до 14 строк",
+  "meaning": ["structure", "team", "table"],
+  "accepts": [],
+  "fields": {
+   "cols": {"type": "list", "tested": 2, "n": [1, 3], "item": "obj", "of": {"key": {"type": "text", "tested": 4, "req": true}, "name": {"type": "text", "tested": 8, "req": true}, "unit": {"type": "text", "tested": 4, "req": false}, "bar": {"type": "bool", "req": false}, "accent": {"type": "bool", "req": false}}, "req": true},
+   "root": {"type": "obj", "of": {"name": {"type": "text", "tested": 23, "req": true}, "lead": {"type": "text", "tested": 13, "req": false}, "size": {"type": "number", "req": false}, "open": {"type": "number", "req": false}}, "req": true},
+   "children": {"type": "list", "tested": 3, "n": [2, 6], "item": "obj", "of": {"name": {"type": "text", "tested": 20, "req": true}, "lead": {"type": "text", "tested": 17, "req": false}, "size": {"type": "number", "req": false}, "open": {"type": "number", "req": false}, "children": {"type": "list", "tested": 3, "n": [2, 6], "item": "obj", "req": false}}, "req": false}
+  },
+  "partial": "без lead колонка руководителя скрыта; null в колонке — «—»"
+ },
+ "spanOfControl": {
+  "group": "orgs",
+  "question": "У кого из руководителей слишком много или мало прямых подчинённых?",
+  "archetype": "span-of-control",
+  "data": "`norm [от, до]`, `unit?`, `managers [{name, unit?, span}]` 3–10",
+  "meaning": ["team", "ranking", "structure"],
+  "accepts": [],
+  "fields": {
+   "norm": {"type": "list", "tested": 2, "of": {"type": "number"}, "req": true},
+   "managers": {"type": "list", "tested": 7, "n": [3, 10], "item": "obj", "of": {"name": {"type": "text", "tested": 14, "req": true}, "unit": {"type": "text", "tested": 20, "req": false}, "span": {"type": "number", "req": true}}, "req": true}
+  },
+  "partial": "без unit у руководителя — только имя"
+ },
+ "dualReporting": {
+  "group": "orgs",
+  "question": "Кому подразделения подчиняются административно и кому функционально?",
+  "archetype": "scheme-dual-reporting",
+  "data": "`root {name, note?}`, `units [{name, lead?, func? [id]}]` 3–6, `functions [{id, name, note?}]` 2–4",
+  "meaning": ["structure", "roles", "governance"],
+  "accepts": [],
+  "fields": {
+   "root": {"type": "obj", "of": {"name": {"type": "text", "tested": 23, "req": true}, "note": {"type": "text", "tested": 18, "req": false}}, "req": true},
+   "units": {"type": "list", "tested": 4, "n": [3, 6], "item": "obj", "of": {"name": {"type": "text", "tested": 14, "req": true}, "lead": {"type": "text", "tested": 20, "req": false}, "func": {"type": "list", "tested": 2, "of": {"type": "text", "tested": 4}, "req": false}}, "req": true},
+   "functions": {"type": "list", "tested": 3, "n": [2, 4], "item": "obj", "of": {"id": {"type": "text", "tested": 4, "req": true}, "name": {"type": "text", "tested": 17, "req": true}, "note": {"type": "text", "tested": 24, "req": false}}, "req": true}
+  },
+  "partial": "без func у подразделения — только административная связь"
+ },
+ "orgNest": {
+  "group": "orgs",
+  "question": "Из каких подразделений состоит блок и какого они размера?",
+  "archetype": "scheme-org-nest",
+  "data": "`unit?`, `units [{name, size, lead?, children? [{name, size}]}]` 2–6; opt.highlight — имя плитки акцентом",
+  "meaning": ["structure", "composition", "team"],
+  "accepts": [],
+  "fields": {
+   "units": {"type": "list", "tested": 4, "n": [2, 6], "item": "obj", "of": {"name": {"type": "text", "tested": 22, "req": true}, "size": {"type": "number", "req": true}, "lead": {"type": "text", "tested": 8, "req": false}, "children": {"type": "list", "tested": 4, "item": "obj", "req": false}}, "req": true}
+  },
+  "partial": "без children департамент — одна рамка с числом; мелкие плитки подписываются строкой под картой"
+ },
+ "teamTopology": {
+  "group": "orgs",
+  "question": "Как команды выстроены вокруг потоков ценности и как взаимодействуют?",
+  "archetype": "scheme-team-topology",
+  "data": "`streams [{id, name, note?}]` 2–4, `platform {id, name, note?, items?}`, `enabling? [{id, name, note?}]`, `subsystems? [{id, name, note?}]`, `links [{from, to, mode: collab/service/facilitate}]`",
+  "meaning": ["team", "structure", "flow"],
+  "accepts": [],
+  "fields": {
+   "streams": {"type": "list", "tested": 3, "n": [2, 4], "item": "obj", "of": {"id": {"type": "text", "tested": 2, "req": true}, "name": {"type": "text", "tested": 23, "req": true}, "note": {"type": "text", "tested": 27, "req": false}}, "req": true},
+   "platform": {"type": "obj", "of": {"id": {"type": "text", "tested": 1, "req": true}, "name": {"type": "text", "tested": 19, "req": true}, "note": {"type": "text", "tested": 13, "req": false}, "items": {"type": "list", "tested": 3, "of": {"type": "text", "tested": 13}, "req": false}}, "req": true},
+   "enabling": {"type": "list", "tested": 1, "n": [0, 2], "item": "obj", "of": {"id": {"type": "text", "tested": 2, "req": true}, "name": {"type": "text", "tested": 23, "req": true}, "note": {"type": "text", "tested": 30, "req": false}}, "req": false},
+   "subsystems": {"type": "list", "tested": 1, "n": [0, 2], "item": "obj", "of": {"id": {"type": "text", "tested": 2, "req": true}, "name": {"type": "text", "tested": 14, "req": true}, "note": {"type": "text", "tested": 11, "req": false}}, "req": false},
+   "links": {"type": "list", "tested": 6, "item": "obj", "of": {"from": {"type": "text", "tested": 2, "req": true}, "to": {"type": "text", "tested": 2, "req": true}, "mode": {"type": "text", "tested": 10, "req": true}}, "req": true}
+  },
+  "partial": "без enabling и subsystems — потоки и платформа"
+ },
+ "tribeChapters": {
+  "group": "orgs",
+  "question": "Как продуктовые команды и профессиональные сообщества пересекаются в agile-модели?",
+  "archetype": "scheme-tribe-chapters",
+  "data": "`tribes [{name, squads [{name, note?, chapters? [номер]}]}]` 2–3, до 9 сквадов, `chapters [{name, lead?}]` 2–5, `guild? {name, squads?}`",
+  "meaning": ["team", "structure", "roles"],
+  "accepts": [],
+  "fields": {
+   "tribes": {"type": "list", "tested": 3, "n": [2, 3], "item": "obj", "of": {"name": {"type": "text", "tested": 15, "req": true}, "squads": {"type": "list", "tested": 3, "item": "obj", "of": {"name": {"type": "text", "tested": 11, "req": true}, "note": {"type": "text", "tested": 15, "req": false}, "chapters": {"type": "list", "tested": 4, "n": [2, 5], "of": {"type": "number"}, "req": false}}, "req": false}}, "req": true},
+   "chapters": {"type": "list", "tested": 4, "n": [2, 5], "item": "obj", "of": {"name": {"type": "text", "tested": 12, "req": true}, "lead": {"type": "text", "tested": 11, "req": false}}, "req": false},
+   "guild": {"type": "obj", "of": {"name": {"type": "text", "tested": 14, "req": true}, "squads": {"type": "list", "tested": 3, "of": {"type": "text", "tested": 7}, "req": false}}, "req": false}
+  },
+  "partial": "без chapters у сквада — специалисты всех чаптеров; без guild — только чаптеры"
+ },
+ "orgTransition": {
+  "group": "orgs",
+  "question": "Как меняется оргструктура: что объединяем, делим, переводим и упраздняем?",
+  "archetype": "scheme-org-transition",
+  "data": "`before {head, units [{id, name, size?}]}`, `after {head, units [{id, name, size?, isNew?}]}`, `moves [{from, to, tag?}]` до 8 строк",
+  "meaning": ["change", "structure", "mapping"],
+  "accepts": [],
+  "fields": {
+   "before": {"type": "obj", "of": {"head": {"type": "text", "tested": 6, "req": true}, "units": {"type": "list", "tested": 6, "item": "obj", "of": {"id": {"type": "text", "tested": 2, "req": true}, "name": {"type": "text", "tested": 27, "req": true}, "size": {"type": "number", "req": false}}, "req": true}}, "req": true},
+   "after": {"type": "obj", "of": {"head": {"type": "text", "tested": 8, "req": true}, "units": {"type": "list", "tested": 4, "item": "obj", "of": {"id": {"type": "text", "tested": 2, "req": true}, "name": {"type": "text", "tested": 21, "req": true}, "size": {"type": "number", "req": false}, "isNew": {"type": "bool", "req": false}}, "req": true}}, "req": true},
+   "moves": {"type": "list", "tested": 5, "item": "obj", "of": {"from": {"type": "text", "tested": 2, "req": true}, "to": {"type": "text", "tested": 2, "req": true}, "tag": {"type": "text", "tested": 13, "req": false}}, "req": true}
+  },
+  "partial": "без size — только имена; без связей слева — «упраздняется», справа — «новое»"
+ },
+ "regionNetwork": {
+  "group": "orgs",
+  "question": "Как устроена сеть: центр, региональные дирекции и сколько у каждой точек?",
+  "archetype": "scheme-region-network",
+  "data": "`center {name, note?}`, `unit?`, `regions [{name, note?, points?, lead?}]` 3–8",
+  "meaning": ["structure", "network", "geo"],
+  "accepts": [],
+  "fields": {
+   "center": {"type": "obj", "of": {"name": {"type": "text", "tested": 13, "req": true}, "note": {"type": "text", "tested": 17, "req": false}}, "req": true},
+   "regions": {"type": "list", "tested": 6, "n": [3, 8], "item": "obj", "of": {"name": {"type": "text", "tested": 12, "req": true}, "note": {"type": "text", "tested": 16, "req": false}, "points": {"type": "number", "req": false}}, "req": true}
+  },
+  "partial": "без points — одинаковые круги без чисел и без итога сети"
+ },
+ "gradePyramid": {
+  "group": "orgs",
+  "question": "Сколько людей на каждом уровне управления?",
+  "archetype": "grade-pyramid",
+  "data": "`unit?`, `levels [{name, size, note?}]` 3–6 сверху вниз; opt.highlight — номер уровня",
+  "meaning": ["distribution", "team", "structure"],
+  "accepts": [],
+  "fields": {
+   "levels": {"type": "list", "tested": 5, "n": [3, 6], "item": "obj", "of": {"name": {"type": "text", "tested": 23, "req": true}, "note": {"type": "text", "tested": 3, "req": false}, "size": {"type": "number", "req": true}}, "req": true}
+  },
+  "partial": "без note — только имена уровней"
+ },
+ "relationshipWeb": {
+  "group": "orgs",
+  "question": "Кто с кем работает теснее всего?",
+  "archetype": "scheme-relationship-web",
+  "data": "`nodes [{id, name, note?, hub?}]` 4–9, `links [{from, to, weight? 1–3, kind?, tag?}]`",
+  "meaning": ["network", "roles", "structure"],
+  "accepts": [],
+  "fields": {
+   "nodes": {"type": "list", "tested": 7, "n": [4, 9], "item": "obj", "of": {"id": {"type": "text", "tested": 4, "req": true}, "name": {"type": "text", "tested": 19, "req": true}, "hub": {"type": "bool", "req": false}, "note": {"type": "text", "tested": 22, "req": false}}, "req": true},
+   "links": {"type": "list", "tested": 8, "item": "obj", "of": {"from": {"type": "text", "tested": 3, "req": true}, "to": {"type": "text", "tested": 4, "req": true}, "weight": {"type": "number", "req": false}, "tag": {"type": "text", "tested": 7, "req": false}, "kind": {"type": "text", "tested": 6, "req": false}}, "req": true}
+  },
+  "partial": "без hub все участники по кругу; без weight связи тонкие"
+ },
+ "interactionMatrix": {
+  "group": "orgs",
+  "question": "Какие подразделения от каких зависят в работе и насколько плотно?",
+  "archetype": "scheme-interaction-matrix",
+  "data": "`units [{name, short}]` 4–8, `cells [{from, to, level 1–3}]`, `levels?`, `colsHead?`",
+  "meaning": ["network", "matrix", "roles"],
+  "accepts": [],
+  "fields": {
+   "units": {"type": "list", "tested": 6, "n": [4, 8], "item": "obj", "of": {"name": {"type": "text", "tested": 14, "req": true}, "short": {"type": "text", "tested": 6, "req": true}}, "req": true},
+   "cells": {"type": "list", "tested": 14, "item": "obj", "of": {"from": {"type": "text", "tested": 6, "req": true}, "to": {"type": "text", "tested": 6, "req": true}, "level": {"type": "number", "req": true}}, "req": true}
+  },
+  "partial": "без levels подписи плотности по умолчанию"
+ },
+ "arcHandoffs": {
+  "group": "orgs",
+  "question": "Где работа переходит между подразделениями и где возвращается назад?",
+  "archetype": "scheme-arc-handoffs",
+  "data": "`units [{id, name, note?}]` 4–7 по порядку процесса, `handoffs [{from, to, weight? 1–3, tag?}]`",
+  "meaning": ["flow", "process", "network"],
+  "accepts": [],
+  "fields": {
+   "units": {"type": "list", "tested": 5, "n": [4, 7], "item": "obj", "of": {"id": {"type": "text", "tested": 4, "req": true}, "name": {"type": "text", "tested": 13, "req": true}, "note": {"type": "text", "tested": 14, "req": false}}, "req": true},
+   "handoffs": {"type": "list", "tested": 8, "item": "obj", "of": {"from": {"type": "text", "tested": 4, "req": true}, "to": {"type": "text", "tested": 4, "req": true}, "weight": {"type": "number", "req": false}, "tag": {"type": "text", "tested": 14, "req": false}}, "req": true}
+  },
+  "partial": "без возвратов — только дуги сверху"
  }
 }

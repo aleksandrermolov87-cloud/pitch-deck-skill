@@ -261,3 +261,5 @@ function mindMap(box, data, opt = {}) {
 }
 
 module.exports = { decisionTree, driverTree, governanceTree, mindMap };
+// Движок дерева для других семейств (kit/orgs.js). Не перечисляется: components.js не берёт его в библиотеку.
+Object.defineProperty(module.exports, 'engine', { value: { treeTD, treeLR, drawNode, measure, sizes, SCALES }, enumerable: false });
