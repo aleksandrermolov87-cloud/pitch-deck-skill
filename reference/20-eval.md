@@ -5,10 +5,10 @@
 Без LLM и сети, только JSON проверок и файлы сборки. Метрики не оценивают смысл и вкус: это тренд и защита от регрессий.
 
 ```bash
-PY="$SKILL/.venv/bin/python -I"
-$PY $SKILL/scripts/eval_deck.py score src-<тема> [--log]          # out/eval.json, out/eval.md; --log — строка в learnings/evals.jsonl
-$PY $SKILL/scripts/eval_deck.py trend [--deck <имя>]               # итог и ключевые метрики по версиям навыка
-$PY $SKILL/scripts/eval_deck.py gate src-<тема> --baseline <json> [--tol 0.02]   # код 1, если метрика упала больше tol
+PY="$SKILL/.venv/bin/python"
+"$PY" -I $SKILL/scripts/eval_deck.py score src-<тема> [--log]          # out/eval.json, out/eval.md; --log — строка в learnings/evals.jsonl
+"$PY" -I $SKILL/scripts/eval_deck.py trend [--deck <имя>]               # итог и ключевые метрики по версиям навыка
+"$PY" -I $SKILL/scripts/eval_deck.py gate src-<тема> --baseline <json> [--tol 0.02]   # код 1, если метрика упала больше tol
 ```
 Перед `score`: обе темы собраны и отрендерены, карта `out/coverage.json` заполнена, как для `check_report.py`.
 
@@ -55,8 +55,8 @@ dirty}, deck, metrics, score}`. `trend` группирует строки по �
 Эталон обновляют осознанно, только когда изменение метрик ожидаемо (улучшили компонент, поменяли формулу или вес):
 ```bash
 zsh $SKILL/tests/kasko/run.sh                                       # папка прогона: $SKILL/.acceptance/kasko-<время>
-$PY $SKILL/scripts/eval_deck.py gate $SKILL/.acceptance/kasko-<время>/src-fixed --baseline $SKILL/tests/kasko/eval_baseline.json   # что изменилось
-$PY $SKILL/scripts/eval_deck.py score $SKILL/.acceptance/kasko-<время>/src-fixed --write-baseline $SKILL/tests/kasko/eval_baseline.json
+"$PY" -I $SKILL/scripts/eval_deck.py gate $SKILL/.acceptance/kasko-<время>/src-fixed --baseline $SKILL/tests/kasko/eval_baseline.json   # что изменилось
+"$PY" -I $SKILL/scripts/eval_deck.py score $SKILL/.acceptance/kasko-<время>/src-fixed --write-baseline $SKILL/tests/kasko/eval_baseline.json
 ```
 В коммите с новым эталоном и в CHANGELOG пишут, какие метрики сдвинулись и почему. Понижать эталон, чтобы пропустить
 регрессию, нельзя: сначала исправляют причину.

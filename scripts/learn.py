@@ -161,7 +161,10 @@ if a.cmd == 'digest':
             cnt[c][r['verdict']] += 1
     for p in picks:
         cnt[p['chosen']]['picks'] += 1
-        for c in set(p.get('shown') or []) - {p['chosen']}:
+        # Старые pick до исправления записывали всех кандидатов даже при demo=False.
+        # Без поля demo сохраняем прежнюю семантику старых журналов.
+        shown = [] if p.get('demo') is False else p.get('shown') or []
+        for c in set(shown) - {p['chosen']}:
             cnt[c]['rejects'] += 1
     comps = {}
     for c, v in sorted(cnt.items()):

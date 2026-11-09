@@ -43,8 +43,8 @@ if d3 is False and made:
     errors.append(f'ответ «без 3D», но в деке сгенерированные картинки: {", ".join(i["file"] for i in made)}')
 if d3 is False and prov not in (None, 'none'):
     errors.append(f'ответ «без 3D», а в data/visuals.json провайдер {prov}: visuals.py choose --provider none')
-if d3 is True and prov in (None, 'none'):
-    warns.append('3D нужны, а провайдер не записан: visuals.py choose src --provider <magicpatterns|codex-imagegen>')
+if d3 is True and prov not in ('magicpatterns', 'codex-imagegen'):
+    errors.append('3D нужны, а поддерживаемый провайдер не записан: visuals.py choose src --provider <magicpatterns|codex-imagegen>')
 
 print(f'тема: {topic or "—"} | слайдов: {slides if slides is not None else "—"}' + (f' (в деке {visible})' if visible is not None else '')
       + f' | 3D: {"да" if d3 is True else "нет" if d3 is False else "—"}' + (f', провайдер {prov}' if prov else ''))

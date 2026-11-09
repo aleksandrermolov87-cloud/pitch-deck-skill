@@ -23,11 +23,11 @@
 ## Команды
 
 ```bash
-PY="$SKILL/.venv/bin/python -I"
-$PY $SKILL/scripts/variants.py suggest src-<тема> [--slides 4,6,9] [--content форма.json] [--lib skill] [--top 3]
-$PY $SKILL/scripts/variants.py demo    src-<тема> [--run <id>] [--slides 4,9] [--all]
-$PY $SKILL/scripts/variants.py pick    src-<тема> --slide 9 --variant B [--run <id>] [--why "рейтинг читается лучше"]
-$PY $SKILL/scripts/variants.py check
+PY="$SKILL/.venv/bin/python"
+"$PY" -I $SKILL/scripts/variants.py suggest src-<тема> [--slides 4,6,9] [--content форма.json] [--lib skill] [--top 3]
+"$PY" -I $SKILL/scripts/variants.py demo    src-<тема> [--run <id>] [--slides 4,9] [--all]
+"$PY" -I $SKILL/scripts/variants.py pick    src-<тема> --slide 9 --variant B [--run <id>] [--why "рейтинг читается лучше"]
+"$PY" -I $SKILL/scripts/variants.py check
 ```
 
 - `suggest` создаёт прогон `out/variants/<id>/`: `suggest.json` (замороженное содержание и кандидаты с готовыми данными)

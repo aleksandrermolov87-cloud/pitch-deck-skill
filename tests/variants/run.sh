@@ -59,6 +59,18 @@ PY
 echo "› выбор и повтор"
 "$PY" -I "$SKILL/scripts/variants.py" pick src --run "$RUN" --slide 3 --variant B --why "тест" > pick.txt
 grep -q '"3"' src/data/variants.json && ok "критерий 4: выбор в data/variants.json" || bad "критерий 4: выбора нет"
+"$PY" -I - "$D/demo.json" "$PITCH_LEARN_DIR" <<'PY' && ok "показанные альтернативы дают мягкий отказ" || bad "обучение по показанным альтернативам"
+import json, sys
+from pathlib import Path
+shown = {v['component'] for v in json.load(open(sys.argv[1]))['slides']['3'].values()}
+learn = Path(sys.argv[2])
+pick = json.loads((learn / 'picks.jsonl').read_text().splitlines()[-1])
+prefs = json.loads((learn / 'prefs.json').read_text())['components']
+assert pick['demo'] is True
+assert set(pick['shown']) == shown
+assert prefs[pick['chosen']]['picks'] == 1
+assert all(prefs[c]['rejects'] == 1 for c in shown - {pick['chosen']})
+PY
 H=$(shasum "$D/demo.json" | cut -d' ' -f1)
 "$PY" -I "$SKILL/scripts/variants.py" demo src --run "$RUN" --slides 3 > demo2.txt
 R2=$(sed -n 's/^прогон \([0-9-]*\):.*/\1/p' demo2.txt | tail -1)
