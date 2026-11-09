@@ -2,11 +2,13 @@
 import base64
 import hashlib
 import io
+import json
 import os
 from pathlib import Path
 import re
 import shlex
 import subprocess
+import sys
 import tarfile
 import tempfile
 
@@ -56,6 +58,12 @@ with tempfile.TemporaryDirectory(prefix='pitch installers ') as directory:
             assert result.returncode == 0, result.stderr
             assert (target / 'SKILL.md').is_file()
             assert (target / 'VERSION').read_text() == (SKILL / 'VERSION').read_text()
+            for relative in ['components/fields.json', 'components/README.md', 'templates/deck-starter/SLIDE-CATALOG.md', 'templates/deck-starter/components.js', 'templates/deck-starter/kit/orgs.js', 'config.default.json']:
+                assert (target / relative).is_file(), relative
+            rows = json.loads(subprocess.check_output([sys.executable, '-I', str(target / 'scripts/gallery_index.py'), '--json'], cwd=root, text=True))
+            assert len(rows) >= 100
+            assert len({x['file'] for x in rows}) == len(list((target / 'components').glob('gallery*.js')))
+            assert all((target / x['file']).is_file() for x in rows)
             assert log.read_text().splitlines() == [str(target / 'scripts/setup.sh'), '--mode', mode, '--no-mcp', '--selftest']
             sentinel = target / 'config.json'
             sentinel.write_bytes(b'preserve existing settings')
