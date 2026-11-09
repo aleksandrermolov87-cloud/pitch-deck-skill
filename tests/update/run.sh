@@ -5,6 +5,7 @@
 # Папку скилла и ключи пользователя тест не трогает; update.sh берётся копией из рабочего дерева.
 SKILL="${0:A:h:h:h}"
 UPD="$SKILL/scripts/update.sh"
+python3 -I -m unittest discover -s "$SKILL/tests/update" -p test_tree_digest.py || exit 1
 T=$(mktemp -d "${TMPDIR:-/tmp}/pds-update.XXXXXX")
 trap 'rm -rf "$T"' EXIT
 export HOME="$T/home" GIT_CONFIG_NOSYSTEM=1 GIT_CONFIG_GLOBAL="$T/gitconfig" GIT_TERMINAL_PROMPT=0
@@ -16,7 +17,7 @@ bad() { N=$((N+1)); FAILS=$((FAILS+1)); print -P "  %F{red}✗%f $1"; [ -z "$OUT
 check() { local msg="$1"; shift; if "$@"; then ok "$msg"; else bad "$msg"; fi; }
 has() { [[ "$OUT" == *"$1"* ]]; }
 # контрольная сумма дерева: пути, права и содержимое всех файлов и ссылок
-treesum() { (cd "$1" && find . \( -type f -o -type l \) -print0 | sort -z | xargs -0 shasum -a 256 2>/dev/null; find . -print0 | sort -z | xargs -0 stat -f '%N %Lp %HT' 2>/dev/null) | shasum -a 256 | cut -d' ' -f1; }
+treesum() { python3 -I "$SKILL/tests/update/tree_digest.py" "$1"; }
 run() { OUT=$(cd "$T" && "$@" 2>&1); RC=$?; }
 
 git config --global user.name "Test Author"
