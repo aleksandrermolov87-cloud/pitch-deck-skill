@@ -176,7 +176,7 @@ zsh ~/.claude/skills/pitch-deck-skill/scripts/update.sh --rollback --yes  # ве
 
 ## Переход на новый ключ в 1.13.0
 
-Прежний закрытый ключ утрачен. Автор подтверждает новый ключ для релизов начиная с **v1.13.0**:
+Прежний закрытый ключ недоступен. Автор подтверждает новый ключ для релизов начиная с **v1.13.0**:
 
 - Новый отпечаток: `SHA256:GOJu1Mq/91ufd43Icikuj/NE4fLwiGqTEmMsOyL28VM`
 - Прежний отпечаток: `SHA256:QlmHo++nW9hGgOpaCQOCjk6tKX6NxskuMDwUsLnWELw`
