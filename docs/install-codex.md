@@ -26,15 +26,18 @@
     | node -pe 'JSON.parse(require("fs").readFileSync(0,"utf8")).tag_name')
   [[ "$PITCH_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]
   mkdir -p "$(dirname "$PITCH_SKILL")"
-  git clone --no-checkout --single-branch --branch "$PITCH_TAG" \
-    https://github.com/aleksandrermolov87-cloud/pitch-deck-skill.git "$PITCH_SKILL"
-  git -C "$PITCH_SKILL" show "$PITCH_TAG:.github/release-signing-key.pub" > "$PITCH_TMP/key.pub"
+  PITCH_TAG_REF="refs/tags/$PITCH_TAG"
+  mkdir "$PITCH_SKILL"
+  git -C "$PITCH_SKILL" init --quiet --initial-branch=main
+  git -C "$PITCH_SKILL" remote add origin https://github.com/aleksandrermolov87-cloud/pitch-deck-skill.git
+  git -C "$PITCH_SKILL" fetch --quiet origin "$PITCH_TAG_REF:$PITCH_TAG_REF"
+  git -C "$PITCH_SKILL" show "$PITCH_TAG_REF:.github/release-signing-key.pub" > "$PITCH_TMP/key.pub"
   PITCH_FINGERPRINT=$(ssh-keygen -lf "$PITCH_TMP/key.pub" | awk '{print $2}')
   test "$PITCH_FINGERPRINT" = 'SHA256:GOJu1Mq/91ufd43Icikuj/NE4fLwiGqTEmMsOyL28VM'
   printf '280332880+aleksandrermolov87-cloud@users.noreply.github.com namespaces="git" %s\n' \
     "$(cat "$PITCH_TMP/key.pub")" > "$PITCH_TMP/allowed_signers"
-  git -C "$PITCH_SKILL" -c gpg.ssh.allowedSignersFile="$PITCH_TMP/allowed_signers" verify-tag "$PITCH_TAG"
-  git -C "$PITCH_SKILL" checkout --detach "$PITCH_TAG"
+  git -C "$PITCH_SKILL" -c gpg.ssh.allowedSignersFile="$PITCH_TMP/allowed_signers" verify-tag "$PITCH_TAG_REF"
+  git -C "$PITCH_SKILL" checkout --detach "$PITCH_TAG_REF"
   zsh "$PITCH_SKILL/scripts/setup.sh" --mode lite --no-mcp --selftest
 )
 ```

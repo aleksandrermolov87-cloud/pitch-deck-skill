@@ -22,16 +22,20 @@
   git -C "$PITCH_VERIFY/repo" fetch --quiet \
     https://github.com/aleksandrermolov87-cloud/pitch-deck-skill.git \
     'refs/tags/v*:refs/tags/v*'
-  git -C "$PITCH_VERIFY/repo" show v1.13.0:.github/release-signing-key.pub > "$PITCH_VERIFY/key.pub"
+  git -C "$PITCH_VERIFY/repo" show refs/tags/v1.13.0:.github/release-signing-key.pub > "$PITCH_VERIFY/key.pub"
   PITCH_FINGERPRINT=$(ssh-keygen -lf "$PITCH_VERIFY/key.pub" | awk '{print $2}')
   test "$PITCH_FINGERPRINT" = 'SHA256:GOJu1Mq/91ufd43Icikuj/NE4fLwiGqTEmMsOyL28VM'
   printf '280332880+aleksandrermolov87-cloud@users.noreply.github.com namespaces="git" %s\n' \
     "$(cat "$PITCH_VERIFY/key.pub")" > "$PITCH_VERIFY/allowed_signers"
-  git -C "$PITCH_VERIFY/repo" -c gpg.ssh.allowedSignersFile="$PITCH_VERIFY/allowed_signers" verify-tag v1.13.0
-  test "$(git -C "$PITCH_VERIFY/repo" show v1.13.0:VERSION)" = '1.13.0'
+  git -C "$PITCH_VERIFY/repo" -c gpg.ssh.allowedSignersFile="$PITCH_VERIFY/allowed_signers" verify-tag refs/tags/v1.13.0
+  test "$(git -C "$PITCH_VERIFY/repo" show refs/tags/v1.13.0:VERSION)" = '1.13.0'
 
   PITCH_ORIGIN=https://github.com/aleksandrermolov87-cloud/pitch-deck-skill.git
   if [ -d "$PITCH_SKILL/.git" ]; then
+    if git -C "$PITCH_SKILL" show-ref --verify --quiet refs/heads/v1.13.0; then
+      echo "Сначала сохраните или переименуйте локальную ветку v1.13.0. Обновление остановлено."
+      exit 1
+    fi
     PITCH_ORIGIN=$(git -C "$PITCH_SKILL" remote get-url origin)
   fi
   export GIT_CONFIG_COUNT=1

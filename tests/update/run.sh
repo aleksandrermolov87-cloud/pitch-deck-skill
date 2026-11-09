@@ -174,8 +174,10 @@ run zsh "$C/scripts/update.sh" v1.1.0
 check "git: просмотр — код 2" eval '[ $RC = 2 ] && has "подпись релиза проверена"'
 run zsh "$C/scripts/update.sh" --yes v1.3.0
 check "git: релиз без подписи — отказ" eval '[ $RC = 1 ] && [ "$(git -C "$C" describe --tags)" = v1.0.0 ]'
+git -C "$C" branch v1.1.0 refs/tags/v1.2.0
 run zsh "$C/scripts/update.sh" --yes v1.1.0
 check "git: переключение на v1.1.0" eval '[ $RC = 0 ] && [ "$(git -C "$C" describe --tags --exact-match)" = v1.1.0 ]'
+check "git: совпадающая ветка не подменяет проверенный тег" eval '[ "$(git -C "$C" rev-parse HEAD)" = "$(git -C "$C" rev-parse refs/tags/v1.1.0^{})" ] && ! git -C "$C" symbolic-ref -q HEAD'
 check "git: config.json и уроки побайтно те же" same_data "$C" "$T/ref3"
 check "git: резервных копий не создаётся" [ ! -e "${C:h}/.pitch-deck-skill.backups" ]
 run zsh "$C/scripts/update.sh" --rollback --yes
