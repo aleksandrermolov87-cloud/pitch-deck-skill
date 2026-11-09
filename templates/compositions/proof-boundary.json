@@ -1,0 +1,329 @@
+{
+  "pattern": "proof-boundary",
+  "canvas": [
+    1920,
+    1080
+  ],
+  "required_fields": [
+    "context",
+    "source_1_name",
+    "source_1_evidence",
+    "source_2_name",
+    "source_2_evidence",
+    "source_3_name",
+    "source_3_evidence",
+    "verification",
+    "claim",
+    "outcome_1_name",
+    "outcome_1_note",
+    "outcome_2_name",
+    "outcome_2_note"
+  ],
+  "texts": [
+    {
+      "field": "context",
+      "x": 80,
+      "y": 65,
+      "w": 1760,
+      "h": 103.2,
+      "font_size": 43,
+      "weight": 500,
+      "color": "ink"
+    },
+    {
+      "field": "claim",
+      "x": 80,
+      "y": 210,
+      "w": 1760,
+      "h": 108.0,
+      "font_size": 90,
+      "weight": 700,
+      "color": "ink"
+    },
+    {
+      "field": "source_1_name",
+      "x": 80,
+      "y": 430,
+      "w": 740,
+      "h": 48.0,
+      "font_size": 40,
+      "weight": 500,
+      "color": "ink"
+    },
+    {
+      "field": "source_1_evidence",
+      "x": 80,
+      "y": 497,
+      "w": 740,
+      "h": 36.0,
+      "font_size": 30,
+      "weight": 400,
+      "color": "secondary"
+    },
+    {
+      "field": "source_2_name",
+      "x": 80,
+      "y": 610,
+      "w": 740,
+      "h": 48.0,
+      "font_size": 40,
+      "weight": 500,
+      "color": "ink"
+    },
+    {
+      "field": "source_2_evidence",
+      "x": 80,
+      "y": 677,
+      "w": 740,
+      "h": 36.0,
+      "font_size": 30,
+      "weight": 400,
+      "color": "secondary"
+    },
+    {
+      "field": "source_3_name",
+      "x": 80,
+      "y": 790,
+      "w": 740,
+      "h": 48.0,
+      "font_size": 40,
+      "weight": 500,
+      "color": "ink"
+    },
+    {
+      "field": "source_3_evidence",
+      "x": 80,
+      "y": 857,
+      "w": 740,
+      "h": 36.0,
+      "font_size": 30,
+      "weight": 400,
+      "color": "secondary"
+    },
+    {
+      "field": "verification",
+      "x": 955,
+      "y": 605,
+      "w": 240,
+      "h": 72.0,
+      "font_size": 30,
+      "weight": 500,
+      "color": "paper"
+    },
+    {
+      "field": "outcome_1_name",
+      "x": 1360,
+      "y": 475,
+      "w": 480,
+      "h": 57.599999999999994,
+      "font_size": 48,
+      "weight": 500,
+      "color": "ink"
+    },
+    {
+      "field": "outcome_1_note",
+      "x": 1360,
+      "y": 560,
+      "w": 480,
+      "h": 38.4,
+      "font_size": 32,
+      "weight": 400,
+      "color": "secondary"
+    },
+    {
+      "field": "outcome_2_name",
+      "x": 1360,
+      "y": 765,
+      "w": 480,
+      "h": 48.0,
+      "font_size": 40,
+      "weight": 500,
+      "color": "ink"
+    },
+    {
+      "field": "outcome_2_note",
+      "x": 1360,
+      "y": 850,
+      "w": 480,
+      "h": 76.8,
+      "font_size": 32,
+      "weight": 400,
+      "color": "secondary"
+    }
+  ],
+  "rects": [
+    {
+      "x": 935.0,
+      "y": 535.0,
+      "w": 280.0,
+      "h": 230.0,
+      "fill": "ink",
+      "stroke_width": 0.0
+    }
+  ],
+  "edges": [
+    {
+      "points": [
+        [
+          825.0,
+          476.0
+        ],
+        [
+          885.0,
+          476.0
+        ]
+      ],
+      "width": 2.8,
+      "arrow": false,
+      "dashed": false
+    },
+    {
+      "points": [
+        [
+          825.0,
+          656.0
+        ],
+        [
+          885.0,
+          656.0
+        ]
+      ],
+      "width": 2.8,
+      "arrow": false,
+      "dashed": false
+    },
+    {
+      "points": [
+        [
+          825.0,
+          836.0
+        ],
+        [
+          885.0,
+          836.0
+        ]
+      ],
+      "width": 2.8,
+      "arrow": false,
+      "dashed": false
+    },
+    {
+      "points": [
+        [
+          885.0,
+          476.0
+        ],
+        [
+          885.0,
+          836.0
+        ]
+      ],
+      "width": 2.8,
+      "arrow": false,
+      "dashed": false
+    },
+    {
+      "points": [
+        [
+          885.0,
+          650.0
+        ],
+        [
+          935.0,
+          650.0
+        ]
+      ],
+      "width": 2.8,
+      "arrow": true,
+      "dashed": false
+    },
+    {
+      "points": [
+        [
+          1215.0,
+          650.0
+        ],
+        [
+          1260.0,
+          650.0
+        ]
+      ],
+      "width": 2.8,
+      "arrow": false,
+      "dashed": false
+    },
+    {
+      "points": [
+        [
+          1260.0,
+          510.0
+        ],
+        [
+          1260.0,
+          800.0
+        ]
+      ],
+      "width": 2.8,
+      "arrow": false,
+      "dashed": false
+    },
+    {
+      "points": [
+        [
+          1260.0,
+          510.0
+        ],
+        [
+          1330.0,
+          510.0
+        ]
+      ],
+      "width": 3.0,
+      "arrow": true,
+      "dashed": false
+    },
+    {
+      "points": [
+        [
+          1260.0,
+          800.0
+        ],
+        [
+          1330.0,
+          800.0
+        ]
+      ],
+      "width": 3.0,
+      "arrow": true,
+      "dashed": false
+    }
+  ],
+  "relations": [
+    [
+      "source_1",
+      "verification",
+      "checks"
+    ],
+    [
+      "source_2",
+      "verification",
+      "checks"
+    ],
+    [
+      "source_3",
+      "verification",
+      "checks"
+    ],
+    [
+      "verification",
+      "outcome_1",
+      "produces"
+    ],
+    [
+      "verification",
+      "outcome_2",
+      "produces"
+    ]
+  ],
+  "limits": "Validated composition seed at these field counts, not a universal layout. Measure actual fonts and real text; no automatic quality guarantee. Theme and font come from the project."
+}

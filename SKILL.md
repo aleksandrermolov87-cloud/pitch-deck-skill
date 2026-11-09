@@ -259,6 +259,7 @@ description: |
 
 - **Этап 0:** `reference/00-planning.md` (вопросы, состав плана, параллельность), `00b-references.md` (Figma, промпт оценщика), `14-reference-quality.md` (рубрика, лестница замен), `patterns/README.md`, `reference/brands/<brand>.md`.
 - **Этап 1:** `01-brief-and-copy.md`, `11-narrative-thread.md`, `15-brief-coverage.md` (требования).
+- **Коммерческая композиция:** `reference/25-commercial-composition.md` — роль страницы до компонента, видимый перенос деталей без потери охвата, исполнимые заготовки `scripts/composition_layout.py`. Читать при новой B2B-деке и структурном редизайне вводной, оценки, оффера.
 - **Выбор и дизайн-проход:** `reference/23-design-selection.md` — смысл связей, контракт выбора, critique → исправление → polish с Impeccable, честное сравнение версий. Читать до выбора схемы и при аудите дизайна.
 - **Этап 2:** `components/README.md` и `components/fields.json` (каталог и поля), `02-components-magic.md` (21st, MagicPatterns), `08-infographics.md`, `09-3d-objects.md`, `10-beyond-blocks.md`, `18-variants.md`, `19-schemes.md`, `patterns/roadmap-and-tables.md`.
 - **Этапы 3–5:** `03-pptx-build.md` (заготовка, факты, `nativeChart`, рендер), `04-grid-impeccable.md`, `05-taste-pass.md`.
