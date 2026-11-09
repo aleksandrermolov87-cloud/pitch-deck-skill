@@ -10,7 +10,7 @@
 # Установка из архива: релиз скачивается во временный git-клон, собирается в промежуточной папке вместе с вашими
 # файлами, там же проходят setup.sh и быстрая проверка; только после этого папки меняются местами.
 # Прежняя версия остаётся резервной копией в ../.<имя скилла>.backups/<время>-v<версия> (не папка-скилл, Claude её не грузит).
-# PDS_REMOTE — только для тестов (tests/update/run.sh): другой адрес репозитория для установки из архива.
+# PDS_REMOTE — другой источник для тестов или разовой миграции из заранее проверенного локального репозитория.
 set -e
 SKILL="${0:A:h:h}"
 cd "$SKILL"
@@ -72,7 +72,7 @@ fi
 if [ ! -d .git ]; then
   # ── установка из архива ──
   REMOTE=${PDS_REMOTE:-https://github.com/aleksandrermolov87-cloud/pitch-deck-skill.git}
-  [ -z "$PDS_REMOTE" ] || echo "ВНИМАНИЕ: источник релизов переопределён PDS_REMOTE=$PDS_REMOTE (только для тестов)"
+  [ -z "$PDS_REMOTE" ] || echo "ВНИМАНИЕ: источник релизов переопределён PDS_REMOTE=$PDS_REMOTE (явно заданный источник)"
   command -v git >/dev/null || { echo "Нужен git: xcode-select --install"; exit 1; }
   export GIT_TERMINAL_PROMPT=0
   CUR=$(ver "$SKILL")
