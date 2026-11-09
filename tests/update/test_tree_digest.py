@@ -44,6 +44,7 @@ class TreeDigestTests(unittest.TestCase):
         before = digest(self.root)
         directory = self.root / "empty"
         directory.mkdir()
+        directory.chmod(0o755)
         created = digest(self.root)
         self.assertNotEqual(before, created)
         directory.chmod(0o700)
