@@ -12,7 +12,7 @@ PAT=(
 [ -f "$SKILL/scripts/leaks.local.txt" ] && PAT+=(${(f)"$(grep -v '^#' "$SKILL/scripts/leaks.local.txt" | grep -v '^$')"})
 HITS=""
 for p in $PAT; do
-  h=$(grep -rnIE -e "$p" "$DIR" --exclude-dir=.git --exclude-dir=.venv --exclude-dir=node_modules --exclude-dir=.selftest --exclude-dir=.acceptance --exclude-dir=.build \
+  h=$(grep -rnIE -e "$p" "$DIR" --exclude-dir=.git --exclude=.git --exclude-dir=.venv --exclude-dir=node_modules --exclude-dir=.selftest --exclude-dir=.acceptance --exclude-dir=.build \
       --exclude-dir='.gallery*' --exclude=leaks.local.txt --exclude='*.local.md' --exclude=config.json \
       --exclude=ratings.jsonl --exclude-dir=gallery 2>/dev/null | grep -v "scripts/leakcheck.sh:")
   [ -n "$h" ] && HITS+="$h"$'\n'

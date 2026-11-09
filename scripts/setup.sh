@@ -84,6 +84,7 @@ node -e '
 const fs = require("fs"), f = process.argv[1], c = JSON.parse(fs.readFileSync(f, "utf8"));
 const mode = process.argv[2]; if (mode) { c.mode = mode; c.magic_mcp = mode === "full"; }
 if (process.argv[3] === "1") { c.magicpatterns = false; c.image_provider = "none"; }
+if (!c.quality_profile) c.quality_profile = "deep";
 if (!c.image_provider) c.image_provider = c.magicpatterns === false ? "none" : "auto";   // config.json до 1.8.0
 if (!(c.config_v >= 2)) { if (c.update_check_days == null || c.update_check_days === 7) c.update_check_days = 1; c.config_v = 2; }   // до 1.11.1 по умолчанию раз в неделю; переводим один раз, свой выбор потом не трогаем
 fs.writeFileSync(f, JSON.stringify(c, null, 2) + "\n");
@@ -128,7 +129,7 @@ if [ $SELFTEST = 1 ]; then
   # сборка в частной папке, затем подмена .selftest: параллельные самопроверки из разных сессий не мешают друг другу
   mkdir -p "$SKILL/.build"; ST=$(mktemp -d "$SKILL/.build/selftest.XXXXXX")
   # pipefail: ошибка проверки внутри «… | tail -1» валит самопроверку, а не теряется в конвейере
-  (setopt pipefail; cd "$ST" && zsh "$SKILL/scripts/new_deck.sh" src-demo "Демо" Демо '{"topic":"Страховая платформа в контуре банка (демо)","slides":6,"3d":true}' >/dev/null \
+  (setopt pipefail; cd "$ST" && zsh "$SKILL/scripts/new_deck.sh" src-demo "Демо" Демо '{"topic":"Страховая платформа в контуре банка (демо)","slides":6,"3d":false}' >/dev/null \
     && cd src-demo && ./render.sh >/dev/null \
     && "$SKILL/.venv/bin/python" -I "$SKILL/scripts/pptx_audit.py" ../Демо.pptx | tail -1 \
     && "$SKILL/.venv/bin/python" -I "$SKILL/scripts/facts_check.py" out/facts.json --root . --html out/deck.html | tail -1 \

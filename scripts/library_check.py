@@ -2,7 +2,7 @@
 # из components.js. Своя раскладка допустима только с причиной (slide → custom: '…'), и её не должно быть там,
 # где в библиотеке есть компонент того же архетипа.
 # Запуск: $SKILL/.venv/bin/python -I library_check.py <src-проекта> [--json report.json]
-# Читает out/slides.json (пишет build.js) и каталог $SKILL/components/README.md. Код 1 при любой ошибке.
+# Читает out/slides.json (пишет build.js), README.md и fields.json каталога components/. Код 1 при любой ошибке.
 import argparse
 import json
 import os
@@ -29,6 +29,9 @@ for line in open(os.path.join(SKILL, 'components', 'README.md'), encoding='utf-8
     if m:
         for comp in re.findall(r'`(\w+)`', m.group(1)):
             by_arch.setdefault(m.group(2), []).append(comp)
+# Машинный каталог включает nativeChart, чья строка README имеет несколько архетипов.
+with open(os.path.join(SKILL, 'components', 'fields.json'), encoding='utf-8') as f:
+    known = {name for name in json.load(f) if not name.startswith('_')}
 
 errors, warns, rows = [], [], []
 content = [s for s in slides if s.get('archetype') not in EXEMPT]
@@ -39,6 +42,11 @@ for s in slides:
         rows.append((n, arch, 'исключение', ''))
         continue
     if lib:
+        unknown = sorted(set(lib) - known)
+        if unknown:
+            errors.append(f'слайд {n}: неизвестные компоненты библиотеки: {", ".join(unknown)}. Проверьте имена в components/README.md')
+            rows.append((n, arch, '+'.join(lib), 'неизвестный компонент'))
+            continue
         rows.append((n, arch, '+'.join(lib), ''))
         continue
     if not why:
@@ -51,7 +59,7 @@ for s in slides:
     else:
         rows.append((n, arch, 'своя', why))
 
-covered = sum(1 for s in content if s.get('lib'))
+covered = sum(1 for s in content if s.get('lib') and set(s['lib']) <= known)
 share = covered / len(content) if content else 1.0
 for r in rows:
     print(f'  слайд {r[0]:>2} {r[1]:<22} {r[2]}' + (f' — {r[3]}' if r[3] else ''))
@@ -59,7 +67,7 @@ for w in warns:
     print('[WARN]', w)
 for e in errors:
     print('[ERR]', e)
-print(f'\nсодержательных слайдов {len(content)}, из библиотеки {covered} ({share:.0%}), своих с причиной {len(content) - covered - len(errors)}, без причины {len(errors)}')
+print(f'\nсодержательных слайдов {len(content)}, из библиотеки {covered} ({share:.0%}), своих с причиной {len(content) - covered - len(errors)}, с ошибками {len(errors)}')
 if a.json:
     json.dump({'slides': len(content), 'library': covered, 'share': share, 'errors': errors, 'warnings': warns}, open(a.json, 'w'), ensure_ascii=False, indent=1)
 sys.exit(1 if errors else 0)

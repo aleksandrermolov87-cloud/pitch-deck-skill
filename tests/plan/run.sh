@@ -2,6 +2,7 @@
 # Обязательные вопросы планировщика: new_deck.sh пишет ответы в deck.json → plan, plan_check.py проверяет их исполнение.
 #   zsh tests/plan/run.sh     код 1, если хоть одна проверка не прошла
 SKILL="${0:A:h:h:h}"; PY="$SKILL/.venv/bin/python"
+"$PY" -I "$SKILL/tests/plan/test_provider_gate.py" || exit 1
 T=$(mktemp -d "${TMPDIR:-/tmp}/pds-plan.XXXXXX"); trap 'rm -rf "$T"' EXIT
 fail=0
 ok()  { print -P "  %F{green}✓%f $1"; }

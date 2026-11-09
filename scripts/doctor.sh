@@ -43,7 +43,7 @@ font_ok "$BRAND_FONT" && ok "$BRAND_FONT" || warn "$BRAND_FONT не устано
 
 echo "Режим (config.json):"
 if [ -f "$SKILL/config.json" ]; then
-  node -e 'const c=JSON.parse(require("fs").readFileSync(process.argv[1],"utf8"));console.log("  режим: "+c.mode+" | 21st Magic MCP: "+(c.magic_mcp?"да":"нет")+" | Magic Patterns 3D: "+(c.magicpatterns?"да":"нет")+" | Figma: "+c.figma+" | бренд: "+c.brand)' "$SKILL/config.json"
+  node -e 'const c=JSON.parse(require("fs").readFileSync(process.argv[1],"utf8"));console.log("  профиль качества: "+(c.quality_profile||"deep")+" | режим: "+c.mode+" | 21st Magic MCP: "+(c.magic_mcp?"да":"нет")+" | Magic Patterns 3D: "+(c.magicpatterns?"да":"нет")+" | Figma: "+c.figma+" | бренд: "+c.brand)' "$SKILL/config.json"
 else
   fail "нет config.json: zsh $SKILL/scripts/setup.sh --mode full|lite"
 fi

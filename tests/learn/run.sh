@@ -15,6 +15,8 @@ ok()  { print -P "  %F{green}✓%f $1"; }
 bad() { print -P "  %F{red}✗%f $1"; fail=1; }
 REAL=$(cat "$SKILL/learnings/ratings.jsonl" 2>/dev/null | shasum | cut -d' ' -f1)
 
+"$PY" -I "$SKILL/tests/learn/unseen_picks.py"
+
 echo "› оценки и выборы → prefs.json и LESSONS.md"
 export PITCH_LEARN_DIR="$OUT/L"; mkdir -p L
 "$PY" -I - L <<'PY'
@@ -175,16 +177,15 @@ PY
 echo "› pick → learnings/picks.jsonl → prefs.json"
 mkdir -p K; RUN=$(basename "$(dirname "$(ls -t src/out/variants/*/suggest.json | head -1)")")
 PITCH_LEARN_DIR="$OUT/K" "$PY" -I "$SKILL/scripts/variants.py" pick src --run "$RUN" --slide 3 --variant B --why тест > pick.txt
-"$PY" -I - K "src/out/variants/$RUN/suggest.json" <<'PY' && ok "критерий 5: выбор в picks.jsonl, выбранный и отказы в prefs.json" || bad "критерий 5"
+"$PY" -I - K "src/out/variants/$RUN/suggest.json" <<'PY' && ok "критерий 5: выбор без demo учит только выбранному" || bad "критерий 5"
 import json, sys
 p = [json.loads(l) for l in open(f'{sys.argv[1]}/picks.jsonl')]
 s = next(x for x in json.load(open(sys.argv[2]))['slides'] if x['n'] == 3)
 B = next(t['component'] for t in s['candidates'] if t['id'] == 'B')
-shown = [t['component'] for t in s['candidates']]
 P = json.load(open(f'{sys.argv[1]}/prefs.json'))['components']
-ok = len(p) == 1 and p[0]['chosen'] == B and p[0]['shown'] == shown and p[0]['slide'] == 3 and p[0]['deck'] and p[0]['date'] \
-     and P[B]['picks'] == 1 and all(P[c]['rejects'] == 1 for c in shown if c != B)
-print(f'    выбран {B} из {", ".join(shown)}; prefs: ' + ', '.join(f'{c} {P[c]["mean"]}' for c in shown))
+ok = len(p) == 1 and p[0]['chosen'] == B and p[0]['shown'] == [] and p[0]['demo'] is False and p[0]['slide'] == 3 and p[0]['deck'] and p[0]['date'] \
+     and P[B]['picks'] == 1 and set(P) == {B}
+print(f'    выбран {B} без demo; prefs: {P}')
 sys.exit(0 if ok else 1)
 PY
 

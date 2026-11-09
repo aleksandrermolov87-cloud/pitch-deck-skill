@@ -1028,7 +1028,8 @@ def cmd_pick(a):
     if not t:
         sys.exit(f'слайд {a.slide}: нет варианта «{a.variant}»; есть ' + ', '.join(f'{x["id"]}={x["component"]}' for x in s['candidates']))
     demo = os.path.join(rdir, 'demo.json')
-    seen = json.load(open(demo, encoding='utf-8')).get('slides', {}).get(str(a.slide), {}).get(t['id']) if os.path.isfile(demo) else None
+    shown = json.load(open(demo, encoding='utf-8')).get('slides', {}).get(str(a.slide), {}) if os.path.isfile(demo) else {}
+    seen = shown.get(t['id'])
     snip = (f'// слайд {a.slide}: вариант {t["id"]} — {t["component"]} (variants.py, прогон {rid})\n'
             f'K.{t["component"]}(body, {json.dumps(t["data"], ensure_ascii=False)}, {json.dumps(t["opt"], ensure_ascii=False)})\n')
     sp = os.path.join(rdir, f'pick-s{a.slide}.js')
@@ -1050,7 +1051,7 @@ def cmd_pick(a):
     os.makedirs(LEARN, exist_ok=True)
     with open(os.path.join(LEARN, 'picks.jsonl'), 'a', encoding='utf-8') as f:
         f.write(json.dumps({'date': dt.date.today().isoformat(), 'deck': deck, 'src': src, 'run': rid, 'slide': a.slide,
-                            'chosen': t['component'], 'variant': t['id'], 'shown': [x['component'] for x in s['candidates']],
+                            'chosen': t['component'], 'variant': t['id'], 'shown': [x['component'] for x in shown.values()],
                             'demo': bool(seen), 'skill': skill_version()}, ensure_ascii=False) + '\n')
     r = subprocess.run([sys.executable, '-I', os.path.join(SKILL, 'scripts', 'learn.py'), 'digest'], capture_output=True, text=True)
     if r.returncode:
