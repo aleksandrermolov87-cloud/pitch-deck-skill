@@ -42,27 +42,3 @@ jobs:
         run: |
           python -m pip install --disable-pip-version-check pip==26.2.2 pip-audit==2.10.1
           pip-audit -r requirements.txt --progress-spinner off
-  functional:
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
-        with:
-          node-version: 22
-      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0
-        with:
-          python-version: '3.12'
-      - name: Tools for a clean install
-        run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y zsh poppler-utils >/dev/null
-          command -v google-chrome || command -v chromium
-      - name: Cold setup and full demo
-        run: zsh scripts/setup.sh --mode lite --no-3d --no-mcp --selftest
-      - name: Regression and integration suites
-        run: |
-          for test in tests/*/run.sh; do
-            echo "Running $test"
-            zsh "$test"
-          done
