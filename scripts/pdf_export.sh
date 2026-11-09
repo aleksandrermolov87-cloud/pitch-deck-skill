@@ -23,6 +23,11 @@ fi
 SKILL=$(cd "$(dirname "$0")/.." && pwd)
 CHROME=$(zsh "$SKILL/scripts/chrome.sh") || die 'Chrome/Chromium not found'
 INPUT=$(cd "$(dirname "$INPUT")" && pwd -P)/$(basename "$INPUT")
+PDF_PYTHON="$SKILL/.venv/bin/python"
+if [ ! -x "$PDF_PYTHON" ]; then
+  PDF_PYTHON=$(zsh "$SKILL/scripts/python.sh") || die 'Python 3.11+ not found'
+fi
+INPUT_URL=$("$PDF_PYTHON" -I -c 'from pathlib import Path; import sys; print(Path(sys.argv[1]).as_uri())' "$INPUT")
 mkdir -p "$(dirname "$OUTPUT")"
 OUTPUT=$(cd "$(dirname "$OUTPUT")" && pwd -P)/$(basename "$OUTPUT")
 [ "$INPUT" != "$OUTPUT" ] || die 'input and output must differ'
@@ -32,7 +37,7 @@ trap 'rm -rf "$TASK_TMP"' EXIT
 if ! "$CHROME" --headless --disable-gpu --no-first-run --no-default-browser-check \
   --user-data-dir="$TASK_TMP/profile" --no-pdf-header-footer \
   --print-to-pdf="$TASK_TMP/export.pdf" --timeout=30000 --virtual-time-budget=1500 \
-  "file://$INPUT" >"$TASK_TMP/chrome.log" 2>&1; then
+  "$INPUT_URL" >"$TASK_TMP/chrome.log" 2>&1; then
   cat "$TASK_TMP/chrome.log" >&2
   die 'Chrome export failed'
 fi

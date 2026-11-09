@@ -28,6 +28,15 @@ assert r['fonts'] and r['limits']['visual_review']=='not_performed',r
 assert all(pathlib.Path(p).is_file() for p in r['renders'])
 PY
 echo 'PASS: CSS size, two pages, text, fonts, all-page PNG, spaces, no headers'
+for NAME in 'hash#final' 'query?final' 'percent%20final' 'русский файл'; do
+  mkdir "$TASK_TMP/$NAME"
+  cp "$HTML" "$TASK_TMP/$NAME/$NAME.html"
+  bash "$SKILL/scripts/pdf_export.sh" "$TASK_TMP/$NAME/$NAME.html" "$TASK_TMP/$NAME.pdf" >/dev/null
+  pdftotext "$TASK_TMP/$NAME.pdf" "$TASK_TMP/escaped-path.txt"
+  grep -q PAGE_ONE "$TASK_TMP/escaped-path.txt" || fail "wrong document for path: $NAME"
+  grep -q PAGE_TWO "$TASK_TMP/escaped-path.txt" || fail "incomplete document for path: $NAME"
+done
+echo 'PASS: escaped file URLs preserve #, ?, literal %20, Unicode and spaces'
 printf 'foreign file' > "$TASK_TMP/foreign.pdf"
 if bash "$SKILL/scripts/pdf_export.sh" "$HTML" "$TASK_TMP/foreign.pdf" >/dev/null 2>&1; then fail 'overwrote foreign PDF'; fi
 test "$(cat "$TASK_TMP/foreign.pdf")" = 'foreign file' || fail 'changed refused output'
