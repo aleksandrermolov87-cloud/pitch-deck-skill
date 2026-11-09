@@ -19,7 +19,10 @@ description: |
 **воротами**, то есть проверкой, без которой следующий этап не начинается. Ворота пропускаются, только если пользователь
 сам сказал их пропустить, и это записывается в отчёт.
 
-Папка скилла дальше `$SKILL`: `~/.claude/skills/pitch-deck-skill` в Claude Code, `~/.codex/skills/pitch-deck-skill` в Codex.
+Папка скилла дальше `$SKILL`: абсолютная папка, из которой прочитан этот `SKILL.md`.
+Используй именно её для всех команд и относительных ссылок. Обычные пути: `~/.claude/skills/pitch-deck-skill` в Claude Code,
+`~/.agents/skills/pitch-deck-skill` в Codex; прежние установки Codex могут находиться в `~/.codex/skills/pitch-deck-skill`.
+Не создавай вторую копию и не подставляй стандартный путь вместо фактического.
 Справочники лежат в `reference/`, библиотека компонентов в `components/` (код в `templates/deck-starter/components.js` и `kit/`),
 паттерны дек в `patterns/`, заготовка проекта в `templates/deck-starter/`, скрипты в `scripts/`. Python-скрипты запускаются
 только так: `$SKILL/.venv/bin/python -I $SKILL/scripts/<скрипт>.py`. Системный `python3` на macOS (3.9) не подходит.

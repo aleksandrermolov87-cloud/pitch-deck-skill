@@ -37,3 +37,23 @@ with tempfile.TemporaryDirectory(prefix='pitch bootstrap ') as directory:
         assert run(['git','rev-parse','HEAD'],target).stdout.strip()==expected
         marker.unlink()
         print('PASS:',client,'installs only verified tag despite same-named unsigned branch')
+
+    # An untrusted key file must not add a second allowed_signers principal.
+    attacker=base/'attacker'
+    run(['ssh-keygen','-q','-t','ed25519','-N','','-f',str(attacker)])
+    injected=Path(str(key)+'.pub').read_text().strip()+'\n* namespaces="git" '+Path(str(attacker)+'.pub').read_text()
+    (repo/'.github/release-signing-key.pub').write_text(injected)
+    run(['git','add','-A'],repo);run(['git','commit','-qm','Injected signer'],repo)
+    run(['git','-c','user.signingkey='+str(attacker),'tag','-s','v9.9.8','-m','Attacker fixture'],repo)
+    curl.write_text('#!/bin/sh\nprintf \'{"tag_name":"v9.9.8"}\\n\'\n')
+    for client in ['codex','claude-code']:
+        text=(ROOT/'docs'/('install-'+client+'.md')).read_text()
+        script=re.search(r'```bash\n(.*?)\n```',text,re.S).group(1)
+        target=base/(client+'-injected')/'skill'
+        script=re.sub(r'^  PITCH_SKILL=.*$','  PITCH_SKILL='+shlex.quote(str(target)),script,count=1,flags=re.M)
+        script=script.replace('https://github.com/aleksandrermolov87-cloud/pitch-deck-skill.git',shlex.quote(str(repo)))
+        script=script.replace('SHA256:GOJu1Mq/91ufd43Icikuj/NE4fLwiGqTEmMsOyL28VM',fingerprint)
+        result=subprocess.run(['/bin/bash','-c',script],capture_output=True,text=True,env=env)
+        assert result.returncode!=0,'Tag signed by an injected signer was accepted'
+        assert not marker.exists(),'Setup executed before signer rejection'
+        print('PASS:',client,'rejects an injected allowed_signers row')

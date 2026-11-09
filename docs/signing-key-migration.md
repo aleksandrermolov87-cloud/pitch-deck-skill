@@ -22,7 +22,8 @@
   git -C "$PITCH_VERIFY/repo" fetch --quiet \
     https://github.com/aleksandrermolov87-cloud/pitch-deck-skill.git \
     'refs/tags/v*:refs/tags/v*'
-  git -C "$PITCH_VERIFY/repo" show refs/tags/v1.13.0:.github/release-signing-key.pub > "$PITCH_VERIFY/key.pub"
+  git -C "$PITCH_VERIFY/repo" show refs/tags/v1.13.0:.github/release-signing-key.pub > "$PITCH_VERIFY/key.raw"
+  awk 'NR == 1 {print $1, $2}' "$PITCH_VERIFY/key.raw" > "$PITCH_VERIFY/key.pub"
   PITCH_FINGERPRINT=$(ssh-keygen -lf "$PITCH_VERIFY/key.pub" | awk '{print $2}')
   test "$PITCH_FINGERPRINT" = 'SHA256:GOJu1Mq/91ufd43Icikuj/NE4fLwiGqTEmMsOyL28VM'
   printf '280332880+aleksandrermolov87-cloud@users.noreply.github.com namespaces="git" %s\n' \
