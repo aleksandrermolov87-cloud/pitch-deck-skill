@@ -195,7 +195,7 @@ zsh ~/.claude/skills/pitch-deck-skill/scripts/update.sh --rollback --yes  # ве
   trap 'rm -rf "$PITCH_VERIFY"' EXIT
 
   git init --quiet "$PITCH_VERIFY/repo"
-  git -C "$PITCH_VERIFY/repo" fetch --quiet --depth=1 \
+  git -C "$PITCH_VERIFY/repo" fetch --quiet \
     https://github.com/aleksandrermolov87-cloud/pitch-deck-skill.git \
     'refs/tags/v*:refs/tags/v*'
   git -C "$PITCH_VERIFY/repo" show v1.13.0:.github/release-signing-key.pub > "$PITCH_VERIFY/key.pub"
