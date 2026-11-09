@@ -94,7 +94,7 @@ if [ ! -d .git ]; then
   echo "Сейчас: $CUR (установка без git) → релиз: $NEW"
   SIGNERS="$TMP/allowed_signers"
   cp "$SKILL/.github/allowed_signers" "$SIGNERS" 2>/dev/null || : > "$SIGNERS"
-  if [ -s "$SIGNERS" ] && gq -c gpg.ssh.allowedSignersFile="$SIGNERS" verify-tag "$NEW" >/dev/null 2>&1; then
+  if [ -s "$SIGNERS" ] && gq -c gpg.ssh.allowedSignersFile="$SIGNERS" verify-tag "refs/tags/$NEW" >/dev/null 2>&1; then
     echo "подпись релиза проверена ключом автора"
   elif [ $UNSIGNED = 1 ]; then
     echo "ВНИМАНИЕ: подпись не проверена, обновление по --allow-unsigned"
@@ -187,7 +187,7 @@ if [ "$CUR" = "$NEW" ]; then echo "уже стоит последний рели
 echo "Сейчас: $CUR → релиз: $NEW"
 SIGNERS=$(mktemp); trap 'rm -f "$SIGNERS"' EXIT
 cp "$SKILL/.github/allowed_signers" "$SIGNERS" 2>/dev/null || : > "$SIGNERS"
-if [ -s "$SIGNERS" ] && git -c gpg.ssh.allowedSignersFile="$SIGNERS" verify-tag "$NEW" >/dev/null 2>&1; then
+if [ -s "$SIGNERS" ] && git -c gpg.ssh.allowedSignersFile="$SIGNERS" verify-tag "refs/tags/$NEW" >/dev/null 2>&1; then
   echo "подпись релиза проверена ключом автора"
 elif [ $UNSIGNED = 1 ]; then
   echo "ВНИМАНИЕ: подпись не проверена, обновление по --allow-unsigned"
@@ -197,13 +197,13 @@ else
   exit 1
 fi
 echo "\nЧто нового (CHANGELOG.md):"
-git show "$NEW:CHANGELOG.md" | awk '/^## /{n++} n==1' | head -40
+git show "refs/tags/$NEW:CHANGELOG.md" | awk '/^## /{n++} n==1' | head -40
 echo "\nИзменения в исполняемых частях и инструкциях агента:"
-git diff --stat "HEAD" "$NEW" -- scripts templates SKILL.md reference components requirements.txt package.json package-lock.json | tail -25
+git diff --stat "HEAD" "refs/tags/$NEW" -- scripts templates SKILL.md reference components requirements.txt package.json package-lock.json | tail -25
 if [ $YES = 0 ]; then
   echo "\nПроверьте изменения (git diff HEAD $NEW -- scripts templates SKILL.md) и запустите: zsh $SKILL/scripts/update.sh --yes $NEW"
   exit 2
 fi
-git -c advice.detachedHead=false checkout --quiet "$NEW"
+git -c advice.detachedHead=false checkout --detach --quiet "refs/tags/$NEW"
 zsh "$SKILL/scripts/setup.sh"
 echo "обновлено до $NEW. Откройте новую сессию Claude Code, чтобы скилл перечитался"
