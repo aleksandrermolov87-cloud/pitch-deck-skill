@@ -58,4 +58,4 @@ cat > "$DIR/README.md" <<EOF
 Быстрая правка подложки: \`bg_edit.py show . --slide N\`, затем \`bg_edit.py apply . --slide N --do stripes-softer,glow-off\`
 (пересоберёт подложку и слайд, «было → стало» в out/review/).
 EOF
-echo "ok: $DIR (6 готовых слайдов собраны; адаптируйте подходящие функции slides.js по SLIDE-CATALOG.md, замените демоданные и requirements.json)"
+echo "ok: $DIR (стартовая дека собрана; выбирайте готовые слайды из всей галереи по SLIDE-CATALOG.md, замените демоданные и requirements.json)"
