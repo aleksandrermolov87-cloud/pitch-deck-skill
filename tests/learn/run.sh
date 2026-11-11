@@ -16,6 +16,7 @@ bad() { print -P "  %F{red}✗%f $1"; fail=1; }
 REAL=$(cat "$SKILL/learnings/ratings.jsonl" 2>/dev/null | shasum | cut -d' ' -f1)
 
 "$PY" -I "$SKILL/tests/learn/unseen_picks.py"
+"$PY" -I "$SKILL/tests/learn/preference_provenance.py"
 
 echo "› оценки и выборы → prefs.json и LESSONS.md"
 export PITCH_LEARN_DIR="$OUT/L"; mkdir -p L
@@ -33,9 +34,9 @@ for i in range(3):    # 3 плохих из 3 по тексту — правил
     r('arch-b', 'bad', ['kpiList'], ['текст'])
 r('arch-c', 'bad', [], ['данные'])   # 1 из 1 — не правило; без lib — только архетип
 open(f'{L}/ratings.jsonl', 'w').write(''.join(json.dumps(x, ensure_ascii=False) + '\n' for x in R))
-P = [{'src': '/d', 'run': 'r1', 'slide': 4, 'chosen': 'barsTrend', 'shown': ['barsTrend', 'lineChart', 'kpiHero']},
-     {'src': '/d', 'run': 'r1', 'slide': 4, 'chosen': 'lineChart', 'shown': ['barsTrend', 'lineChart', 'kpiHero']},   # передумал: верен этот
-     {'src': '/d', 'run': 'r1', 'slide': 5, 'chosen': 'barsTrend', 'shown': ['barsTrend', 'lineChart']}]
+P = [{'src': '/d', 'run': 'r1', 'slide': 4, 'chosen': 'barsTrend', 'shown': ['barsTrend', 'lineChart', 'kpiHero'], 'choice_source': 'user', 'shown_to_user': True},
+     {'src': '/d', 'run': 'r1', 'slide': 4, 'chosen': 'lineChart', 'shown': ['barsTrend', 'lineChart', 'kpiHero'], 'choice_source': 'user', 'shown_to_user': True},   # передумал: верен этот
+     {'src': '/d', 'run': 'r1', 'slide': 5, 'chosen': 'barsTrend', 'shown': ['barsTrend', 'lineChart'], 'choice_source': 'user', 'shown_to_user': True}]
 open(f'{L}/picks.jsonl', 'w').write(''.join(json.dumps(x) + '\n' for x in P))
 PY
 H=$(shasum L/ratings.jsonl | cut -d' ' -f1)
@@ -140,8 +141,8 @@ rec = json.loads(txt[txt.index('{'):txt.rindex('\n}') + 2])
 s = next(x for x in rec['slides'] if len(x.get('candidates', [])) >= 2)
 c = s['candidates'][-1]['component']
 os.makedirs('O', exist_ok=True); os.makedirs('P', exist_ok=True)
-json.dump({'components': {'нет-такого': {'n': 30, 'mean': 0.95}}}, open('O/prefs.json', 'w'))
-json.dump({'components': {c: {'n': 20, 'mean': 0.95}}}, open('P/prefs.json', 'w'))
+json.dump({'provenance_version': 1, 'components': {'нет-такого': {'n': 30, 'mean': 0.95}}}, open('O/prefs.json', 'w'))
+json.dump({'provenance_version': 1, 'components': {c: {'n': 20, 'mean': 0.95}}}, open('P/prefs.json', 'w'))
 open('boost.txt', 'w').write(f'{s["n"]} {c}')
 PY
 PITCH_LEARN_DIR="$OUT/O" "$PY" -I "$SKILL/scripts/variants.py" suggest src --content "$CONTENT" --json > s1.json
@@ -176,7 +177,7 @@ PY
 
 echo "› pick → learnings/picks.jsonl → prefs.json"
 mkdir -p K; RUN=$(basename "$(dirname "$(ls -t src/out/variants/*/suggest.json | head -1)")")
-PITCH_LEARN_DIR="$OUT/K" "$PY" -I "$SKILL/scripts/variants.py" pick src --run "$RUN" --slide 3 --variant B --why тест > pick.txt
+PITCH_LEARN_DIR="$OUT/K" "$PY" -I "$SKILL/scripts/variants.py" pick src --run "$RUN" --slide 3 --variant B --why тест --choice-source user > pick.txt
 "$PY" -I - K "src/out/variants/$RUN/suggest.json" <<'PY' && ok "критерий 5: выбор без demo учит только выбранному" || bad "критерий 5"
 import json, sys
 p = [json.loads(l) for l in open(f'{sys.argv[1]}/picks.jsonl')]

@@ -57,7 +57,7 @@ sys.exit(1 if any(x['error'] for x in v) else 0)
 PY
 
 echo "› выбор и повтор"
-"$PY" -I "$SKILL/scripts/variants.py" pick src --run "$RUN" --slide 3 --variant B --why "тест" > pick.txt
+"$PY" -I "$SKILL/scripts/variants.py" pick src --run "$RUN" --slide 3 --variant B --why "тест" --choice-source user --shown-to-user > pick.txt
 grep -q '"3"' src/data/variants.json && ok "критерий 4: выбор в data/variants.json" || bad "критерий 4: выбора нет"
 "$PY" -I - "$D/demo.json" "$PITCH_LEARN_DIR" <<'PY' && ok "показанные альтернативы дают мягкий отказ" || bad "обучение по показанным альтернативам"
 import json, sys

@@ -29,7 +29,7 @@ class UnseenPicks(unittest.TestCase):
             env = {**os.environ, 'PITCH_LEARN_DIR': str(learn)}
             result = subprocess.run(
                 [sys.executable, '-I', str(SKILL / 'scripts/variants.py'), 'pick', str(src),
-                 '--run', 'r1', '--slide', '1', '--variant', 'A'],
+                 '--run', 'r1', '--slide', '1', '--variant', 'A', '--choice-source', 'user'],
                 env=env, capture_output=True, text=True,
             )
             self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
@@ -53,7 +53,7 @@ class UnseenPicks(unittest.TestCase):
             )
             self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
             prefs = json.loads((root / 'prefs.json').read_text())['components']
-            self.assertEqual(prefs['comparison']['picks'], 1)
+            self.assertNotIn('comparison', prefs)
             self.assertNotIn('heatmap', prefs)
 
 

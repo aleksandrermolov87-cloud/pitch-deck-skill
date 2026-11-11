@@ -8,7 +8,7 @@
 # Содержание слайдов снимается со slides.js (вызовы K.* без сборки PPTX) или берётся из --content (этап 0, slides.js ещё нет).
 # Каждый suggest — новый прогон out/variants/<id>/ с замороженным содержанием; demo по готовому прогону пишет новый прогон
 # и прошлые не трогает. Выдуманных полей нет: чего нет в данных, то «не заполнено» или причина исключения.
-# Ранжирование учитывает оценки и выборы пользователя (learnings/prefs.json, learn.py digest); pick пишет выбор в learnings/picks.jsonl.
+# Ранжирование учитывает оценки и подтверждённые выборы пользователя (learnings/prefs.json); pick по умолчанию остаётся в проекте.
 # Запуск: $SKILL/.venv/bin/python -I variants.py …   Код 1 — ошибка входа, сборки или check.
 import argparse
 import datetime as dt
@@ -30,7 +30,9 @@ W_PREF = 1.5   # вес выученной поправки: при уверен
 
 def load_prefs():
     try:
-        return json.load(open(os.path.join(LEARN, 'prefs.json'), encoding='utf-8')).get('components') or {}
+        data = json.load(open(os.path.join(LEARN, 'prefs.json'), encoding='utf-8'))
+        # Кэш старого формата мог смешивать решения агента и пользователя.
+        return (data.get('components') or {}) if data.get('provenance_version') == 1 else {}
     except (OSError, ValueError):
         return {}
 
@@ -1030,6 +1032,8 @@ def cmd_pick(a):
     demo = os.path.join(rdir, 'demo.json')
     shown = json.load(open(demo, encoding='utf-8')).get('slides', {}).get(str(a.slide), {}) if os.path.isfile(demo) else {}
     seen = shown.get(t['id'])
+    if a.shown_to_user and (a.choice_source != 'user' or not seen):
+        sys.exit('--shown-to-user требует --choice-source user и готовый demo с выбранным вариантом')
     snip = (f'// слайд {a.slide}: вариант {t["id"]} — {t["component"]} (variants.py, прогон {rid})\n'
             f'K.{t["component"]}(body, {json.dumps(t["data"], ensure_ascii=False)}, {json.dumps(t["opt"], ensure_ascii=False)})\n')
     sp = os.path.join(rdir, f'pick-s{a.slide}.js')
@@ -1040,22 +1044,26 @@ def cmd_pick(a):
     V = json.load(open(vp, encoding='utf-8')) if os.path.isfile(vp) else {'version': 1, 'picks': {}}
     V['picks'][str(a.slide)] = {'component': t['component'], 'variant': t['id'], 'status': t['status'], 'run': rid,
                                 'content_sha': s['content_sha'], 'data_sha': sha(t['data']), 'shown': seen['state'] if seen else 'не показан',
-                                'snippet': os.path.relpath(sp, src), 'at': dt.datetime.now().isoformat(timespec='seconds'), 'why': a.why or ''}
+                                'snippet': os.path.relpath(sp, src), 'at': dt.datetime.now().isoformat(timespec='seconds'), 'why': a.why or '',
+                                'choice_source': a.choice_source}
     json.dump(V, open(vp, 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
     open(vp, 'a', encoding='utf-8').write('\n')
-    # выбор — в обучение: выбранный +1, показанные рядом и не выбранные — мягкий отказ (learn.py digest → prefs.json)
-    try:
-        deck = json.load(open(os.path.join(src, 'deck.json'), encoding='utf-8')).get('name') or os.path.basename(src)
-    except (OSError, ValueError):
-        deck = os.path.basename(src)
-    os.makedirs(LEARN, exist_ok=True)
-    with open(os.path.join(LEARN, 'picks.jsonl'), 'a', encoding='utf-8') as f:
-        f.write(json.dumps({'date': dt.date.today().isoformat(), 'deck': deck, 'src': src, 'run': rid, 'slide': a.slide,
-                            'chosen': t['component'], 'variant': t['id'], 'shown': [x['component'] for x in shown.values()],
-                            'demo': bool(seen), 'skill': skill_version()}, ensure_ascii=False) + '\n')
-    r = subprocess.run([sys.executable, '-I', os.path.join(SKILL, 'scripts', 'learn.py'), 'digest'], capture_output=True, text=True)
-    if r.returncode:
-        print(f'[WARN] learn.py digest: {(r.stderr or r.stdout).strip()[-300:]}')
+    # Только подтверждённый пользователем выбор попадает в предпочтения.
+    if a.choice_source == 'user':
+        try:
+            deck = json.load(open(os.path.join(src, 'deck.json'), encoding='utf-8')).get('name') or os.path.basename(src)
+        except (OSError, ValueError):
+            deck = os.path.basename(src)
+        os.makedirs(LEARN, exist_ok=True)
+        with open(os.path.join(LEARN, 'picks.jsonl'), 'a', encoding='utf-8') as f:
+            f.write(json.dumps({'date': dt.date.today().isoformat(), 'deck': deck, 'src': src, 'run': rid, 'slide': a.slide,
+                                'chosen': t['component'], 'variant': t['id'],
+                                'shown': [x['component'] for x in shown.values()] if a.shown_to_user else [],
+                                'demo': bool(seen), 'choice_source': 'user', 'shown_to_user': a.shown_to_user,
+                                'skill': skill_version()}, ensure_ascii=False) + '\n')
+        r = subprocess.run([sys.executable, '-I', os.path.join(SKILL, 'scripts', 'learn.py'), 'digest'], capture_output=True, text=True)
+        if r.returncode:
+            print(f'[WARN] learn.py digest: {(r.stderr or r.stdout).strip()[-300:]}')
     print(snip.rstrip())
     print(f'\nвыбор записан: {os.path.relpath(vp, src)} → слайд {a.slide} = {t["component"]} ({t["status"]}); вызов: {os.path.relpath(sp, src)}'
           + ('' if seen else '\n[WARN] вариант не показан в demo: посмотрите превью перед заменой'))
@@ -1123,6 +1131,8 @@ ap.add_argument('--all', action='store_true', help='demo: и слайды с о�
 ap.add_argument('--slide', type=int)
 ap.add_argument('--variant')
 ap.add_argument('--why')
+ap.add_argument('--choice-source', choices=['agent', 'user'], default='agent', help='user — только при явном выборе пользователя')
+ap.add_argument('--shown-to-user', action='store_true', help='user: все варианты demo действительно показаны пользователю')
 ap.add_argument('--json', action='store_true')
 a = ap.parse_args()
 if a.cmd != 'check' and not a.src:

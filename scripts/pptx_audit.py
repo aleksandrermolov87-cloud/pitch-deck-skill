@@ -213,7 +213,7 @@ for n, slide in enumerate(prs.slides, 1):
             add('WARN', n, f'стена текста: {words} слов в теле текстового слайда (не больше {TEXT_WORDS_MAX}): сократите или разнесите на два слайда')
     elif body and not slide._element.get('show') == '0':
         if images_n == 0 and graphics < 2 and containers == 0:
-            add('ERR', n, 'простой слайд: только текст, нет инфографики, 3D-объекта или экрана (бан простых слайдов)')
+            add('WARN', n, 'простой слайд: только текст; проверьте, подходит ли такая форма содержанию и брифу')
         # Запрет блоковых слайдов (правило пользователя 27.10.2026, reference/10-beyond-blocks.md): ряд или сетка одинаковых
         # карточек с текстом без связей между ними — типичный блоковый слайд; 4+ контейнера — блочная раскладка. Схемы связей
         # библиотеки (архетип scheme-*) — исключение: их узлы соединены линиями.
@@ -226,14 +226,13 @@ for n, slide in enumerate(prs.slides, 1):
         if ARCH.get(n, '').startswith('scheme-'):
             graphics += 2          # схема связей (reference/19-schemes.md): узлы-карточки соединены линиями, это не блочная раскладка
         elif aligned:
-            add('ERR', n, f'блоковый слайд: {len(same)} одинаковых карточки с текстом рядом или сеткой. Запрещено: замените схемой '
-                          f'(viz_suggest.py deck), инфографикой или раскладкой без контейнеров (reference/10-beyond-blocks.md)')
+            add('WARN', n, f'блоковый слайд: {len(same)} одинаковых карточки с текстом рядом или сеткой. Проверьте иерархию и уместность (reference/10-beyond-blocks.md)')
         elif containers > 3:
-            add('ERR', n, f'блочная раскладка: {containers} контейнеров с текстом. Замените часть сеткой, линиями и воздухом (reference/10-beyond-blocks.md)')
+            add('WARN', n, f'блочная раскладка: {containers} контейнеров с текстом. Проверьте иерархию и уместность (reference/10-beyond-blocks.md)')
         if images_n == 0 and graphics < 2 and containers == 0:
             pass
         elif images_n == 0 and graphics < 2:
-            add('WARN', n, f'бедный слайд: {containers} контейнер(а) с текстом, нет инфографики и 3D-объекта. Добавьте кодирование данных или контекстный объект')
+            add('WARN', n, f'бедный слайд: {containers} контейнер(а) с текстом. Проверьте, передаёт ли форма смысл и соответствует ли брифу')
     stats.append({'n': n, 'hidden': slide._element.get('show') == '0', 'archetype': ARCH.get(n, ''), 'images': images_n,
                   'graphics': graphics, 'containers': containers})
     body_h = BODY_BOT - BODY_TOP

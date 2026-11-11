@@ -149,6 +149,9 @@ if a.cmd == 'digest':
     picks = {}
     for l in (open(pp, encoding='utf-8') if os.path.isfile(pp) else []):
         p = json.loads(l)
+        # Старые записи не содержат источник выбора: сохраняем журнал, но не считаем их пользовательским сигналом.
+        if p.get('choice_source') != 'user':
+            continue
         picks[(p.get('src') or p.get('deck'), p['slide'], p.get('run'))] = p
     picks = list(picks.values())
     by = defaultdict(list)
@@ -161,9 +164,7 @@ if a.cmd == 'digest':
             cnt[c][r['verdict']] += 1
     for p in picks:
         cnt[p['chosen']]['picks'] += 1
-        # Старые pick до исправления записывали всех кандидатов даже при demo=False.
-        # Без поля demo сохраняем прежнюю семантику старых журналов.
-        shown = [] if p.get('demo') is False else p.get('shown') or []
+        shown = p.get('shown') or [] if p.get('shown_to_user') is True else []
         for c in set(shown) - {p['chosen']}:
             cnt[c]['rejects'] += 1
     comps = {}
@@ -229,7 +230,7 @@ if a.cmd == 'digest':
             rules.append(f"- Компонент **{c}**: доля хороших {ci(p)}, P(< 0,5) = {ru(1 - p['p_hi'])}: "
                          '`variants.py` уже понижает его; проверьте лимиты в `components/fields.json` или замените в эталонах.')
     os.makedirs(LEARN, exist_ok=True)
-    json.dump({'model': 'Beta-Binomial, априорное Beta(1,1); выбор = +1 хороший, показан и не выбран = +0,5 плохого; '
+    json.dump({'provenance_version': 1, 'model': 'Beta-Binomial, априорное Beta(1,1); выбор = +1 хороший, показан и не выбран = +0,5 плохого; '
                         'mean — апостериорное среднее доли хороших, lo/hi — интервал 80%, p_hi — P(доля > 0,5)',
                'updated': dt.date.today().isoformat(), 'ratings': len(recs), 'picks': len(picks),
                'components': comps, 'archetypes': dict(sorted(archs.items()))},

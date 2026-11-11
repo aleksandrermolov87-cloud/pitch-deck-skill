@@ -37,7 +37,8 @@ module.exports = { S };
 JS
 (cd src && DRAFT="$T/viz/scheme-1.json" node build.js >"$T/build.log" 2>&1) && ok "черновик собирается в schemeMap" || bad "сборка: $(tail -3 build.log)"
 "$PY" -I "$SKILL/scripts/pptx_audit.py" Схемы.pptx > audit.txt 2>&1
-grep -q 'слайд 2: блоковый слайд' audit.txt && ok "три одинаковые карточки — ERR «блоковый слайд»" || bad "блоковый слайд не пойман: $(grep -E 'ERR|WARN' audit.txt | head -5)"
+grep -qE '\[WARN\].*слайд 2: блоковый слайд' audit.txt && ok "карточки — предупреждение, а не ошибка" || bad "карточки не отмечены предупреждением"
+grep -qE '\[ERR\].*слайд 2: блоковый слайд' audit.txt && bad "количество карточек стало ошибкой"
 grep -qE 'слайд 3: блок' audit.txt && bad "схема (scheme-*) ошибочно названа блоковой" || ok "архетип scheme-* не блоковый"
 grep -qE 'слайд 1: (блок|тексты пересекаются)' audit.txt && bad "схема из черновика: $(grep 'слайд 1' audit.txt | head -3)" || ok "схема из черновика без блоков и пересечений"
 "$PY" -I "$SKILL/scripts/viz_suggest.py" deck src --pptx Схемы.pptx > deck.txt

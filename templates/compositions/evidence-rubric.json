@@ -1,0 +1,352 @@
+{
+  "pattern": "evidence-rubric",
+  "canvas": [
+    1920,
+    1080
+  ],
+  "required_fields": [
+    "claim",
+    "criteria_heading",
+    "evidence_heading",
+    "scale_heading",
+    "decision_rule",
+    "criterion_1",
+    "criterion_2",
+    "criterion_3",
+    "criterion_4",
+    "criterion_5",
+    "criterion_6",
+    "evidence_1",
+    "evidence_2",
+    "evidence_3",
+    "evidence_4",
+    "evidence_5",
+    "evidence_6",
+    "state_1_value",
+    "state_2_value",
+    "state_3_value",
+    "state_4_value",
+    "state_5_value",
+    "state_1_meaning",
+    "state_2_meaning",
+    "state_3_meaning",
+    "state_4_meaning",
+    "state_5_meaning"
+  ],
+  "texts": [
+    {
+      "field": "claim",
+      "x": 80,
+      "y": 65,
+      "w": 1160,
+      "h": 212.39999999999998,
+      "font_size": 59,
+      "weight": 700,
+      "color": "ink"
+    },
+    {
+      "field": "criteria_heading",
+      "x": 80,
+      "y": 302,
+      "w": 610,
+      "h": 31.2,
+      "font_size": 26,
+      "weight": 500,
+      "color": "ink"
+    },
+    {
+      "field": "evidence_heading",
+      "x": 720,
+      "y": 302,
+      "w": 520,
+      "h": 31.2,
+      "font_size": 26,
+      "weight": 500,
+      "color": "ink"
+    },
+    {
+      "field": "criterion_1",
+      "x": 80,
+      "y": 385,
+      "w": 610,
+      "h": 40.8,
+      "font_size": 34,
+      "weight": 500,
+      "color": "ink"
+    },
+    {
+      "field": "evidence_1",
+      "x": 720,
+      "y": 385,
+      "w": 520,
+      "h": 34.8,
+      "font_size": 29,
+      "weight": 400,
+      "color": "secondary"
+    },
+    {
+      "field": "criterion_2",
+      "x": 80,
+      "y": 470,
+      "w": 610,
+      "h": 40.8,
+      "font_size": 34,
+      "weight": 500,
+      "color": "ink"
+    },
+    {
+      "field": "evidence_2",
+      "x": 720,
+      "y": 470,
+      "w": 520,
+      "h": 34.8,
+      "font_size": 29,
+      "weight": 400,
+      "color": "secondary"
+    },
+    {
+      "field": "criterion_3",
+      "x": 80,
+      "y": 555,
+      "w": 610,
+      "h": 40.8,
+      "font_size": 34,
+      "weight": 500,
+      "color": "ink"
+    },
+    {
+      "field": "evidence_3",
+      "x": 720,
+      "y": 555,
+      "w": 520,
+      "h": 34.8,
+      "font_size": 29,
+      "weight": 400,
+      "color": "secondary"
+    },
+    {
+      "field": "criterion_4",
+      "x": 80,
+      "y": 640,
+      "w": 610,
+      "h": 40.8,
+      "font_size": 34,
+      "weight": 500,
+      "color": "ink"
+    },
+    {
+      "field": "evidence_4",
+      "x": 720,
+      "y": 640,
+      "w": 520,
+      "h": 34.8,
+      "font_size": 29,
+      "weight": 400,
+      "color": "secondary"
+    },
+    {
+      "field": "criterion_5",
+      "x": 80,
+      "y": 725,
+      "w": 610,
+      "h": 40.8,
+      "font_size": 34,
+      "weight": 500,
+      "color": "ink"
+    },
+    {
+      "field": "evidence_5",
+      "x": 720,
+      "y": 725,
+      "w": 520,
+      "h": 34.8,
+      "font_size": 29,
+      "weight": 400,
+      "color": "secondary"
+    },
+    {
+      "field": "criterion_6",
+      "x": 80,
+      "y": 810,
+      "w": 610,
+      "h": 40.8,
+      "font_size": 34,
+      "weight": 500,
+      "color": "ink"
+    },
+    {
+      "field": "evidence_6",
+      "x": 720,
+      "y": 810,
+      "w": 520,
+      "h": 34.8,
+      "font_size": 29,
+      "weight": 400,
+      "color": "secondary"
+    },
+    {
+      "field": "scale_heading",
+      "x": 1380,
+      "y": 80,
+      "w": 480,
+      "h": 40.8,
+      "font_size": 34,
+      "weight": 500,
+      "color": "paper"
+    },
+    {
+      "field": "state_1_value",
+      "x": 1380,
+      "y": 240,
+      "w": 90,
+      "h": 78.0,
+      "font_size": 65,
+      "weight": 500,
+      "color": "paper"
+    },
+    {
+      "field": "state_1_meaning",
+      "x": 1490,
+      "y": 247,
+      "w": 360,
+      "h": 36.0,
+      "font_size": 30,
+      "weight": 400,
+      "color": "paper"
+    },
+    {
+      "field": "state_2_value",
+      "x": 1380,
+      "y": 380,
+      "w": 90,
+      "h": 78.0,
+      "font_size": 65,
+      "weight": 500,
+      "color": "paper"
+    },
+    {
+      "field": "state_2_meaning",
+      "x": 1490,
+      "y": 387,
+      "w": 360,
+      "h": 36.0,
+      "font_size": 30,
+      "weight": 400,
+      "color": "paper"
+    },
+    {
+      "field": "state_3_value",
+      "x": 1380,
+      "y": 520,
+      "w": 90,
+      "h": 78.0,
+      "font_size": 65,
+      "weight": 500,
+      "color": "paper"
+    },
+    {
+      "field": "state_3_meaning",
+      "x": 1490,
+      "y": 527,
+      "w": 360,
+      "h": 72.0,
+      "font_size": 30,
+      "weight": 400,
+      "color": "paper"
+    },
+    {
+      "field": "state_4_value",
+      "x": 1380,
+      "y": 660,
+      "w": 90,
+      "h": 78.0,
+      "font_size": 65,
+      "weight": 500,
+      "color": "paper"
+    },
+    {
+      "field": "state_4_meaning",
+      "x": 1490,
+      "y": 667,
+      "w": 360,
+      "h": 36.0,
+      "font_size": 30,
+      "weight": 400,
+      "color": "paper"
+    },
+    {
+      "field": "state_5_value",
+      "x": 1380,
+      "y": 800,
+      "w": 90,
+      "h": 78.0,
+      "font_size": 65,
+      "weight": 500,
+      "color": "paper"
+    },
+    {
+      "field": "state_5_meaning",
+      "x": 1490,
+      "y": 807,
+      "w": 360,
+      "h": 36.0,
+      "font_size": 30,
+      "weight": 400,
+      "color": "paper"
+    },
+    {
+      "field": "decision_rule",
+      "x": 80,
+      "y": 954,
+      "w": 1160,
+      "h": 37.199999999999996,
+      "font_size": 31,
+      "weight": 500,
+      "color": "ink"
+    }
+  ],
+  "rects": [
+    {
+      "x": 1320.0,
+      "y": 0.0,
+      "w": 600.0,
+      "h": 1080.0,
+      "fill": "ink",
+      "stroke_width": 0.0
+    }
+  ],
+  "edges": [],
+  "relations": [
+    [
+      "criterion_1",
+      "evidence_1",
+      "supported-by"
+    ],
+    [
+      "criterion_2",
+      "evidence_2",
+      "supported-by"
+    ],
+    [
+      "criterion_3",
+      "evidence_3",
+      "supported-by"
+    ],
+    [
+      "criterion_4",
+      "evidence_4",
+      "supported-by"
+    ],
+    [
+      "criterion_5",
+      "evidence_5",
+      "supported-by"
+    ],
+    [
+      "criterion_6",
+      "evidence_6",
+      "supported-by"
+    ]
+  ],
+  "limits": "Validated composition seed at these field counts, not a universal layout. Measure actual fonts and real text; no automatic quality guarantee. Theme and font come from the project."
+}
