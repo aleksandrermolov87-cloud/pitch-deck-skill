@@ -13,6 +13,12 @@ import tarfile
 import tempfile
 
 SKILL = Path(__file__).resolve().parents[2]
+# A local symlink is not ignored by a directory-only .gitignore pattern.
+repo_root=subprocess.run(['git','-C',str(SKILL),'rev-parse','--show-toplevel'],capture_output=True,text=True)
+if repo_root.returncode==0 and Path(repo_root.stdout.strip()).resolve()==SKILL.resolve():
+    tracked=subprocess.check_output(['git','-C',str(SKILL),'ls-files','--','.venv','node_modules'],text=True)
+    assert not tracked,'Local dependency environments were added to the public git tree'
+
 BEGIN = 'PITCHDECK-PAYLOAD-BEGIN\n'
 END = '\nPITCHDECK-PAYLOAD-END'
 
