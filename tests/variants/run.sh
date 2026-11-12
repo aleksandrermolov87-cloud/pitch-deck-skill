@@ -10,6 +10,7 @@ OUT="${1:-$SKILL/.acceptance/variants-$(date +%Y%m%d-%H%M%S)-$$}"
 [ -e "$OUT" ] && { echo "папка уже есть, не перезаписываю: $OUT"; exit 1; }
 mkdir -p "$OUT"; cd "$OUT"
 export PITCH_LEARN_DIR="$OUT/learn"   # выборы теста не идут в learnings/ пользователя, его prefs.json не меняют счёт
+"$PY" -I "$SKILL/tests/variants/title_capture.py"
 fail=0
 ok()  { print -P "  %F{green}✓%f $1"; }
 bad() { print -P "  %F{red}✗%f $1"; fail=1; }

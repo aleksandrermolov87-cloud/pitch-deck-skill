@@ -1,6 +1,6 @@
 # Обновление
 
-Укажите текущую папку скилла. Для Codex это обычно `~/.agents/skills/pitch-deck-skill`, в прежних установках также `~/.codex/skills/pitch-deck-skill`. Для Claude Code — `~/.claude/skills/pitch-deck-skill`. В примерах ниже используется путь Claude Code; замените его на свой.
+Укажите текущую папку скилла. Для Codex это обычно `~/.agents/skills/pitch-deck-skill`, в прежних установках также `~/.codex/skills/pitch-deck-skill`. Для Claude Code — `~/.claude/skills/pitch-deck-skill`, для ZCode Agent — `~/.zcode/skills/pitch-deck-skill`. В примерах ниже используется путь Claude Code; замените его на свой.
 
 
 Каждый день в начале работы скилл проверяет, вышел ли новый подписанный релиз, и предлагает обновиться: «Обновить сейчас» или «Позже». Проверка идёт не чаще раза в сутки и только когда скилл запущен; без вашего согласия ничего не ставится. Частота — `config.json → "update_check_days"` (по умолчанию 1, `7` — раз в неделю, `0` — не проверять). Проверить вручную: `zsh ~/.claude/skills/pitch-deck-skill/scripts/check_update.sh --force`.
@@ -28,3 +28,5 @@ zsh ~/.claude/skills/pitch-deck-skill/scripts/update.sh --rollback --yes  # ве
 Если установка доверяет прежнему ключу, сначала выполните [однократную миграцию](signing-key-migration.md). Затем обычный `update.sh --yes` получит актуальный релиз.
 
 [На главную](../README.md)
+
+Updater запускает setup с `--no-mcp`: обновление скилла сохраняет существующие MCP-настройки клиентов. В ZCode после обновления откройте Settings → Skills → Refresh и новый чат.

@@ -1,6 +1,6 @@
 # pitch-deck-skill {{VERSION}}: установка {{#full}}с 21st{{/full}}{{#lite}}без 21st{{/lite}}
 
-Откройте локальный Codex или Claude Code, приложите этот файл и напишите: «Установи pitch-deck-skill по этому файлу». Ассистенту нужен доступ к терминалу и папке установки.
+Откройте локальный Codex, Claude Code или ZCode Agent, приложите этот файл и напишите: «Установи pitch-deck-skill по этому файлу». Ассистенту нужен доступ к терминалу и папке установки.
 
 Скилл собирает PowerPoint и PDF из ваших материалов. Схемы и компоненты берутся из каталога, оформление определяется брифом и референсом, числа сверяются с источниками. Сохраняются исходники и отчёт проверок.
 
@@ -8,6 +8,7 @@
 
 - [Codex]({{REPO}}/blob/v{{VERSION}}/docs/install-codex.md): новая установка в `~/.agents/skills/pitch-deck-skill`
 - [Claude Code]({{REPO}}/blob/v{{VERSION}}/docs/install-claude-code.md): `~/.claude/skills/pitch-deck-skill`
+- [ZCode Agent]({{REPO}}/blob/v{{VERSION}}/docs/install-zcode.md): `~/.zcode/skills/pitch-deck-skill`
 
 Если скилл уже установлен, используйте штатный updater по текущему пути. Сохраняйте существующие настройки, уроки и локальные изменения; вторая копия не нужна.
 
@@ -26,7 +27,7 @@
 
 Сверьте SHA-256 с независимым источником: [страницей релиза]({{REPO}}/releases/tag/v{{VERSION}}) или сообщением автора. Хэш внутри этого файла позволяет выявить порчу, но сам по себе не подтверждает автора.
 
-Укажите полный путь к этому MD в `PITCH_FILE`, а в `PITCH_SKILL` — папку выбранного клиента. Пример ниже для Codex; для Claude Code используйте `$HOME/.claude/skills/pitch-deck-skill`.
+Укажите полный путь к этому MD в `PITCH_FILE`, а в `PITCH_SKILL` — папку выбранного клиента. Пример ниже для Codex; для Claude Code используйте `$HOME/.claude/skills/pitch-deck-skill`, для ZCode — `$HOME/.zcode/skills/pitch-deck-skill`.
 
 ```bash
 (
@@ -67,7 +68,7 @@ PY
 
 ## После установки
 
-Откройте новую сессию и приложите материалы. Для Codex: `$pitch-deck-skill`; для Claude Code: `/pitch-deck-skill`.
+Откройте новую сессию и приложите материалы. Для Codex и ZCode: `$pitch-deck-skill`; для Claude Code: `/pitch-deck-skill`. В ZCode сначала обновите список Settings → Skills → Refresh и проверьте, что навык включён.
 
 Пример: «Собери презентацию на 8 слайдов, 16:9, PDF. Сохрани условия из файла, по одному выводу на слайд. Используй приложенный референс».
 

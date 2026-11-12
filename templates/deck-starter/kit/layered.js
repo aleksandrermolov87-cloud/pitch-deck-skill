@@ -197,10 +197,10 @@ function flow(box, nodesIn, edgesIn, opt = {}) {
     const { a, b } = e, st = style(e), ly = bottom + 0.24 + 0.34 * i;
     const sa = !vhits(a.x + a.w / 2, a.y + a.block, ly, [a]), sb = !vhits(b.x + b.w / 2, b.y + b.block, ly, [b]);
     const xa = sa ? a.x + a.w / 2 + 0.12 * i : a.x + a.w + 0.18 + 0.12 * i, xb = sb ? b.x + b.w / 2 - 0.12 * i : Math.max(x + 0.02, b.x - 0.18 - 0.12 * i);
-    if (sa) { V_(xa, a.y + a.block + 0.1, ly, st); dot(xa, a.y + a.block + 0.1, e); }
+    if (sa) { const ya = a.y + a.block + (a.noteH ? 0.1 : 0); V_(xa, ya, ly, st); dot(xa, ya, e); }
     else { H_(a.x + a.w, xa, a.cy, st); V_(xa, a.cy, ly, st); dot(a.x + a.w, a.cy, e); }
     H_(xb, xa, ly, st);
-    if (sb) { V_(xb, ly, b.y + b.block + 0.1 + AR, st); end(xb, b.y + b.block + 0.1, 270, e); }
+    if (sb) { const yb = b.y + b.block + (b.noteH ? 0.1 : 0); V_(xb, ly, yb + AR, st); end(xb, yb, 270, e); }
     else { V_(xb, ly, b.cy, st); H_(xb, b.x - AR, b.cy, st); end(b.x, b.cy, 0, e); }
     put(e, Math.min(xa, xb), Math.max(xa, xb), ly, true);
   });

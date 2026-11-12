@@ -1,0 +1,176 @@
+{
+  "searches": [
+    {
+      "results": [
+        {
+          "type": "component",
+          "id": 9637,
+          "name": "Editorial Testimonial",
+          "description": "An editorial-style testimonial with a bold typographic.",
+          "previewUrl": "https://cdn.21st.dev/jatin-yadav05/editorial-testimonial/default/preview.1765306115293.png",
+          "videoUrl": "https://cdn.21st.dev/jatin-yadav05/editorial-testimonial/default/video.1765306115294.mp4",
+          "author": "jatin-yadav05",
+          "authorImage": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ2l0aHViL2ltZ18ycmE4MHZyMW5wMVhERXR4SlBpNFJXQmJCMDkifQ",
+          "installCommand": "npx shadcn@latest add \"https://21st.dev/r/jatin-yadav05/editorial-testimonial?api_key=$API_KEY_21ST\"",
+          "url": "https://21st.dev/@jatin-yadav05/components/editorial-testimonial"
+        },
+        {
+          "type": "component",
+          "id": 4582,
+          "name": "Minimalist Hero",
+          "description": "Minimalist Hero Section – \"Less is More\"\nBold visual storytelling. High-contrast monochrome portrait with a vibrant yellow circle creates strong focus. Typography is large, minimal, and clear. Ideal for brands emphasizing simplicity, elegance, or personal identity.",
+          "previewUrl": "https://cdn.21st.dev/user_2zMtrqo9RMaaIn4f8F2z3oeY497/minimalist-hero/default/preview.1788533057908.webp",
+          "videoUrl": "https://cdn.21st.dev/user_2zMtrqo9RMaaIn4f8F2z3oeY497/minimalist-hero/default/video.1788533042464.mp4",
+          "author": "ravikatiyar162",
+          "authorImage": "https://vucvdpamtrjkzmubwlts.supabase.co/storage/v1/object/public/users/user_2zMtrqo9RMaaIn4f8F2z3oeY497/avatar.png",
+          "installCommand": "npx shadcn@latest add \"https://21st.dev/r/ravikatiyar162/minimalist-hero?api_key=$API_KEY_21ST\"",
+          "url": "https://21st.dev/@ravikatiyar162/components/minimalist-hero"
+        },
+        {
+          "type": "component",
+          "id": 7017,
+          "name": "Pattern Text",
+          "description": "A bold patterned text component with an animated shadow effect for standout headings.\nPerfect for hero sections, titles, or anywhere you want striking typography.",
+          "previewUrl": "https://cdn.21st.dev/sshahaider/pattern-text/default/preview.1757173737415.png",
+          "videoUrl": "https://cdn.21st.dev/sshahaider/pattern-text/default/video.1757173737415.mp4",
+          "author": "efferd",
+          "authorImage": "https://vucvdpamtrjkzmubwlts.supabase.co/storage/v1/object/public/users/user_2tWTE0rCrloVAVylFPYfp10xU92/avatar.png",
+          "installCommand": "npx shadcn@latest add \"https://21st.dev/r/efferd/pattern-text?api_key=$API_KEY_21ST\"",
+          "url": "https://21st.dev/@efferd/components/pattern-text"
+        },
+        {
+          "type": "component",
+          "id": 45136,
+          "name": "Sketchy Blueprint Text",
+          "description": "An interactive, hand-drawn SVG blueprint typography component built with React, Tailwind CSS, and Framer Motion.",
+          "previewUrl": "https://cdn.21st.dev/daiwiikharihar/sketchy-blueprint-text/default/preview.1794392110922-6c7f5d4d-9679-4871-b4af-7d394a44138c.webp",
+          "videoUrl": "https://cdn.21st.dev/daiwiikharihar/sketchy-blueprint-text/default/video.1794392110922-6c7f5d4d-9679-4871-b4af-7d394a44138c.mp4",
+          "author": "daiwiikharihar",
+          "authorImage": "https://vucvdpamtrjkzmubwlts.supabase.co/storage/v1/object/public/users/user_332oxzW8MyPod4IDIdKq9rbPYuk/avatar.jpeg",
+          "installCommand": "npx shadcn@latest add \"https://21st.dev/r/daiwiikharihar/sketchy-blueprint-text?api_key=$API_KEY_21ST\"",
+          "url": "https://21st.dev/@daiwiikharihar/components/sketchy-blueprint-text"
+        },
+        {
+          "type": "component",
+          "id": 19077,
+          "name": "Editorial Image Hero",
+          "description": "A hero section with a full-width landscape image above and a top-aligned tagline paired with a right-aligned serif headline, description, and call-to-action buttons below.",
+          "previewUrl": "https://cdn.21st.dev/user_felipemenezes098/hero-07/default/preview.1787581609067.webp",
+          "videoUrl": "https://cdn.21st.dev/user_felipemenezes098/hero-07/default/video.1787581613983.mp4",
+          "author": "felipemenezes098",
+          "authorImage": "https://www.google.com/s2/favicons?domain=ui.flexnative.com&sz=128",
+          "installCommand": "npx shadcn@latest add \"https://21st.dev/r/felipemenezes098/hero-07?api_key=$API_KEY_21ST\"",
+          "url": "https://21st.dev/@felipemenezes098/components/hero-07"
+        },
+        {
+          "type": "component",
+          "id": 44529,
+          "name": "EZPZ Type Fold",
+          "description": "Big ideas. Made EZPZ. Responsive native SVG typography folded across three planes. Customize each line, color and font through demo settings. MIT licensed for personal and commercial reuse; React is the only runtime dependency.",
+          "previewUrl": "https://cdn.21st.dev/ezam0000/ezpz-type-fold/default/preview.1793744873204-ed5e4c72-4404-4a37-ab37-e27c16782a70.png",
+          "videoUrl": null,
+          "author": "ezam0000",
+          "authorImage": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ2l0aHViL2ltZ18yeTRtQWx0WVB2NFJtelBQQ1lRMUtPcmkybXIifQ",
+          "installCommand": "npx shadcn@latest add \"https://21st.dev/r/ezam0000/ezpz-type-fold?api_key=$API_KEY_21ST\"",
+          "url": "https://21st.dev/@ezam0000/components/ezpz-type-fold"
+        }
+      ]
+    },
+    {
+      "results": [
+        {
+          "type": "component",
+          "id": 37527,
+          "name": "Before after comparison",
+          "description": "An interactive split-screen image comparison slider with a draggable dividing handle, quick toggle tabs, and keyboard navigation. Useful in photo editing portfolios, product redesigns, and color grading case studies.",
+          "previewUrl": "https://cdn.21st.dev/ibrandify/before-after-comparison/default/preview.1791668698987-d5324545-9e19-4be0-b3f8-024743fdd86c.png",
+          "videoUrl": null,
+          "author": "ibrandify",
+          "authorImage": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ29vZ2xlL2ltZ18zSzhHU1lzc3NLVWlYT0pJY0xTQmU0RDhXVGkifQ",
+          "installCommand": "npx shadcn@latest add \"https://21st.dev/r/ibrandify/before-after-comparison?api_key=$API_KEY_21ST\"",
+          "url": "https://21st.dev/@ibrandify/components/before-after-comparison"
+        },
+        {
+          "type": "component",
+          "id": 19262,
+          "name": "Comparison Slider with Highlights",
+          "description": "Split-layout before/after image comparison slider with a draggable divider and a sidebar of feature highlights and icons.",
+          "previewUrl": "https://cdn.21st.dev/ziegfiroyt/reveal2/default/preview.1783716127426.png",
+          "videoUrl": "https://cdn.21st.dev/ziegfiroyt/reveal2/default/video.1783716127426.mp4",
+          "author": "ziegfiroyt",
+          "authorImage": "https://vucvdpamtrjkzmubwlts.supabase.co/storage/v1/object/public/users/user_2tM2DgTFCMuiirMNpU5lhkvxwez/avatar.png",
+          "installCommand": "npx shadcn@latest add \"https://21st.dev/r/ziegfiroyt/reveal2?api_key=$API_KEY_21ST\"",
+          "url": "https://21st.dev/@ziegfiroyt/components/reveal2"
+        },
+        {
+          "type": "component",
+          "id": 9637,
+          "name": "Editorial Testimonial",
+          "description": "An editorial-style testimonial with a bold typographic.",
+          "previewUrl": "https://cdn.21st.dev/jatin-yadav05/editorial-testimonial/default/preview.1765306115293.png",
+          "videoUrl": "https://cdn.21st.dev/jatin-yadav05/editorial-testimonial/default/video.1765306115294.mp4",
+          "author": "jatin-yadav05",
+          "authorImage": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ2l0aHViL2ltZ18ycmE4MHZyMW5wMVhERXR4SlBpNFJXQmJCMDkifQ",
+          "installCommand": "npx shadcn@latest add \"https://21st.dev/r/jatin-yadav05/editorial-testimonial?api_key=$API_KEY_21ST\"",
+          "url": "https://21st.dev/@jatin-yadav05/components/editorial-testimonial"
+        },
+        {
+          "type": "component",
+          "id": 44568,
+          "name": "Image Diff Slider",
+          "description": "A draggable before/after slider that reveals one image or content block over another to compare two versions side by side.",
+          "previewUrl": "https://cdn.21st.dev/user_registry_miladjoodi_1793377315523/diff/diff-text/preview.1793826409541.png",
+          "videoUrl": "https://cdn.21st.dev/user_registry_miladjoodi_1793377315523/diff/diff-text/video.1793826362903.mp4",
+          "author": "miladjoodi",
+          "authorImage": "https://avatars.githubusercontent.com/u/43522323?v=4",
+          "installCommand": "npx shadcn@latest add \"https://21st.dev/r/miladjoodi/diff?api_key=$API_KEY_21ST\"",
+          "url": "https://21st.dev/@miladjoodi/components/diff"
+        },
+        {
+          "type": "component",
+          "id": 26826,
+          "name": "Comparison Section",
+          "description": "Before and after panels side by side, the old way muted with crosses and the new way ticked, a Before/After switch on small screens, closing on an outcome strip.",
+          "previewUrl": "https://cdn.21st.dev/hirael/comparison-03/default/preview.1788886466877-b291a803-1a56-4774-af1e-2ae775d28849.png",
+          "videoUrl": null,
+          "author": "mohammadshehadeh",
+          "authorImage": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ2l0aHViL2ltZ18zNEV4OTFvT2tWTW1ISXJWNnBVaEQwbDNzNGkifQ",
+          "installCommand": "npx shadcn@latest add \"https://21st.dev/r/mohammadshehadeh/comparison-03?api_key=$API_KEY_21ST\"",
+          "url": "https://21st.dev/@mohammadshehadeh/components/comparison-03"
+        },
+        {
+          "type": "component",
+          "id": 19074,
+          "name": "Editorial Collage Hero",
+          "description": "A two-column hero section with a serif headline, description, call-to-action buttons, and a layered collage of two overlapping images over a soft background wash.",
+          "previewUrl": "https://cdn.21st.dev/user_felipemenezes098/hero-04/default/preview.1786538402894.png",
+          "videoUrl": null,
+          "author": "felipemenezes098",
+          "authorImage": "https://www.google.com/s2/favicons?domain=ui.flexnative.com&sz=128",
+          "installCommand": "npx shadcn@latest add \"https://21st.dev/r/felipemenezes098/hero-04?api_key=$API_KEY_21ST\"",
+          "url": "https://21st.dev/@felipemenezes098/components/hero-04"
+        }
+      ]
+    }
+  ],
+  "inspected": [
+    {
+      "id": 9637,
+      "name": "Editorial Testimonial",
+      "previewUrl": "https://cdn.21st.dev/jatin-yadav05/editorial-testimonial/default/preview.1765306115293.png",
+      "sourceFile": "Исходники/21st/9637.tsx"
+    },
+    {
+      "id": 44529,
+      "name": "EZPZ Type Fold",
+      "previewUrl": "https://cdn.21st.dev/ezam0000/ezpz-type-fold/default/preview.1793744873204-ed5e4c72-4404-4a37-ab37-e27c16782a70.png",
+      "sourceFile": "Исходники/21st/44529.tsx"
+    },
+    {
+      "id": 44568,
+      "name": "Image Diff Slider",
+      "previewUrl": "https://cdn.21st.dev/user_registry_miladjoodi_1793377315523/diff/diff-text/preview.1793826409541.png",
+      "sourceFile": "Исходники/21st/44568.tsx"
+    }
+  ]
+}

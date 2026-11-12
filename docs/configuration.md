@@ -6,7 +6,7 @@
 PITCH_SKILL="$HOME/.agents/skills/pitch-deck-skill"
 ```
 
-Для Claude Code используйте `$HOME/.claude/skills/pitch-deck-skill`; для прежней установки укажите её реальный путь.
+Для Claude Code используйте `$HOME/.claude/skills/pitch-deck-skill`; для ZCode — `$HOME/.zcode/skills/pitch-deck-skill`; для прежней установки укажите её реальный путь.
 
 ## Режим
 
@@ -74,6 +74,28 @@ claude mcp add --transport http --scope user magicpatterns https://mcp.magicpatt
 ```
 
 В Claude Code завершите вход через `/mcp`. Для сервиса нужен собственный аккаунт с доступом к генерации. Провайдер выбирается в `config.json → image_provider`: `auto`, `codex-imagegen`, `magicpatterns` или `none`. Схемы можно собрать векторными средствами без генератора изображений.
+
+## MCP в ZCode Agent
+
+В Settings → MCP Servers → New MCP Server выберите User и HTTP. Для 21st используйте `https://21st.dev/api/mcp`, заголовок `x-api-key` задайте локально в Headers. Для MagicPatterns используйте `https://mcp.magicpatterns.com/mcp`; если сервис требует OAuth, включите его и завершите Open authorization. Ключи и вход не входят в пакет навыка.
+
+ZCode принимает конфигурацию через Full configuration. Пример без секретов:
+
+```json
+{
+  "mcpServers": {
+    "magicpatterns": {"type": "http", "url": "https://mcp.magicpatterns.com/mcp"}
+  }
+}
+```
+
+Нативная пользовательская конфигурация: `~/.zcode/cli/config.json` → `mcp.servers`; проектная: `.zcode/config.json`. Настройки Codex и Claude Code при этом не меняются. Проверьте статус сервера в Settings → MCP и фактические инструменты в чате. Наличие записи не подтверждает генерацию. Read-only проверка записи MagicPatterns:
+
+```bash
+zsh "$PITCH_SKILL/scripts/mcp_setup.sh" --check --client zcode
+```
+
+[Официальная документация ZCode MCP](https://zcode.z.ai/en/docs/mcp-services). В ZCode выбирайте `image_provider: "magicpatterns"`, если этот генератор доступен; при работе без генерации — `"none"`. Режим `auto` выбирает только инструмент, реально доступный в текущем чате. Вызовы Codex `image_gen` не предполагаются в ZCode.
 
 ## Шрифт
 

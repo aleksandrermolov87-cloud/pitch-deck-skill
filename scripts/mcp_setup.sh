@@ -5,7 +5,29 @@
 # Сервер: https://mcp.magicpatterns.com/mcp (HTTP, вход через браузер по OAuth). Ключи скрипт не спрашивает и не хранит:
 # вход пользователь делает сам — в Claude Code командой /mcp, в Codex командой codex mcp login magicpatterns.
 URL="https://mcp.magicpatterns.com/mcp"
-CHECK=0; [ "$1" = "--check" ] && CHECK=1
+CHECK=0; CLIENT=${PITCH_CLIENT:-auto}
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --check) CHECK=1 ;;
+    --client) CLIENT="$2"; shift ;;
+    *) echo "usage: mcp_setup.sh [--check] [--client zcode]"; exit 2 ;;
+  esac
+  shift
+done
+# Native ZCode has its own config. Do not touch Codex/Claude configuration.
+if [ "$CLIENT" = auto ] && [[ "${0:A}" == */.zcode/skills/* ]]; then CLIENT=zcode; fi
+if [ "$CLIENT" = zcode ]; then
+  node - "$HOME/.zcode/cli/config.json" <<'JS'
+const fs=require('fs');let found=false;
+try{const c=JSON.parse(fs.readFileSync(process.argv[2],'utf8'));
+found=Object.values(c.mcp?.servers||{}).some(s=>s.enable!==false&&s.enabled!==false&&s.url==='https://mcp.magicpatterns.com/mcp');}
+catch(e){if(e.code!=='ENOENT'){console.error('ZCode: конфигурация не читается; проверьте Settings → MCP');process.exit(1);}}
+if(found){console.log('ZCode: MagicPatterns есть в настройках; OAuth и доступность инструмента проверьте в Settings → MCP и в чате');}
+else{console.log('ZCode: подключите MagicPatterns в Settings → MCP Servers; см. docs/configuration.md. Настройки не изменены.');}
+process.exit(found?0:1);
+JS
+  exit $?
+fi
 ok()   { print -P "  %F{green}✓%f $1"; }
 warn() { print -P "  %F{yellow}•%f $1"; }
 found=0

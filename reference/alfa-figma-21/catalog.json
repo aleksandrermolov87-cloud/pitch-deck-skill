@@ -1,0 +1,1125 @@
+[
+  {
+    "page": 1,
+    "nodeId": "1:6425",
+    "frame": "3",
+    "section": "1:5111",
+    "sectionName": "НЕЙРООФИС СТРАТЕГИЯ 2026 согласованная версия",
+    "sourceTitle": "Executive Summary",
+    "textLayers": 60,
+    "visibleNodes": 140,
+    "figmaUrl": "https://www.figma.com/design/ciTiuNhnWFk5sQuTxQAV8Y/Untitled?node-id=1-6425",
+    "descriptor": "Резюме стратегии на одном экране",
+    "question": "Что уже работает и какие направления должны дать рост?",
+    "composition": "Сверху определение сервиса и блок текущих метрик. Внизу две ленты инициатив и цели по сегментам. Большие значения задают первый уровень чтения, периоды и базы расчёта стоят у своих величин.",
+    "fields": [
+      {
+        "slot": "Определение сервиса",
+        "count": 1
+      },
+      {
+        "slot": "Карточки текущих показателей",
+        "count": 4
+      },
+      {
+        "slot": "Внутренние направления в основной ленте",
+        "count": 4
+      },
+      {
+        "slot": "Дополнительное направление",
+        "count": 1
+      },
+      {
+        "slot": "Периоды целей",
+        "count": 2
+      }
+    ],
+    "graphicRole": "Точки показывают доли, длина сегментированной ленты даёт порядок чтения. Строгого количественного значения ширине сегментов не задано.",
+    "substitution": "Нужны фактические значения и однозначно подписанные прогнозы. Если остается только один тезис, резюме перегружает его.",
+    "relatedGallery": [
+      {
+        "name": "executiveSummary",
+        "source": "../../components/gallery-textcore.js"
+      },
+      {
+        "name": "kpiGrid",
+        "source": "../../components/gallery-numbers.js"
+      }
+    ],
+    "componentNumbers": [
+      1,
+      2,
+      3
+    ],
+    "preview": "previews/01.jpg",
+    "sourcePdfPage": 1,
+    "pageWidthPx": 1920,
+    "pageHeightPx": 1080
+  },
+  {
+    "page": 2,
+    "nodeId": "1:6319",
+    "frame": "82895",
+    "section": "1:5111",
+    "sectionName": "НЕЙРООФИС СТРАТЕГИЯ 2026 согласованная версия",
+    "sourceTitle": "Рынок решений на базе GenAI",
+    "textLayers": 47,
+    "visibleNodes": 99,
+    "figmaUrl": "https://www.figma.com/design/ciTiuNhnWFk5sQuTxQAV8Y/Untitled?node-id=1-6319",
+    "descriptor": "Два среза рынка и стратегический вывод",
+    "question": "Какая часть растущего рынка доступна продукту?",
+    "composition": "Слева оценка размера рынка в двух годах, в центре разбивка целевого рынка и пояснения по нишам. Правая тёмная колонка связывает вывод с четырьмя направлениями работы, внизу повторяется оценка выбранной ниши.",
+    "fields": [
+      {
+        "slot": "Срезы рынка по годам",
+        "count": 2
+      },
+      {
+        "slot": "Категории будущего B2B-рынка",
+        "count": 2
+      },
+      {
+        "slot": "Пояснения к направлениям продукта в центральной колонке",
+        "count": 3
+      },
+      {
+        "slot": "Стратегические действия в правой колонке",
+        "count": 4
+      },
+      {
+        "slot": "Итоговая оценка ниши",
+        "count": 1
+      }
+    ],
+    "graphicRole": "Высота цветных полей передаёт различие величин. Переход между годами подписан темпом роста.",
+    "substitution": "Не складывай общий рынок с входящими в него сегментами. Вынеси определения ниш и периоды расчёта в доступную сноску.",
+    "relatedGallery": [
+      {
+        "name": "marketTam",
+        "source": "../../components/gallery-market.js"
+      },
+      {
+        "name": "stackedColumns",
+        "source": "../../components/gallery-market.js"
+      }
+    ],
+    "componentNumbers": [
+      4
+    ],
+    "preview": "previews/02.jpg",
+    "sourcePdfPage": 2,
+    "pageWidthPx": 1920,
+    "pageHeightPx": 1080
+  },
+  {
+    "page": 3,
+    "nodeId": "1:6228",
+    "frame": "5",
+    "section": "1:5111",
+    "sectionName": "НЕЙРООФИС СТРАТЕГИЯ 2026 согласованная версия",
+    "sourceTitle": "Потенциал и видение к 2028",
+    "textLayers": 37,
+    "visibleNodes": 84,
+    "figmaUrl": "https://www.figma.com/design/ciTiuNhnWFk5sQuTxQAV8Y/Untitled?node-id=1-6228",
+    "descriptor": "Структура рынка, игроки и тренды",
+    "question": "Каков масштаб рынка и какие силы меняют его устройство?",
+    "composition": "Левое поле разделено на структуру рынка и перечень игроков. Правое поле занимает набор трендов с предметными иллюстрациями. Кольцо показывает общий масштаб и выделенные фрагменты.",
+    "fields": [
+      {
+        "slot": "Оценка доступного рынка",
+        "count": 1
+      },
+      {
+        "slot": "Оценки дохода внутри и вне банка",
+        "count": 2
+      },
+      {
+        "slot": "Компании, заявленные в перечне",
+        "count": 15
+      },
+      {
+        "slot": "Краткие описания трендов",
+        "count": 5
+      }
+    ],
+    "graphicRole": "У каждого тренда своя небольшая иллюстрация. Персонаж размещён на свободном краю, за пределами основного текста.",
+    "substitution": "Для нового рынка дай собственный перечень игроков и определения сегментов. Число позиций в исходной компоновке ограничено шириной левой части.",
+    "relatedGallery": [
+      {
+        "name": "marketTam",
+        "source": "../../components/gallery-market.js"
+      },
+      {
+        "name": "strategyPillars",
+        "source": "../../components/gallery-strategy.js"
+      }
+    ],
+    "componentNumbers": [
+      5
+    ],
+    "preview": "previews/03.jpg",
+    "sourcePdfPage": 3,
+    "pageWidthPx": 1920,
+    "pageHeightPx": 1080
+  },
+  {
+    "page": 4,
+    "nodeId": "1:6159",
+    "frame": "6",
+    "section": "1:5111",
+    "sectionName": "НЕЙРООФИС СТРАТЕГИЯ 2026 согласованная версия",
+    "sourceTitle": "Что предлагаем. Топ-инициативы",
+    "textLayers": 27,
+    "visibleNodes": 61,
+    "figmaUrl": "https://www.figma.com/design/ciTiuNhnWFk5sQuTxQAV8Y/Untitled?node-id=1-6159",
+    "descriptor": "Видение, портфель и критерии успеха",
+    "question": "Какие инициативы объединяет одна цель и чем будет измерен результат?",
+    "composition": "Верхняя полоса соединяет видение и формулировку пользы. В середине стоят четыре пронумерованные инициативы. Под ними общая строка амбиций связывает комиссионный доход с числом платящих клиентов и проникновением.",
+    "fields": [
+      {
+        "slot": "Видение и ценность",
+        "count": 2
+      },
+      {
+        "slot": "Инициативы с названием, результатом и аргументом",
+        "count": 4
+      },
+      {
+        "slot": "Цель по доходу",
+        "count": 1
+      },
+      {
+        "slot": "Клиентские сегменты в целевой строке",
+        "count": 2
+      }
+    ],
+    "graphicRole": "Мишень отмечает общую цель. Крупные бледные номера задают порядок внутри ряда, стрелка связывает разные показатели в нижней строке.",
+    "substitution": "Нужно содержательное различие между четырьмя инициативами. При замене явно подпиши, как связаны показатели в нижней строке.",
+    "relatedGallery": [
+      {
+        "name": "strategyPillars",
+        "source": "../../components/gallery-strategy.js"
+      },
+      {
+        "name": "okrTree",
+        "source": "../../components/gallery-strategy.js"
+      }
+    ],
+    "componentNumbers": [
+      6
+    ],
+    "preview": "previews/04.jpg",
+    "sourcePdfPage": 4,
+    "pageWidthPx": 1920,
+    "pageHeightPx": 1080
+  },
+  {
+    "page": 5,
+    "nodeId": "1:6068",
+    "frame": "7",
+    "section": "1:5111",
+    "sectionName": "НЕЙРООФИС СТРАТЕГИЯ 2026 согласованная версия",
+    "sourceTitle": "Что предлагаем. Extra",
+    "textLayers": 27,
+    "visibleNodes": 83,
+    "figmaUrl": "https://www.figma.com/design/ciTiuNhnWFk5sQuTxQAV8Y/Untitled?node-id=1-6068",
+    "descriptor": "Смежное направление и его экономика",
+    "question": "Как отдельное направление расширяет доступный рынок?",
+    "composition": "Тёплая верхняя полоса объединяет описание продукта и цель расширения. Под ней три инициативы. В нижней строке рядом стоят дополнительный доход и целевая доля рынка.",
+    "fields": [
+      {
+        "slot": "Описание продукта и цель",
+        "count": 2
+      },
+      {
+        "slot": "Инициативы с коротким обоснованием",
+        "count": 3
+      },
+      {
+        "slot": "Итоговые количественные цели",
+        "count": 2
+      },
+      {
+        "slot": "Горизонт",
+        "count": 1
+      }
+    ],
+    "graphicRole": "Оранжевая гамма отличает дополнительное направление от основного. Ракета и персонаж привязаны к портфелю и нижней строке.",
+    "substitution": "Применяй как пару к основному портфелю или дай контекст самостоятельному слайду. У дохода и доли должны быть единицы и период.",
+    "relatedGallery": [
+      {
+        "name": "strategyPillars",
+        "source": "../../components/gallery-strategy.js"
+      },
+      {
+        "name": "bigCompare",
+        "source": "../../components/gallery-numbers.js"
+      }
+    ],
+    "componentNumbers": [],
+    "preview": "previews/05.jpg",
+    "sourcePdfPage": 5,
+    "pageWidthPx": 1920,
+    "pageHeightPx": 1080
+  },
+  {
+    "page": 6,
+    "nodeId": "1:5849",
+    "frame": "8",
+    "section": "1:5111",
+    "sectionName": "НЕЙРООФИС СТРАТЕГИЯ 2026 согласованная версия",
+    "sourceTitle": "Как достигаем / Как отстраиваемся",
+    "textLayers": 51,
+    "visibleNodes": 212,
+    "figmaUrl": "https://www.figma.com/design/ciTiuNhnWFk5sQuTxQAV8Y/Untitled?node-id=1-5849",
+    "descriptor": "Дорожная карта рядом с конкурентной матрицей",
+    "question": "Какие этапы приведут к выбранному положению среди конкурентов?",
+    "composition": "Левая половина содержит три годовых столбца и две группы рабочих направлений. Справа признаки продукта выстроены по строкам, варианты для сравнения по столбцам. Легенда объясняет статусы.",
+    "fields": [
+      {
+        "slot": "Годовые этапы",
+        "count": 3
+      },
+      {
+        "slot": "Группы направлений",
+        "count": 2
+      },
+      {
+        "slot": "Критерии сравнения",
+        "count": 9
+      },
+      {
+        "slot": "Столбцы сравнения, включая текущее и целевое состояние",
+        "count": 5
+      },
+      {
+        "slot": "Статусы в легенде",
+        "count": 3
+      }
+    ],
+    "graphicRole": "Одна ось времени и независимая от неё матрица. Цвет и форма знака кодируют статус.",
+    "substitution": "Разнеси панели на две страницы, если подписи критериев или названия этапов не читаются. Заполняй статусы из одинаково определённых источников.",
+    "relatedGallery": [
+      {
+        "name": "ganttLanes",
+        "source": "../../components/gallery.js"
+      },
+      {
+        "name": "featureDots",
+        "source": "../../components/gallery-product.js"
+      }
+    ],
+    "componentNumbers": [
+      7
+    ],
+    "preview": "previews/06.jpg",
+    "sourcePdfPage": 6,
+    "pageWidthPx": 1920,
+    "pageHeightPx": 1080
+  },
+  {
+    "page": 7,
+    "nodeId": "1:5817",
+    "frame": "8.1",
+    "section": "1:5111",
+    "sectionName": "НЕЙРООФИС СТРАТЕГИЯ 2026 согласованная версия",
+    "sourceTitle": "Нейропомощник ПРО в Умном поиске",
+    "textLayers": 9,
+    "visibleNodes": 25,
+    "figmaUrl": "https://www.figma.com/design/ciTiuNhnWFk5sQuTxQAV8Y/Untitled?node-id=1-5817",
+    "descriptor": "Три изменения продукта рядом с интерфейсом",
+    "question": "Где пользователь увидит изменение и что оно даст?",
+    "composition": "Слева три группы. Контуром выделено название каждого изменения, под ним пояснения. Справа два крупных фрагмента продукта рядом с конкретным описанием внедрения.",
+    "fields": [
+      {
+        "slot": "Общий тезис",
+        "count": 1
+      },
+      {
+        "slot": "Группы изменений с пояснениями",
+        "count": 3
+      },
+      {
+        "slot": "Иллюстрирующее поле с фрагментами интерфейса",
+        "count": 1
+      }
+    ],
+    "graphicRole": "Снимки показывают реальный экран и его место в продукте. Важные числа акцентированы внутри пояснений.",
+    "substitution": "Нужны читаемые экраны, которые действительно показывают описанное поведение. Подписи и идентификаторы на экране проверь для своей аудитории.",
+    "relatedGallery": [
+      {
+        "name": "screenCallouts",
+        "source": "../../components/gallery-product.js"
+      },
+      {
+        "name": "desktopShowcase",
+        "source": "../../components/gallery-screens.js"
+      }
+    ],
+    "componentNumbers": [
+      8
+    ],
+    "preview": "previews/07.jpg",
+    "sourcePdfPage": 7,
+    "pageWidthPx": 1920,
+    "pageHeightPx": 1080
+  },
+  {
+    "page": 8,
+    "nodeId": "1:5755",
+    "frame": "9",
+    "section": "1:5111",
+    "sectionName": "НЕЙРООФИС СТРАТЕГИЯ 2026 согласованная версия",
+    "sourceTitle": "Пилот Нейроофиса для НЕ-клиентов",
+    "textLayers": 25,
+    "visibleNodes": 54,
+    "figmaUrl": "https://www.figma.com/design/ciTiuNhnWFk5sQuTxQAV8Y/Untitled?node-id=1-5755",
+    "descriptor": "Пилот, проверка и решение о запуске",
+    "question": "Какой потенциал проверяет пилот и какое решение надо принять после него?",
+    "composition": "Слева сравниваются действующая и потенциальная клиентские базы, ниже поясняется логика привлечения. Справа сверху вниз даны три блока проверки. Нижняя красная полоса формулирует решение.",
+    "fields": [
+      {
+        "slot": "Сопоставленные клиентские базы",
+        "count": 2
+      },
+      {
+        "slot": "Пояснения под сравнением",
+        "count": 2
+      },
+      {
+        "slot": "Направления проверки",
+        "count": 3
+      },
+      {
+        "slot": "Решение по итогам пилота",
+        "count": 1
+      }
+    ],
+    "graphicRole": "Ширина информационных полей различается. Иллюстрации различают три проверки, крупная стрелка ведёт к формулировке решения.",
+    "substitution": "Дай проверяемый результат каждой стадии. Размер потенциальной базы и фактические пользователи требуют разных подписей.",
+    "relatedGallery": [
+      {
+        "name": "phaseGate",
+        "source": "../../components/gallery-progress.js"
+      },
+      {
+        "name": "askStatement",
+        "source": "../../components/gallery-textops.js"
+      }
+    ],
+    "componentNumbers": [],
+    "preview": "previews/08.jpg",
+    "sourcePdfPage": 8,
+    "pageWidthPx": 1920,
+    "pageHeightPx": 1080
+  },
+  {
+    "page": 9,
+    "nodeId": "1:5662",
+    "frame": "10",
+    "section": "1:5111",
+    "sectionName": "НЕЙРООФИС СТРАТЕГИЯ 2026 согласованная версия",
+    "sourceTitle": "Финансирование и ожидаемые результаты для пилота",
+    "textLayers": 43,
+    "visibleNodes": 85,
+    "figmaUrl": "https://www.figma.com/design/ciTiuNhnWFk5sQuTxQAV8Y/Untitled?node-id=1-5662",
+    "descriptor": "Команда, расходы и итог пилота",
+    "question": "Какие ресурсы нужны и к какому финансовому итогу ведёт модель?",
+    "composition": "Левый столбец раскрывает состав команды и сумму затрат. Средний столбец разделён на инфраструктуру и продвижение. Правая контрастная полоса сводит доходы, бюджет и срок окупаемости.",
+    "fields": [
+      {
+        "slot": "Роли в команде",
+        "count": 6
+      },
+      {
+        "slot": "Статьи инфраструктуры",
+        "count": 2
+      },
+      {
+        "slot": "Статьи продвижения",
+        "count": 1
+      },
+      {
+        "slot": "Показатели в верхнем блоке итогов",
+        "count": 3
+      },
+      {
+        "slot": "Проектный бюджет и срок окупаемости",
+        "count": 2
+      }
+    ],
+    "graphicRole": "Табличные пары выравнивают статью и значение. Правая полоса визуально отделяет итоговую модель от исходных данных.",
+    "substitution": "При замене пересчитай все итоги и явно разведи месячные и годовые величины. Условие предварительной оценки остаётся рядом с моделью.",
+    "relatedGallery": [
+      {
+        "name": "askFunds",
+        "source": "../../components/gallery-numbers.js"
+      },
+      {
+        "name": "revenueFormula",
+        "source": "../../components/gallery-market.js"
+      }
+    ],
+    "componentNumbers": [],
+    "preview": "previews/09.jpg",
+    "sourcePdfPage": 9,
+    "pageWidthPx": 1920,
+    "pageHeightPx": 1080
+  },
+  {
+    "page": 10,
+    "nodeId": "1:5442",
+    "frame": "15",
+    "section": "1:5111",
+    "sectionName": "НЕЙРООФИС СТРАТЕГИЯ 2026 согласованная версия",
+    "sourceTitle": "ТОП-инициативы · AI Lifestyle",
+    "textLayers": 30,
+    "visibleNodes": 71,
+    "figmaUrl": "https://www.figma.com/design/ciTiuNhnWFk5sQuTxQAV8Y/Untitled?node-id=1-5442",
+    "descriptor": "Разбор инициативы через повседневные задачи",
+    "question": "Чьи задачи решит сервис и какими функциями?",
+    "composition": "Слева неизменный список из шести инициатив. Активная строка занимает позицию 2. Справа сверху показана аудитория, ниже последовательно идут обоснование, действия и эффект.",
+    "fields": [
+      {
+        "slot": "Позиции в списке",
+        "count": 6
+      },
+      {
+        "slot": "Числа аудитории",
+        "count": 2
+      },
+      {
+        "slot": "Обоснования",
+        "count": 3
+      },
+      {
+        "slot": "Действия или решения",
+        "count": 2
+      },
+      {
+        "slot": "Эффекты",
+        "count": 1
+      }
+    ],
+    "graphicRole": "Два кольца представляют размеры клиентских сегментов. Внизу один короткий статус показывает связь с подписочной моделью.",
+    "substitution": "Используй для продуктовой инициативы, где результат объясняется через задачи клиента. Отдельно проверь основания чисел аудитории.",
+    "relatedGallery": [
+      {
+        "name": "methodNotes",
+        "source": "../../components/gallery-textops.js"
+      },
+      {
+        "name": "nextStepsText",
+        "source": "../../components/gallery-textops.js"
+      }
+    ],
+    "componentNumbers": [
+      9
+    ],
+    "preview": "previews/10.jpg",
+    "sourcePdfPage": 10,
+    "pageWidthPx": 1920,
+    "pageHeightPx": 1080
+  },
+  {
+    "page": 11,
+    "nodeId": "1:5360",
+    "frame": "16",
+    "section": "1:5111",
+    "sectionName": "НЕЙРООФИС СТРАТЕГИЯ 2026 согласованная версия",
+    "sourceTitle": "ТОП-инициативы · ИИ-агенты",
+    "textLayers": 30,
+    "visibleNodes": 71,
+    "figmaUrl": "https://www.figma.com/design/ciTiuNhnWFk5sQuTxQAV8Y/Untitled?node-id=1-5360",
+    "descriptor": "Разбор инициативы через данные и сервисы",
+    "question": "Как данные превращаются в конкретные сервисы для клиентов?",
+    "composition": "Слева неизменный список из шести инициатив. Активная строка занимает позицию 3. Справа сверху показана аудитория, ниже последовательно идут обоснование, действия и эффект.",
+    "fields": [
+      {
+        "slot": "Позиции в списке",
+        "count": 6
+      },
+      {
+        "slot": "Числа аудитории",
+        "count": 2
+      },
+      {
+        "slot": "Обоснования",
+        "count": 3
+      },
+      {
+        "slot": "Действия или решения",
+        "count": 2
+      },
+      {
+        "slot": "Эффекты",
+        "count": 1
+      }
+    ],
+    "graphicRole": "Два сегмента аудитории остаются на прежнем месте. Действия раскрыты названиями решений и примерами их применения.",
+    "substitution": "Параллельные страницы предполагают общую структуру сегментов. Связь с моделью подписки переноси только при подтверждении.",
+    "relatedGallery": [
+      {
+        "name": "methodNotes",
+        "source": "../../components/gallery-textops.js"
+      },
+      {
+        "name": "nextStepsText",
+        "source": "../../components/gallery-textops.js"
+      }
+    ],
+    "componentNumbers": [
+      9
+    ],
+    "preview": "previews/11.jpg",
+    "sourcePdfPage": 11,
+    "pageWidthPx": 1920,
+    "pageHeightPx": 1080
+  },
+  {
+    "page": 12,
+    "nodeId": "1:5277",
+    "frame": "17",
+    "section": "1:5111",
+    "sectionName": "НЕЙРООФИС СТРАТЕГИЯ 2026 согласованная версия",
+    "sourceTitle": "ТОП-инициативы · Copilot",
+    "textLayers": 31,
+    "visibleNodes": 72,
+    "figmaUrl": "https://www.figma.com/design/ciTiuNhnWFk5sQuTxQAV8Y/Untitled?node-id=1-5277",
+    "descriptor": "Разбор инициативы с несколькими сценариями",
+    "question": "Какие роли и сценарии должен покрыть новый помощник?",
+    "composition": "Слева неизменный список из шести инициатив. Активная строка занимает позицию 4. Справа сверху показана аудитория, ниже последовательно идут обоснование, действия и эффект.",
+    "fields": [
+      {
+        "slot": "Позиции в списке",
+        "count": 6
+      },
+      {
+        "slot": "Числа аудитории",
+        "count": 2
+      },
+      {
+        "slot": "Обоснования",
+        "count": 3
+      },
+      {
+        "slot": "Действия или решения",
+        "count": 3
+      },
+      {
+        "slot": "Эффекты",
+        "count": 1
+      }
+    ],
+    "graphicRole": "Аудитория сохраняет тот же масштаб, дополнительное место отдано третьему действию.",
+    "substitution": "Проверь, что заголовки сценариев различимы без длинных пояснений. Если каждому нужна собственная история, разведи её по страницам.",
+    "relatedGallery": [
+      {
+        "name": "methodNotes",
+        "source": "../../components/gallery-textops.js"
+      },
+      {
+        "name": "nextStepsText",
+        "source": "../../components/gallery-textops.js"
+      }
+    ],
+    "componentNumbers": [
+      9
+    ],
+    "preview": "previews/12.jpg",
+    "sourcePdfPage": 12,
+    "pageWidthPx": 1920,
+    "pageHeightPx": 1080
+  },
+  {
+    "page": 13,
+    "nodeId": "1:5190",
+    "frame": "18",
+    "section": "1:5111",
+    "sectionName": "НЕЙРООФИС СТРАТЕГИЯ 2026 согласованная версия",
+    "sourceTitle": "ТОП-инициативы · подписки",
+    "textLayers": 35,
+    "visibleNodes": 76,
+    "figmaUrl": "https://www.figma.com/design/ciTiuNhnWFk5sQuTxQAV8Y/Untitled?node-id=1-5190",
+    "descriptor": "Разбор инициативы с измеримым эффектом",
+    "question": "Как расширение подписки должно сказаться на доходе и числе пользователей?",
+    "composition": "Слева неизменный список из шести инициатив. Активная строка занимает позицию 5. Справа сверху показана аудитория, ниже последовательно идут обоснование, действия и эффект.",
+    "fields": [
+      {
+        "slot": "Позиции в списке",
+        "count": 6
+      },
+      {
+        "slot": "Числа аудитории",
+        "count": 2
+      },
+      {
+        "slot": "Обоснования",
+        "count": 2
+      },
+      {
+        "slot": "Действия или решения",
+        "count": 3
+      },
+      {
+        "slot": "Эффекты",
+        "count": 2
+      }
+    ],
+    "graphicRole": "Два крупных числа в нижней зоне заменяют короткий статус предыдущих страниц. Каждое число снабжено собственной единицей.",
+    "substitution": "Наличие двух разных эффектов здесь определяет композицию. Если эффект один, не заводи второе число ради симметрии.",
+    "relatedGallery": [
+      {
+        "name": "methodNotes",
+        "source": "../../components/gallery-textops.js"
+      },
+      {
+        "name": "kpiList",
+        "source": "../../components/gallery.js"
+      }
+    ],
+    "componentNumbers": [
+      9
+    ],
+    "preview": "previews/13.jpg",
+    "sourcePdfPage": 13,
+    "pageWidthPx": 1920,
+    "pageHeightPx": 1080
+  },
+  {
+    "page": 14,
+    "nodeId": "1:5112",
+    "frame": "19",
+    "section": "1:5111",
+    "sectionName": "НЕЙРООФИС СТРАТЕГИЯ 2026 согласованная версия",
+    "sourceTitle": "Extra 2027–2028",
+    "textLayers": 33,
+    "visibleNodes": 67,
+    "figmaUrl": "https://www.figma.com/design/ciTiuNhnWFk5sQuTxQAV8Y/Untitled?node-id=1-5112",
+    "descriptor": "Разбор выхода за пределы текущей аудитории",
+    "question": "Какой внешний сегмент доступен и что нужно сделать для выхода?",
+    "composition": "Слева неизменный список из шести инициатив. Активная строка занимает позицию 6. Справа сверху показана аудитория, ниже последовательно идут обоснование, действия и эффект.",
+    "fields": [
+      {
+        "slot": "Позиции в списке",
+        "count": 6
+      },
+      {
+        "slot": "Числа аудитории",
+        "count": 1
+      },
+      {
+        "slot": "Обоснования",
+        "count": 3
+      },
+      {
+        "slot": "Действия или решения",
+        "count": 2
+      },
+      {
+        "slot": "Эффекты",
+        "count": 2
+      }
+    ],
+    "graphicRole": "Вместо пары колец показан один внешний сегмент. Оранжевая метка и тон заголовка связывают страницу с дополнительным направлением.",
+    "substitution": "Цифра внешнего рынка нуждается в самостоятельном источнике. Не подставляй базу действующих клиентов вместо размера доступной аудитории.",
+    "relatedGallery": [
+      {
+        "name": "methodNotes",
+        "source": "../../components/gallery-textops.js"
+      },
+      {
+        "name": "kpiList",
+        "source": "../../components/gallery.js"
+      }
+    ],
+    "componentNumbers": [
+      9
+    ],
+    "preview": "previews/14.jpg",
+    "sourcePdfPage": 14,
+    "pageWidthPx": 1920,
+    "pageHeightPx": 1080
+  },
+  {
+    "page": 15,
+    "nodeId": "15:5072",
+    "frame": "82987",
+    "section": "15:483",
+    "sectionName": "КРБ 2026",
+    "sourceTitle": "Нефинансовые сервисы · Отчёт и планы",
+    "textLayers": 5,
+    "visibleNodes": 12,
+    "figmaUrl": "https://www.figma.com/design/ciTiuNhnWFk5sQuTxQAV8Y/Untitled?node-id=15-5072",
+    "descriptor": "Обложка отчётного раздела",
+    "question": "Какой клиентский путь рассматривает отчёт и за какой период?",
+    "composition": "На красном поле сверху слева стоит название клиентского пути. Крупное название отчёта занимает среднюю часть. Два коротких поля у нижнего левого края сообщают автора и дату.",
+    "fields": [
+      {
+        "slot": "Название клиентского пути",
+        "count": 1
+      },
+      {
+        "slot": "Тема и периоды отчёта",
+        "count": 1
+      },
+      {
+        "slot": "Автор",
+        "count": 1
+      },
+      {
+        "slot": "Дата",
+        "count": 1
+      }
+    ],
+    "graphicRole": "Работают цвет поля, масштаб букв и расстояние между тремя текстовыми зонами.",
+    "substitution": "Подходит для открытия самостоятельного раздела. Предусмотри короткую текстовую формулировку: длинное описание занимает место темы.",
+    "relatedGallery": [
+      {
+        "name": "sectionDivider",
+        "source": "../../components/gallery-textcore.js"
+      },
+      {
+        "name": "cover",
+        "source": "../../templates/deck-starter/slides.js"
+      }
+    ],
+    "componentNumbers": [],
+    "preview": "previews/15.jpg",
+    "sourcePdfPage": 15,
+    "pageWidthPx": 1920,
+    "pageHeightPx": 1080
+  },
+  {
+    "page": 16,
+    "nodeId": "15:4961",
+    "frame": "82986",
+    "section": "15:483",
+    "sectionName": "КРБ 2026",
+    "sourceTitle": "Анализ рынка: ключевые факторы влияния",
+    "textLayers": 46,
+    "visibleNodes": 111,
+    "figmaUrl": "https://www.figma.com/design/ciTiuNhnWFk5sQuTxQAV8Y/Untitled?node-id=15-4961",
+    "descriptor": "Фактор рынка, свидетельство и действие",
+    "question": "Какое наблюдение подтверждает фактор и чем отвечает команда?",
+    "composition": "Три поперечные полосы читаются слева направо. Слева фактор, в центре график или пара чисел, справа ответ команды. Источники вынесены вниз.",
+    "fields": [
+      {
+        "slot": "Факторы",
+        "count": 3
+      },
+      {
+        "slot": "Ответные действия по строкам",
+        "count": 3
+      },
+      {
+        "slot": "Доказательства в центральной колонке",
+        "count": 3
+      },
+      {
+        "slot": "График в первой строке",
+        "count": 1
+      },
+      {
+        "slot": "Пары чисел во второй и третьей строках",
+        "count": 2
+      }
+    ],
+    "graphicRole": "Разный вид доказательства подчинён общей горизонтали. Цвет заголовка отмечает колонку реакции.",
+    "substitution": "Сохрани соответствие один к одному между фактором и ответом. Если источник не подтверждает наблюдение, заменяй данные или сам вывод.",
+    "relatedGallery": [
+      {
+        "name": "causeEffect",
+        "source": "../../components/gallery-exchange.js"
+      },
+      {
+        "name": "executiveSummary",
+        "source": "../../components/gallery-textcore.js"
+      }
+    ],
+    "componentNumbers": [
+      10,
+      11
+    ],
+    "preview": "previews/16.jpg",
+    "sourcePdfPage": 16,
+    "pageWidthPx": 1920,
+    "pageHeightPx": 1080
+  },
+  {
+    "page": 17,
+    "nodeId": "15:4620",
+    "frame": "82985",
+    "section": "15:483",
+    "sectionName": "КРБ 2026",
+    "sourceTitle": "Конкурируем на равных с ТОП-банками",
+    "textLayers": 30,
+    "visibleNodes": 341,
+    "figmaUrl": "https://www.figma.com/design/ciTiuNhnWFk5sQuTxQAV8Y/Untitled?node-id=15-4620",
+    "descriptor": "Конкурентный обзор с пояснением по каждой строке",
+    "question": "В каких сервисах есть различия между участниками рынка?",
+    "composition": "Критерий и пояснение занимают левую часть каждой строки. Справа единая матрица статусов по шести участникам. Под таблицей разделены легенда и вывод исследования.",
+    "fields": [
+      {
+        "slot": "Сервисы или критерии",
+        "count": 11
+      },
+      {
+        "slot": "Пояснения по строкам",
+        "count": 11
+      },
+      {
+        "slot": "Сравниваемые участники",
+        "count": 6
+      },
+      {
+        "slot": "Обозначения в легенде",
+        "count": 4
+      },
+      {
+        "slot": "Вывод с атрибуцией",
+        "count": 1
+      }
+    ],
+    "graphicRole": "Логотипы обозначают колонки, цветные значки сообщают тип решения. Один столбец выделен на всю высоту для сравнения.",
+    "substitution": "Определи одно правило оценки для всей матрицы, дай источники. При сравнении по меньшему числу признаков используй более крупную таблицу.",
+    "relatedGallery": [
+      {
+        "name": "featureDots",
+        "source": "../../components/gallery-product.js"
+      },
+      {
+        "name": "comparison",
+        "source": "../../components/gallery.js"
+      }
+    ],
+    "componentNumbers": [],
+    "preview": "previews/17.jpg",
+    "sourcePdfPage": 17,
+    "pageWidthPx": 1920,
+    "pageHeightPx": 1080
+  },
+  {
+    "page": 18,
+    "nodeId": "15:4453",
+    "frame": "82984",
+    "section": "15:483",
+    "sectionName": "КРБ 2026",
+    "sourceTitle": "Ключевые метрики",
+    "textLayers": 74,
+    "visibleNodes": 167,
+    "figmaUrl": "https://www.figma.com/design/ciTiuNhnWFk5sQuTxQAV8Y/Untitled?node-id=15-4453",
+    "descriptor": "Динамика дохода и состав клиентской базы",
+    "question": "Как меняется доход и за счёт каких сегментов растёт база?",
+    "composition": "Два графика одного временного горизонта занимают равные поля. Слева отдельные столбцы дохода, между соседними периодами подписан прирост. Справа состав базы разбит на сегменты.",
+    "fields": [
+      {
+        "slot": "Периоды в каждой серии",
+        "count": 5
+      },
+      {
+        "slot": "Значения дохода",
+        "count": 5
+      },
+      {
+        "slot": "Изменения между периодами",
+        "count": 4
+      },
+      {
+        "slot": "Клиентские сегменты в составе базы",
+        "count": 3
+      },
+      {
+        "slot": "Общее число клиентов по периоду",
+        "count": 5
+      }
+    ],
+    "graphicRole": "Чёрный и красный различают историю и текущую оценку в левом графике. В правом оттенки обозначают сегменты; подписи поясняют доли.",
+    "substitution": "У графиков разные единицы. Сохрани отдельные заголовки и обозначения. Перед выводом проверь итоги, доли и статус последнего периода.",
+    "relatedGallery": [
+      {
+        "name": "barsTrend",
+        "source": "../../components/gallery.js"
+      },
+      {
+        "name": "stackedColumns",
+        "source": "../../components/gallery-market.js"
+      }
+    ],
+    "componentNumbers": [],
+    "preview": "previews/18.jpg",
+    "sourcePdfPage": 18,
+    "pageWidthPx": 1920,
+    "pageHeightPx": 1080
+  },
+  {
+    "page": 19,
+    "nodeId": "15:4001",
+    "frame": "82982",
+    "section": "15:483",
+    "sectionName": "КРБ 2026",
+    "sourceTitle": "Ключевые атрибуты Клиентского пути на 2026 год",
+    "textLayers": 85,
+    "visibleNodes": 357,
+    "figmaUrl": "https://www.figma.com/design/ciTiuNhnWFk5sQuTxQAV8Y/Untitled?node-id=15-4001",
+    "descriptor": "Паспорт годового плана с квартальным контролем",
+    "question": "Какие задачи, ресурсы и метрики зафиксированы на год?",
+    "composition": "Левая колонка соединяет приоритеты и таблицу ресурсов. Правая раскрывает взвешенные КПЭ по кварталам. Красная строка завершает расчёт, ниже показаны дополнительные контрольные величины.",
+    "fields": [
+      {
+        "slot": "Ключевые приоритеты",
+        "count": 5
+      },
+      {
+        "slot": "Блок ресурсов с датой",
+        "count": 1
+      },
+      {
+        "slot": "КПЭ с весами",
+        "count": 5
+      },
+      {
+        "slot": "Квартальные колонки",
+        "count": 4
+      },
+      {
+        "slot": "Итог и дополнительные контрольные показатели",
+        "count": 3
+      }
+    ],
+    "graphicRole": "Короткие парные столбцы помещены прямо в клетки таблицы; цвет связан с легендой план / факт.",
+    "substitution": "Не рисуй факт для будущего квартала. Сохраняй вес у своей строки, дату ресурсов и единую методику расчёта итогового показателя.",
+    "relatedGallery": [
+      {
+        "name": "tableEditorial",
+        "source": "../../components/gallery.js"
+      },
+      {
+        "name": "pairedColumns",
+        "source": "../../components/gallery-progress.js"
+      }
+    ],
+    "componentNumbers": [
+      12,
+      13
+    ],
+    "preview": "previews/19.jpg",
+    "sourcePdfPage": 19,
+    "pageWidthPx": 1920,
+    "pageHeightPx": 1080
+  },
+  {
+    "page": 20,
+    "nodeId": "15:3631",
+    "frame": "82980",
+    "section": "15:483",
+    "sectionName": "КРБ 2026",
+    "sourceTitle": "Дисциплина поручений",
+    "textLayers": 44,
+    "visibleNodes": 105,
+    "figmaUrl": "https://www.figma.com/design/ciTiuNhnWFk5sQuTxQAV8Y/Untitled?node-id=15-3631",
+    "descriptor": "Исходное поручение и основание для закрытия",
+    "question": "Что было поручено и чем подтверждено исполнение?",
+    "composition": "Слева дословная постановка поручения и вывод об исполнении. Справа график динамики клиентской базы с данными по сегментам, сравниваемыми со значениями плана и амбиции.",
+    "fields": [
+      {
+        "slot": "Формулировка поручения",
+        "count": 1
+      },
+      {
+        "slot": "Решение об исполнении",
+        "count": 1
+      },
+      {
+        "slot": "Сравниваемые годы",
+        "count": 2
+      },
+      {
+        "slot": "Клиентские сегменты",
+        "count": 3
+      },
+      {
+        "slot": "Статусы сравнения: план, амбиция, факт",
+        "count": 3
+      }
+    ],
+    "graphicRole": "Изображение с галочкой сопровождает принятое решение. Проверка обеспечена числами в правой половине.",
+    "substitution": "Сохрани в тексте поручения адресата и критерий исполнения. Раскрой различие между планом и амбицией в сноске.",
+    "relatedGallery": [
+      {
+        "name": "askStatement",
+        "source": "../../components/gallery-textops.js"
+      },
+      {
+        "name": "stackedColumns",
+        "source": "../../components/gallery-market.js"
+      }
+    ],
+    "componentNumbers": [],
+    "preview": "previews/20.jpg",
+    "sourcePdfPage": 20,
+    "pageWidthPx": 1920,
+    "pageHeightPx": 1080
+  },
+  {
+    "page": 21,
+    "nodeId": "15:3233",
+    "frame": "82977",
+    "section": "15:483",
+    "sectionName": "КРБ 2026",
+    "sourceTitle": "Отчёт о реализации Клиентского пути в 2025",
+    "textLayers": 94,
+    "visibleNodes": 371,
+    "figmaUrl": "https://www.figma.com/design/ciTiuNhnWFk5sQuTxQAV8Y/Untitled?node-id=15-3233",
+    "descriptor": "Отчёт о выполнении с заключением спонсора",
+    "question": "Что выполнено за период и как это подтвердил руководитель?",
+    "composition": "Левая половина объединяет достижения и итоговые ресурсы. Справа квартальная таблица показывает исполнение КПЭ, ниже расположены итоговая строка и заключение спонсора.",
+    "fields": [
+      {
+        "slot": "Достижения",
+        "count": 3
+      },
+      {
+        "slot": "Блок ресурсов на конец года",
+        "count": 1
+      },
+      {
+        "slot": "КПЭ с весами",
+        "count": 5
+      },
+      {
+        "slot": "Квартальные колонки",
+        "count": 4
+      },
+      {
+        "slot": "Итоговая величина",
+        "count": 1
+      },
+      {
+        "slot": "Заключение спонсора с авторством",
+        "count": 1
+      }
+    ],
+    "graphicRole": "Пиктограммы отмечают достижения. Соседние столбцы внутри каждой ячейки позволяют сравнить план с фактом.",
+    "substitution": "Для переноса нужны проверенные квартальные данные, методика взвешивания и согласованная формулировка заключения с авторством.",
+    "relatedGallery": [
+      {
+        "name": "tableEditorial",
+        "source": "../../components/gallery.js"
+      },
+      {
+        "name": "weeklyHighlights",
+        "source": "../../components/gallery-progress.js"
+      }
+    ],
+    "componentNumbers": [
+      12,
+      13,
+      14
+    ],
+    "preview": "previews/21.jpg",
+    "sourcePdfPage": 21,
+    "pageWidthPx": 1920,
+    "pageHeightPx": 1080
+  }
+]

@@ -41,6 +41,7 @@ cat > "$S/scripts/setup.sh" <<'EOF'
 # заглушка setup.sh: без сети; падает, если в релизе есть BROKEN_DEP (несовместимая зависимость)
 set -e
 SKILL="${0:A:h:h}"
+[[ " $* " == *" --no-mcp "* ]] || { echo "Updater must not add MCP servers to other clients"; exit 1; }
 echo "setup $SKILL" >> "$PDS_TEST_LOG"
 [ ! -f "$SKILL/BROKEN_DEP" ] || { echo "несовместимая зависимость"; exit 1; }
 mkdir -p "$SKILL/.venv/bin" "$SKILL/learnings"

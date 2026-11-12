@@ -50,7 +50,7 @@ with tempfile.TemporaryDirectory(prefix='pitch installers ') as directory:
     env = dict(os.environ, PATH=str(stub) + os.pathsep + os.environ['PATH'], PYTHONOPTIMIZE='1')
     for mode, name in [('full', 'pitch-deck-skill — установка (с Magic-MCP).md'), ('lite', 'pitch-deck-skill — установка (без Magic-MCP).md')]:
         file = dist / name
-        for client, folder in [('codex', '.agents'), ('claude', '.claude')]:
+        for client, folder in [('codex', '.agents'), ('claude', '.claude'), ('zcode', '.zcode')]:
             target = root / (mode + '-' + client) / folder / 'skills/pitch-deck-skill'
             log = root / (mode + '-' + client + '.log')
             env['PITCH_SETUP_LOG'] = str(log)
@@ -64,6 +64,10 @@ with tempfile.TemporaryDirectory(prefix='pitch installers ') as directory:
             assert len(rows) >= 100
             assert len({x['file'] for x in rows}) == len(list((target / 'components').glob('gallery*.js')))
             assert all((target / x['file']).is_file() for x in rows)
+            rows200=json.loads(subprocess.check_output([sys.executable,'-I',str(target/'scripts/gallery_index.py'),'--library','alfa200','--json'],cwd=root,text=True))
+            assert len(rows200)==200 and all((target/x['preview']).is_file() for x in rows200)
+            assert (target/'reference/library-200/source/collection200.js').is_file()
+            assert not list((target/'reference/library-200').rglob('*.otf'))
             assert log.read_text().splitlines() == [str(target / 'scripts/setup.sh'), '--mode', mode, '--no-mcp', '--selftest']
             sentinel = target / 'config.json'
             sentinel.write_bytes(b'preserve existing settings')

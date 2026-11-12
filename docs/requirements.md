@@ -1,6 +1,6 @@
 # Программы и зависимости
 
-Нужен локальный Codex или Claude Code с доступом к терминалу и папке скилла. Установка рассчитана на macOS и Linux; нативная Windows не поддерживается.
+Нужен локальный Codex, Claude Code или ZCode Agent с доступом к терминалу и папке скилла. Установка рассчитана на macOS и Linux; нативная Windows не поддерживается.
 
 | Программа | Для чего нужна |
 |---|---|
@@ -34,4 +34,4 @@ zsh /путь/к/pitch-deck-skill/scripts/doctor.sh
 
 Setup создаёт собственное Python-окружение и устанавливает пакеты по lock-файлам. Для этого нужен доступ к npm, PyPI и публичным ресурсам демо. PowerPoint или LibreOffice нужны только для дополнительной проверки PPTX в целевом приложении.
 
-[Установка в Codex](install-codex.md) · [Установка в Claude Code](install-claude-code.md)
+[Установка в Codex](install-codex.md) · [Установка в Claude Code](install-claude-code.md) · [Установка в ZCode](install-zcode.md)

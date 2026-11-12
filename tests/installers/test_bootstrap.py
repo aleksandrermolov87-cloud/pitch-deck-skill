@@ -24,7 +24,7 @@ with tempfile.TemporaryDirectory(prefix='pitch bootstrap ') as directory:
     bin=base/'bin';bin.mkdir();curl=bin/'curl'
     curl.write_text('#!/bin/sh\nprintf \'{"tag_name":"v9.9.9"}\\n\'\n');curl.chmod(0o755)
     env=dict(os.environ,PATH=str(bin)+os.pathsep+os.environ['PATH'],PITCH_BOOTSTRAP_MARKER=str(marker))
-    for client in ['codex','claude-code']:
+    for client in ['codex','claude-code','zcode']:
         text=(ROOT/'docs'/('install-'+client+'.md')).read_text()
         script=re.search(r'```bash\n(.*?)\n```',text,re.S).group(1)
         target=base/client/'skill'
@@ -46,7 +46,7 @@ with tempfile.TemporaryDirectory(prefix='pitch bootstrap ') as directory:
     run(['git','add','-A'],repo);run(['git','commit','-qm','Injected signer'],repo)
     run(['git','-c','user.signingkey='+str(attacker),'tag','-s','v9.9.8','-m','Attacker fixture'],repo)
     curl.write_text('#!/bin/sh\nprintf \'{"tag_name":"v9.9.8"}\\n\'\n')
-    for client in ['codex','claude-code']:
+    for client in ['codex','claude-code','zcode']:
         text=(ROOT/'docs'/('install-'+client+'.md')).read_text()
         script=re.search(r'```bash\n(.*?)\n```',text,re.S).group(1)
         target=base/(client+'-injected')/'skill'

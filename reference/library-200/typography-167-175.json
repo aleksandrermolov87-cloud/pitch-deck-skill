@@ -1,0 +1,74 @@
+{
+  "unit": "px at 1920×1080; PowerPoint pt = px/2",
+  "font": "Styrene A LC Regular/Bold",
+  "slides": {
+    "167": {
+      "context": 54,
+      "cause": 65,
+      "consequence": 48,
+      "action": 58,
+      "explanation": [
+        34,
+        31
+      ]
+    },
+    "168": {
+      "context": 54,
+      "comparisonLabels": 29,
+      "objection": 48,
+      "answer": 36
+    },
+    "169": {
+      "context": 38,
+      "statementParts": [
+        62,
+        88,
+        64
+      ],
+      "asideHeading": 34,
+      "asideBody": 31,
+      "note": 25
+    },
+    "170": {
+      "lead": 77,
+      "bodyHeading": 43,
+      "body": 35,
+      "change": "retained"
+    },
+    "171": {
+      "context": 54,
+      "ruleLead": 67,
+      "constraintPeak": 116,
+      "condition": 63,
+      "lowerHeading": 40,
+      "lowerBody": 34
+    },
+    "172": {
+      "context": 52,
+      "peerTerms": 88,
+      "definitions": 34,
+      "childHeading": 42,
+      "childBody": 30
+    },
+    "173": {
+      "context": 50,
+      "primaryQuestion": 90,
+      "primaryAnswer": 34,
+      "faqQuestion": 35,
+      "faqAnswer": 31
+    },
+    "174": {
+      "context": 54,
+      "peerStages": 60,
+      "activeStage": 82,
+      "body": 36,
+      "conclusion": 44
+    },
+    "175": {
+      "context": 54,
+      "processLabels": 32,
+      "conditions": 50,
+      "actions": 42
+    }
+  }
+}

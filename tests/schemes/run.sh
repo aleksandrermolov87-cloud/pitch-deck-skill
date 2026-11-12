@@ -7,6 +7,7 @@ T=$(mktemp -d "${TMPDIR:-/tmp}/pds-schemes.XXXXXX"); trap 'rm -rf "$T"' EXIT
 fail=0
 ok()  { print -P "  %F{green}✓%f $1"; }
 bad() { print -P "  %F{red}✗%f $1"; fail=1; }
+node "$FIX/back_edge.js" || fail=1
 cd "$T"
 
 "$PY" -I "$SKILL/scripts/viz_suggest.py" brief "$FIX/brief.md" --json --emit viz > sug.json

@@ -65,7 +65,7 @@ if [ $ROLLBACK = 1 ]; then
   mv "$SKILL" "$AWAY" || { echo "Не удалось переименовать папку скилла, ничего не изменено"; exit 1; }
   if ! mv "$B" "$SKILL"; then mv "$AWAY" "$SKILL"; echo "Не удалось вернуть резервную копию, установка не тронута"; exit 1; fi
   echo "Откат выполнен: стоит $(ver "$SKILL"). Версия, с которой откатились: $AWAY (повторный --rollback --yes вернёт её)"
-  echo "Откройте новую сессию Claude Code, чтобы скилл перечитался"
+  echo "Откройте новую сессию клиента, чтобы скилл перечитался"
   exit 0
 fi
 
@@ -151,7 +151,7 @@ if [ ! -d .git ]; then
   relocate "$STAGE" "$SKILL" "$STAGE"
 
   echo "\nУстановка зависимостей и проверка в промежуточной папке"
-  zsh "$STAGE/scripts/setup.sh" || { echo "setup.sh релиза $NEW не прошёл. Установка не тронута: $SKILL"; exit 1; }
+  zsh "$STAGE/scripts/setup.sh" --no-mcp || { echo "setup.sh релиза $NEW не прошёл. Установка не тронута: $SKILL"; exit 1; }
   quick() {
     [ "$(ver "$STAGE")" = "$NEW" ] && [ -f "$STAGE/SKILL.md" ] || { echo "  в релизе нет SKILL.md или VERSION"; return 1; }
     if [ -f "$STAGE/config.json" ] && command -v node >/dev/null; then
@@ -170,7 +170,7 @@ if [ ! -d .git ]; then
   STAGE=""
   relocate "$SKILL" "$STAGED" "$SKILL"
   echo "обновлено до $NEW. Прежняя версия сохранена: $BACKUP"
-  echo "Откат: zsh $SKILL/scripts/update.sh --rollback --yes. Откройте новую сессию Claude Code, чтобы скилл перечитался"
+  echo "Откат: zsh $SKILL/scripts/update.sh --rollback --yes. Откройте новую сессию клиента, чтобы скилл перечитался"
   exit 0
 fi
 
@@ -205,5 +205,5 @@ if [ $YES = 0 ]; then
   exit 2
 fi
 git -c advice.detachedHead=false checkout --detach --quiet "refs/tags/$NEW"
-zsh "$SKILL/scripts/setup.sh"
-echo "обновлено до $NEW. Откройте новую сессию Claude Code, чтобы скилл перечитался"
+zsh "$SKILL/scripts/setup.sh" --no-mcp
+echo "обновлено до $NEW. Откройте новую сессию клиента, чтобы скилл перечитался"

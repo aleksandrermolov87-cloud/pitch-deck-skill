@@ -536,7 +536,11 @@ let depth=0, cur=null;
 const ch=L.chrome; L.chrome=function(o){ if(cur&&!cur.head) cur.head={title:Array.isArray(o.title)?o.title.map(r=>r.t).join(''):(o.title||''), sub:o.sub||'', source:o.source||''}; return ch.apply(this,arguments); };
 for(const k of names){ const f=K[k]; K[k]=function(...a){ if(depth===0&&cur) cur.calls.push({name:k, box:a[0]||null, data:a[1], opt:a[2]||{}}); depth++; try{return f.apply(this,a)} finally{depth--} }; }
 const {S}=require(path.resolve('slides.js')); L.PAGE.total=S.length; const res=[];
-S.forEach((fn,i)=>{ L.PAGE.n=i+1; cur={n:i+1, fn:fn.name, calls:[]}; try{ const sl=fn(); cur.bg=sl.bg||null; cur.archetype=sl.archetype||fn.name; cur.custom=sl.custom||null; }catch(e){ cur.error=String(e.message).split('\n')[0]; } res.push(cur); cur=null; });
+S.forEach((fn,i)=>{ L.PAGE.n=i+1; cur={n:i+1, fn:fn.name, calls:[]}; try{ const sl=fn(); cur.bg=sl.bg||null; cur.archetype=sl.archetype||fn.name; cur.custom=sl.custom||null;
+  // The build manifest uses this same explicit title marker, including custom headers.
+  const title=(sl.els||[]).find(e=>e&&e.t==='text'&&/-title$/.test(e.id||''));
+  if(title&&(!cur.head||!cur.head.title)) cur.head={...(cur.head||{}),title:(title.runs||[]).map(r=>r.t||'').join('')};
+ }catch(e){ cur.error=String(e.message).split('\n')[0]; } res.push(cur); cur=null; });
 fs.writeFileSync(out, JSON.stringify({components:names, slides:res}));
 """
 
