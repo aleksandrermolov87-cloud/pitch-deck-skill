@@ -202,4 +202,3 @@ function DiffResizer({ className, ...props }: React.ComponentProps<"div">) {
 
 export { Diff, DiffItem1, DiffItem2, DiffResizer };
 export default Diff;
-

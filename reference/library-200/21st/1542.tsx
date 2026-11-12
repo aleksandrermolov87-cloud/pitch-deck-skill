@@ -77,4 +77,3 @@ export function Iphone16Pro({
     </svg>
   );
 }
-
