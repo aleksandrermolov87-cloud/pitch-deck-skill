@@ -26,3 +26,7 @@ learnings/prefs.json
 .acceptance/
 .build/
 learnings/evals.jsonl
+
+# Ignore dependency environments even when they are symlinks
+.venv
+node_modules
